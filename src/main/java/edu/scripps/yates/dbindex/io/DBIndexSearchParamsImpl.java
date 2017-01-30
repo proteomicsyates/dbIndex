@@ -3,6 +3,7 @@ package edu.scripps.yates.dbindex.io;
 import edu.scripps.yates.dbindex.DBIndexer.IndexType;
 import edu.scripps.yates.dbindex.model.Enzyme;
 import edu.scripps.yates.dbindex.util.IndexUtil;
+import edu.scripps.yates.dbindex.util.PeptideFilter;
 
 public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 	private IndexType indexType;
@@ -34,11 +35,13 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 	private String protDBCollection;
 	private boolean usingMongoDB;
 	private boolean semiCleavage;
+	private PeptideFilter peptideFilter;
 
 	public DBIndexSearchParamsImpl(IndexType indexType, boolean inMemoryIndex, int indexFactor, String dataBaseName,
 			int maxMissedCleavages, double maxPrecursorMass, double minPrecursorMass, boolean useIndex,
 			String enzymeNocutResidues, String enzymeResidues, int enzymeOffset, boolean isUseMonoParent,
-			boolean isH2OPlusProtonAdded, int massGroupFactor, char[] mandatoryInternalAAs, boolean semiCleavage) {
+			boolean isH2OPlusProtonAdded, int massGroupFactor, char[] mandatoryInternalAAs, boolean semiCleavage,
+			PeptideFilter peptideFilter) {
 		this.indexType = indexType;
 		this.inMemoryIndex = inMemoryIndex;
 		this.indexFactor = indexFactor;
@@ -60,11 +63,12 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 		this.isH2OPlusProtonAdded = isH2OPlusProtonAdded;
 		this.massGroupFactor = massGroupFactor;
 		this.mandatoryInternalAAs = mandatoryInternalAAs;
+		this.peptideFilter = peptideFilter;
 
 	}
 
 	public DBIndexSearchParamsImpl(String mongoDBURI, String mongoMassDBName, String mongoSeqDBName,
-			String mongoProtDBName) {
+			String mongoProtDBName, PeptideFilter peptideFilter) {
 		this.mongoDBURI = mongoDBURI;
 		usingMongoDB = mongoMassDBName != null && mongoDBURI != null;
 		usingProtDB = mongoProtDBName != null;
@@ -77,6 +81,7 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 		massDBName = massDBCollection;
 		indexType = IndexType.INDEX_LARGE;
 		useIndex = true;
+		this.peptideFilter = peptideFilter;
 	}
 
 	@Override
@@ -283,10 +288,10 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 	 * @param enzymeArr
 	 *            the enzymeArr to set
 	 */
-	public void setEnzymeArr(char[] enzymeArr, int maxMissedCleavages, boolean missCleave) {
+	public void setEnzymeArr(char[] enzymeArr, int maxMissedCleavages, boolean semiCleave) {
 		if (enzymeArr.length > 0) {
 			this.enzymeArr = enzymeArr;
-			enzyme = new Enzyme(enzymeArr, maxMissedCleavages, missCleave);
+			enzyme = new Enzyme(enzymeArr, maxMissedCleavages, semiCleave);
 			this.maxMissedCleavages = maxMissedCleavages;
 
 			enzymeResidues = "";
@@ -467,6 +472,19 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 	public void setSemiCleavage(boolean semiCleavage) {
 		this.semiCleavage = semiCleavage;
 		enzyme = new Enzyme(enzymeArr, maxMissedCleavages, semiCleavage);
+	}
+
+	@Override
+	public PeptideFilter getPeptideFilter() {
+		return peptideFilter;
+	}
+
+	/**
+	 * @param peptideFilter
+	 *            the peptideFilter to set
+	 */
+	public void setPeptideFilter(PeptideFilter peptideFilter) {
+		this.peptideFilter = peptideFilter;
 	}
 
 }

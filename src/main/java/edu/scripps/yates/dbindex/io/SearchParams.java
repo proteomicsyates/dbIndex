@@ -17,6 +17,7 @@ import edu.scripps.yates.dbindex.DBIndexer;
 import edu.scripps.yates.dbindex.DBIndexer.IndexType;
 import edu.scripps.yates.dbindex.Util;
 import edu.scripps.yates.dbindex.model.Enzyme;
+import edu.scripps.yates.dbindex.util.PeptideFilter;
 
 public class SearchParams implements DBIndexSearchParams {
 
@@ -115,6 +116,7 @@ public class SearchParams implements DBIndexSearchParams {
 	private String protDBCollection;
 	private boolean usingMongoDB;
 	private boolean semiCleavage;
+	private PeptideFilter peptideFilter;
 
 	public static SearchParams getInstance() {
 		if (sparams == null)
@@ -957,5 +959,18 @@ public class SearchParams implements DBIndexSearchParams {
 	@Override
 	public boolean isSemiCleavage() {
 		return semiCleavage;
+	}
+
+	@Override
+	public PeptideFilter getPeptideFilter() {
+		return peptideFilter;
+	}
+
+	/**
+	 * @param peptideFilter
+	 *            the peptideFilter to set
+	 */
+	public void setPeptideFilter(PeptideFilter peptideFilter) {
+		this.peptideFilter = peptideFilter;
 	}
 }

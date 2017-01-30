@@ -24,6 +24,7 @@ import edu.scripps.yates.dbindex.io.SearchParamReader;
 import edu.scripps.yates.dbindex.model.AssignMass;
 import edu.scripps.yates.dbindex.model.Util;
 import edu.scripps.yates.dbindex.util.IndexUtil;
+import edu.scripps.yates.dbindex.util.PeptideFilter;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 
 /**
@@ -77,6 +78,7 @@ public class DBIndexer {
 	private String indexName; // index name that is params-specific
 	private long protNum; // protein number in sequence, starting at 1
 	private ProteinCache proteinCache;
+	private final PeptideFilter peptideFilter;
 	private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(DBIndexer.class);
 	private static final int MAX_SEQ_LENGTH = 10000;
 
@@ -160,6 +162,7 @@ public class DBIndexer {
 		IndexUtil.setNumRowsToLookup(0);
 		this.sparam = sparam;
 		this.mode = mode;
+		peptideFilter = sparam.getPeptideFilter();
 
 		// this.massTolerance = sparam.getRelativePeptideMassTolerance();
 
@@ -279,7 +282,10 @@ public class DBIndexer {
 					final double aaMass = AssignMass.getMass(curIon);
 					precMass = precMass + aaMass;
 					final String peptideSeqString = String.valueOf(Arrays.copyOf(pepSeq, curSeqI));
-
+					if (peptideFilter != null && !peptideFilter.isValid(peptideSeqString)) {
+						logger.debug("Skipping peptide '" + peptideSeqString + "' by filter");
+						break;
+					}
 					if (sparam.getEnzyme().isEnzyme(protSeq.charAt(end))) {
 						intMisCleavageCount++;
 					}

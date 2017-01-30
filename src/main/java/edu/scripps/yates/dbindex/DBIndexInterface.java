@@ -268,7 +268,7 @@ public class DBIndexInterface {
 
 			DBIndexSearchParamsImpl ret = new DBIndexSearchParamsImpl(indexType, inMemoryIndex, indexFactor,
 					dataBaseName, maxMissedCleavages, maxPrecursorMass, minPrecursorMass, useIndex, enzymeNocutResidues,
-					enzymeResidues, enzymeOffset, useMono, isH2OPlusProtonAdded, massGroupFactor, null, false);
+					enzymeResidues, enzymeOffset, useMono, isH2OPlusProtonAdded, massGroupFactor, null, false, null);
 			return ret;
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
@@ -396,7 +396,7 @@ public class DBIndexInterface {
 			DBIndexSearchParamsImpl ret = new DBIndexSearchParamsImpl(indexType, inMemoryIndex, indexFactor,
 					dataBaseName, maxMissedCleavages, maxPrecursorMass, minPrecursorMass, useIndex, enzymeNocutResidues,
 					enzymeResidues, enzymeOffset, useMono, isH2OPlusProtonAdded, massGroupFactor, mandatoryInternalAAs,
-					false);
+					false, null);
 			return ret;
 		} catch (NumberFormatException e) {
 			e.printStackTrace();

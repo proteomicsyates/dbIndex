@@ -85,7 +85,9 @@ public class IndexUtil {
 		uniqueParams.append(params.getMaxMissedCleavages());
 
 		uniqueParams.append(", Static: ").append(SearchParams.getStaticParams());
-
+		if (params.getPeptideFilter() != null) {
+			uniqueParams.append(", pepFilter: ").append(params.getPeptideFilter().toString());
+		}
 		/*
 		 * uniqueParams.append(getMaxNumDiffMod());
 		 * uniqueParams.append("\nMods:"); for (final ModResidue mod :

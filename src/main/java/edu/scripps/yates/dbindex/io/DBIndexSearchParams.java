@@ -2,6 +2,7 @@ package edu.scripps.yates.dbindex.io;
 
 import edu.scripps.yates.dbindex.DBIndexer.IndexType;
 import edu.scripps.yates.dbindex.model.Enzyme;
+import edu.scripps.yates.dbindex.util.PeptideFilter;
 
 public interface DBIndexSearchParams {
 
@@ -84,5 +85,7 @@ public interface DBIndexSearchParams {
 	boolean isUsingMongoDB();
 
 	boolean isSemiCleavage();
+
+	PeptideFilter getPeptideFilter();
 
 }
