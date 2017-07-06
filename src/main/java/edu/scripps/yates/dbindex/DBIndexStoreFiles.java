@@ -15,18 +15,18 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
 import edu.scripps.yates.dbindex.io.Fasta;
 import edu.scripps.yates.dbindex.io.FastaReader;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 /**
  *
@@ -48,10 +48,10 @@ public class DBIndexStoreFiles implements DBIndexStore {
 	private File[] indexFiles;
 	private boolean indexExists;
 	private final String INDEX_DIR_SUFFIX = ".idx2";
-	private Map<Integer, Void> indexedMassKeys; // mass * MAX_FILES_PER_PPM
+	private TIntObjectHashMap<Void> indexedMassKeys; // mass * MAX_FILES_PER_PPM
 	private static double MAX_FILES_PER_PPM = 0.1f; // 10 ppm per file
 	// caches open handles, maps mass key to a handle
-	private final Map<Integer, OutputStream> writerCache = new HashMap<Integer, OutputStream>();
+	private final TIntObjectHashMap<OutputStream> writerCache = new TIntObjectHashMap<OutputStream>();
 	private final static Charset ENCODING = Charset.forName("UTF-8");
 	private final byte[] SEP;
 	private final byte[] NLSEP;
@@ -71,7 +71,7 @@ public class DBIndexStoreFiles implements DBIndexStore {
 		indexExists = indexExists();
 
 		if (indexExists) {
-			indexedMassKeys = new TreeMap<Integer, Void>();
+			indexedMassKeys = new TIntObjectHashMap<Void>();
 			// populate mass keys from files
 			for (File f : indexFiles) {
 				String fName = f.getName();
@@ -122,7 +122,7 @@ public class DBIndexStoreFiles implements DBIndexStore {
 	public void stopAddSeq() throws DBIndexStoreException {
 		logger.log(Level.INFO, "Clearing writer cache");
 
-		for (OutputStream fw : writerCache.values()) {
+		for (OutputStream fw : writerCache.valueCollection()) {
 			try {
 				fw.flush();
 				fw.close();
@@ -263,7 +263,7 @@ public class DBIndexStoreFiles implements DBIndexStore {
 
 			// temp sequences, before merge by unique sequence, for a single
 			// file
-			Map<String, List<IndexedSeqInternal>> temp = new HashMap<String, List<IndexedSeqInternal>>();
+			Map<String, List<IndexedSeqInternal>> temp = new THashMap<String, List<IndexedSeqInternal>>();
 
 			// read all sequences, get the ones with masses in the range
 
@@ -389,7 +389,7 @@ public class DBIndexStoreFiles implements DBIndexStore {
 
 		int size = ranges.size();
 		if (size == 0) {
-			return Collections.<IndexedSequence> emptyList();
+			return Collections.<IndexedSequence>emptyList();
 		} else if (size == 1) {
 			MassRange range1 = ranges.get(0);
 			return getSequences(range1.getPrecMass(), range1.getTolerance());

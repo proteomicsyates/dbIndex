@@ -3,12 +3,9 @@ package edu.scripps.yates.dbindex;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,6 +31,9 @@ import org.apache.lucene.search.Scorer;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
+
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.TIntHashSet;
 
 /**
  *
@@ -473,7 +473,7 @@ public class DBIndexStoreLucene implements DBIndexStore {
 	private class ResultsCollector extends Collector {
 		// to collapse multiple sequences into single one, with multproteins
 
-		private final Map<String, List<IndexedSeqInternal>> temp = new HashMap<String, List<IndexedSeqInternal>>();
+		private final Map<String, List<IndexedSeqInternal>> temp = new THashMap<String, List<IndexedSeqInternal>>();
 		private AtomicReaderContext curReader;
 
 		@Override
@@ -530,14 +530,18 @@ public class DBIndexStoreLucene implements DBIndexStore {
 
 				List<IndexedSeqInternal> sequences = temp.get(pepSeqKey);
 
-				Set<Integer> proteinIds = new HashSet<Integer>();
+				TIntHashSet proteinIds = new TIntHashSet();
 				for (IndexedSeqInternal tempSeq : sequences) {
 					proteinIds.add(tempSeq.proteinId);
 				}
 
 				IndexedSeqInternal firstSeq = sequences.get(0);
 				IndexedSequence mergedSequence = new IndexedSequence(0, firstSeq.mass, pepSeqKey, "", "");
-				mergedSequence.setProteinIds(new ArrayList<Integer>(proteinIds));
+				ArrayList<Integer> proteinIds2 = new ArrayList<Integer>();
+				for (int integer : proteinIds._set) {
+					proteinIds2.add(integer);
+				}
+				mergedSequence.setProteinIds(proteinIds2);
 				// set residues
 				final String protSequence = protCache.getProteinSequence(firstSeq.proteinId);
 				ResidueInfo residues = Util.getResidues(null, firstSeq.offset, firstSeq.length, protSequence);

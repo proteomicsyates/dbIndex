@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +25,7 @@ import edu.scripps.yates.dbindex.model.Util;
 import edu.scripps.yates.dbindex.util.IndexUtil;
 import edu.scripps.yates.dbindex.util.PeptideFilter;
 import edu.scripps.yates.utilities.dates.DatesUtil;
+import gnu.trove.set.hash.THashSet;
 
 /**
  *
@@ -862,7 +862,7 @@ public class DBIndexer {
 	 * @return list of indexed protein objects associated with the sequence
 	 */
 	public Set<IndexedProtein> getProteins(String seq) {
-		Set<IndexedProtein> ret = new HashSet<IndexedProtein>();
+		Set<IndexedProtein> ret = new THashSet<IndexedProtein>();
 		try {
 			if (!sparam.isUsingSeqDB()) {
 				// get the mass of the sequence

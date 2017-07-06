@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +28,7 @@ import org.paukov.combinatorics.ICombinatoricsVector;
 import edu.scripps.yates.dbindex.DBIndexer;
 import edu.scripps.yates.dbindex.model.AssignMass;
 import edu.scripps.yates.dbindex.model.DiffModification;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * @author Robin Park
@@ -624,7 +624,7 @@ public class SearchParamReader {
 				// e.g. diff_search_options = 80.0 ST -18.0 ST 0.0 X
 				// *, #, @
 
-				Set<Double> modShiftSet = new HashSet<Double>();
+				Set<Double> modShiftSet = new THashSet<Double>();
 
 				if (null != getParam("diff_search_options") && !"".equals(getParam("diff_search_options")))
 					for (int i = 0; i < modArr.length; i += 2) {

@@ -1,10 +1,11 @@
 package edu.scripps.yates.dbindex;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import gnu.trove.map.hash.THashMap;
 
 /**
  *
@@ -24,7 +25,7 @@ public class MassRangeFilteringIndex implements DBIndexStore {
 	private int numRanges;
 	private ProteinCache proteinCache;
 	// use set to remove dups
-	private final Map<String, IndexedSequence> matchingSequences = new HashMap<String, IndexedSequence>();
+	private final Map<String, IndexedSequence> matchingSequences = new THashMap<String, IndexedSequence>();
 
 	MassRangeFilteringIndex() {
 	}

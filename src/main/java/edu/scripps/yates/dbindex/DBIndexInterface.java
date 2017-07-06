@@ -2,7 +2,6 @@ package edu.scripps.yates.dbindex;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +16,7 @@ import edu.scripps.yates.dbindex.io.SearchParamReader;
 import edu.scripps.yates.dbindex.io.SearchParams;
 import edu.scripps.yates.dbindex.model.AssignMass;
 import edu.scripps.yates.dbindex.util.PropertiesReader;
+import gnu.trove.map.hash.THashMap;
 
 public class DBIndexInterface {
 	private final static Logger log = Logger.getLogger(DBIndexInterface.class);
@@ -24,9 +24,9 @@ public class DBIndexInterface {
 	private DBIndexer indexer;
 	private static final String PINT_DEVELOPER_ENV_VAR = "PINT_DEVELOPER";
 
-	private final Map<String, Set<IndexedProtein>> proteinsByPeptideSeqs = new HashMap<String, Set<IndexedProtein>>();
-	private final static Map<File, DBIndexInterface> dbIndexByFile = new HashMap<File, DBIndexInterface>();
-	private final static Map<String, DBIndexInterface> dbIndexByParamKey = new HashMap<String, DBIndexInterface>();
+	private final Map<String, Set<IndexedProtein>> proteinsByPeptideSeqs = new THashMap<String, Set<IndexedProtein>>();
+	private final static Map<File, DBIndexInterface> dbIndexByFile = new THashMap<File, DBIndexInterface>();
+	private final static Map<String, DBIndexInterface> dbIndexByParamKey = new THashMap<String, DBIndexInterface>();
 
 	public static DBIndexInterface getByParamFile(File paramFile) {
 		if (dbIndexByFile.containsKey(paramFile)) {

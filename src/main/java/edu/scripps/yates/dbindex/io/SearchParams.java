@@ -95,7 +95,7 @@ public class SearchParams implements DBIndexSearchParams {
 	}
 
 	private List<ModResidue> modList = new ArrayList<ModResidue>();
-	// private Set<double> modShiftSet = new HashSet<double>();
+	// private Set<double> modShiftSet = new THashSet<double>();
 	private List<List<Double>> modGroupList = new ArrayList<List<Double>>();
 	private boolean precursorHighResolution = true;
 

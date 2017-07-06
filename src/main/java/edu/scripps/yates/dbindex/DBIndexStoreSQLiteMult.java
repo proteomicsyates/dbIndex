@@ -2,7 +2,6 @@ package edu.scripps.yates.dbindex;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -10,6 +9,7 @@ import java.util.Set;
 import edu.scripps.yates.dbindex.DBIndexer.IndexerMode;
 import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
 import edu.scripps.yates.dbindex.io.SearchParams;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Using multiple databases to divide index into multiple manageable chunks
@@ -218,7 +218,7 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 		final char[] mandatoryInternalAAs = sparam.getMandatoryInternalAAs();
 		if (mandatoryInternalAAs != null && mandatoryInternalAAs.length > 0) {
 			// to not repeat
-			Set<String> aas = new HashSet<String>();
+			Set<String> aas = new THashSet<String>();
 			for (char mandatoryInternalAAChar : mandatoryInternalAAs) {
 				final String mandatoryInternalAA = String.valueOf(mandatoryInternalAAChar);
 				if (!aas.contains(mandatoryInternalAA)) {

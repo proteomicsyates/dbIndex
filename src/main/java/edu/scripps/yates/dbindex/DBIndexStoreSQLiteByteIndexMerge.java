@@ -6,12 +6,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
 import edu.scripps.yates.dbindex.util.IndexUtil;
+import gnu.trove.map.hash.THashMap;
 
 /**
  * a variation that performs merge at index time instead of merge at search time
@@ -615,7 +615,7 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 		DynByteBuffer seqDataMerged = new DynByteBuffer();
 
 		// to collapse multiple sequences into single one, with multproteins
-		Map<String, List<IndexedSeqInternal>> temp = new HashMap<String, List<IndexedSeqInternal>>();
+		Map<String, List<IndexedSeqInternal>> temp = new THashMap<String, List<IndexedSeqInternal>>();
 
 		int dataLength = seqData.length;
 

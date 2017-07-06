@@ -5,16 +5,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
 import edu.scripps.yates.dbindex.io.SearchParams;
 import edu.scripps.yates.dbindex.util.IndexUtil;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.TIntHashSet;
 
 /**
  * Simple table implementation with: blazmass_sequences integer mass (PRI KEY,
@@ -41,7 +41,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 	// private final DynByteBuffer data[] = new DynByteBuffer[MAX_MASS];
 	// private final DynByteBuffer data[] = new DynByteBuffer[MAX_MASS
 	// * IndexUtil.getMassGroupFactor()];
-	private final Map<Integer, DynByteBuffer> dataMap = new HashMap<Integer, DynByteBuffer>();
+	private final TIntObjectHashMap<DynByteBuffer> dataMap = new TIntObjectHashMap<DynByteBuffer>();
 
 	// we really only need MAX_MASS / NUM_BUCKETS, but need to shift
 
@@ -260,7 +260,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 		// change by Salva 21Nov2014
 		// for (int massKey = 0; massKey < MAX_MASS; ++massKey) {
 		// for (int massKey = 0; massKey < data.length; ++massKey) {
-		for (Integer massKey : dataMap.keySet()) {
+		for (Integer massKey : dataMap.keys()) {
 
 			// see if already in index
 			// change by Salva 21Nov2014
@@ -440,7 +440,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 	private void parseAddPeptideInfo(byte[] data, List<IndexedSequence> toInsert, double minMass, double maxMass) {
 
 		// to collapse multiple sequences into single one, with multproteins
-		Map<String, List<IndexedSeqInternal>> temp = new HashMap<String, List<IndexedSeqInternal>>();
+		Map<String, List<IndexedSeqInternal>> temp = new THashMap<String, List<IndexedSeqInternal>>();
 
 		int dataLength = data.length;
 
@@ -499,14 +499,18 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 
 			List<IndexedSeqInternal> sequences = temp.get(pepSeqKey);
 
-			Set<Integer> proteinIds = new HashSet<Integer>();
+			TIntHashSet proteinIds = new TIntHashSet();
 			for (IndexedSeqInternal tempSeq : sequences) {
 				proteinIds.add(tempSeq.proteinId);
 			}
 
 			IndexedSeqInternal firstSeq = sequences.get(0);
 			IndexedSequence mergedSequence = new IndexedSequence(0, firstSeq.mass, pepSeqKey, "", "");
-			mergedSequence.setProteinIds(new ArrayList<Integer>(proteinIds));
+			ArrayList<Integer> proteinIds2 = new ArrayList<Integer>();
+			for (int integer : proteinIds._set) {
+				proteinIds2.add(integer);
+			}
+			mergedSequence.setProteinIds(proteinIds2);
 			// set residues
 			final String protSequence = proteinCache.getProteinSequence(firstSeq.proteinId);
 			ResidueInfo residues = Util.getResidues(null, firstSeq.offset, firstSeq.length, protSequence);
