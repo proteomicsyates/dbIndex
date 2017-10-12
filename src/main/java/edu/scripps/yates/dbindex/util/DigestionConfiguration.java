@@ -52,7 +52,7 @@ public class DigestionConfiguration {
 	}
 
 	public PeptideFilter getPeptideFilter() {
-		if (peptideFilterString != null) {
+		if (peptideFilterString != null && !"".equals(peptideFilterString)) {
 			String aa = String.valueOf(peptideFilterString.charAt(0));
 			int numMax = Integer.valueOf(String.valueOf(peptideFilterString.charAt(1)));
 			return new PeptideFilterByMaxOccurrencies(aa, numMax);
