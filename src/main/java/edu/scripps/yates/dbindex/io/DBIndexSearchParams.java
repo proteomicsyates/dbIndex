@@ -1,5 +1,7 @@
 package edu.scripps.yates.dbindex.io;
 
+import java.io.File;
+
 import edu.scripps.yates.dbindex.DBIndexer.IndexType;
 import edu.scripps.yates.dbindex.model.Enzyme;
 import edu.scripps.yates.dbindex.util.PeptideFilter;
@@ -87,5 +89,9 @@ public interface DBIndexSearchParams {
 	boolean isSemiCleavage();
 
 	PeptideFilter getPeptideFilter();
+
+	Boolean isLookProteoforms();
+
+	File getUniprotReleasesFolder();
 
 }

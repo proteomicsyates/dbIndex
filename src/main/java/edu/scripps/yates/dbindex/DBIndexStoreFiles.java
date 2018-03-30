@@ -4,13 +4,11 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -23,8 +21,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
-import edu.scripps.yates.dbindex.io.Fasta;
-import edu.scripps.yates.dbindex.io.FastaReader;
+import edu.scripps.yates.dbindex.util.IndexUtil;
+import edu.scripps.yates.utilities.fasta.Fasta;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
@@ -389,7 +387,7 @@ public class DBIndexStoreFiles implements DBIndexStore {
 
 		int size = ranges.size();
 		if (size == 0) {
-			return Collections.<IndexedSequence>emptyList();
+			return Collections.<IndexedSequence> emptyList();
 		} else if (size == 1) {
 			MassRange range1 = ranges.get(0);
 			return getSequences(range1.getPrecMass(), range1.getTolerance());
@@ -517,16 +515,9 @@ public class DBIndexStoreFiles implements DBIndexStore {
 		// get param specific name for the inde0x
 		// indexName = this.getFullIndexFileName();
 
-		InputStream fis = null;
-		try {
-			fis = new FileInputStream(sparam.getDatabaseName());
-		} catch (FileNotFoundException ex) {
-			logger.log(Level.SEVERE, "Could not set protein cache", ex);
-			return;
-		}
 		Iterator<Fasta> itr = null;
 		try {
-			itr = FastaReader.getFastas(fis);
+			itr = IndexUtil.getFastaReader(sparam).getFastas();
 		} catch (IOException ex) {
 			logger.log(Level.SEVERE, "Could not set protein cache", ex);
 			return;

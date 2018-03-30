@@ -1,5 +1,7 @@
 package edu.scripps.yates.dbindex;
 
+import edu.scripps.yates.utilities.fasta.Fasta;
+
 /**
  * A representation of an indexed protein (a fasta header)
  * 
@@ -16,8 +18,7 @@ public class IndexedProtein {
 
 	IndexedProtein(String fastaDefLine, long id) {
 		// this.accession = Fasta.getAccession(fastaDefLine);
-		accession = edu.scripps.yates.dbindex.io.Fasta
-				.getSequestLikeAccession(fastaDefLine);
+		accession = Fasta.getSequestLikeAccession(fastaDefLine);
 		setFastaDefLine(fastaDefLine);
 		this.id = id;
 	}
@@ -32,8 +33,7 @@ public class IndexedProtein {
 
 	@Override
 	public String toString() {
-		return "IndexedProtein{" + "accession=" + accession + ", id=" + id
-				+ '}';
+		return "IndexedProtein{" + "accession=" + accession + ", id=" + id + '}';
 	}
 
 	public String getAccession() {

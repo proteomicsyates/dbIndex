@@ -2,10 +2,8 @@ package edu.scripps.yates.dbindex;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -17,14 +15,14 @@ import org.apache.commons.io.FilenameUtils;
 
 import edu.scripps.yates.dbindex.DBIndexStore.FilterResult;
 import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
-import edu.scripps.yates.dbindex.io.Fasta;
-import edu.scripps.yates.dbindex.io.FastaReader;
 import edu.scripps.yates.dbindex.io.SearchParamReader;
 import edu.scripps.yates.dbindex.model.AssignMass;
 import edu.scripps.yates.dbindex.model.Util;
 import edu.scripps.yates.dbindex.util.IndexUtil;
 import edu.scripps.yates.dbindex.util.PeptideFilter;
 import edu.scripps.yates.utilities.dates.DatesUtil;
+import edu.scripps.yates.utilities.fasta.Fasta;
+import edu.scripps.yates.utilities.fasta.FastaReader;
 import gnu.trove.set.hash.THashSet;
 
 /**
@@ -438,16 +436,10 @@ public class DBIndexer {
 			logger.info("Populating protein cache");
 			if (protCache.isPopulated() == false) {
 				logger.info("Initializing protein cache");
-				InputStream fis = null;
-				try {
-					fis = new FileInputStream(sparam.getDatabaseName());
-				} catch (FileNotFoundException ex) {
-					logger.error("Could not set protein cache", ex);
-					return;
-				}
+
 				Iterator<Fasta> itr = null;
 				try {
-					itr = FastaReader.getFastas(fis);
+					itr = IndexUtil.getFastaReader(sparam).getFastas();
 				} catch (IOException ex) {
 					logger.error("Could not set protein cache", ex);
 					return;
@@ -515,9 +507,10 @@ public class DBIndexer {
 		String totalProteinsString = null;
 		int indexedProteins = 0;
 		long t0 = System.currentTimeMillis();
+		FastaReader fastaReader = IndexUtil.getFastaReader(sparam);
 		try {
 			statusWriter = new FileWriter(statusFilePath);
-			totalProteins = FastaReader.getNumberFastas(sparam.getDatabaseName());
+			totalProteins = fastaReader.getNumberFastas();
 			totalProteinsString = String.valueOf(totalProteins);
 		} catch (IOException ex) {
 			logger.error("Error initializing index progress writer for file path: " + statusFilePath, ex);
@@ -536,7 +529,7 @@ public class DBIndexer {
 			ProteinCache protCache = getProteinCache();
 			indexStore.setProteinCache(protCache);
 
-			for (Iterator<Fasta> itr = FastaReader.getFastas(fis); itr.hasNext();) {
+			for (Iterator<Fasta> itr = fastaReader.getFastas(); itr.hasNext();) {
 
 				Fasta fasta = itr.next();
 				// change by SALVA in order to keep all the information of the

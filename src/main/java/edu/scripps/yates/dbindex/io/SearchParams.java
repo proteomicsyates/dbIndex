@@ -4,6 +4,8 @@
  */
 package edu.scripps.yates.dbindex.io;
 
+import java.io.File;
+
 /**
  *
  * @author rpark
@@ -117,6 +119,8 @@ public class SearchParams implements DBIndexSearchParams {
 	private boolean usingMongoDB;
 	private boolean semiCleavage;
 	private PeptideFilter peptideFilter;
+	private Boolean lookProteoforms;
+	private File uniprotReleasesFolder;
 
 	public static SearchParams getInstance() {
 		if (sparams == null)
@@ -972,5 +976,23 @@ public class SearchParams implements DBIndexSearchParams {
 	 */
 	public void setPeptideFilter(PeptideFilter peptideFilter) {
 		this.peptideFilter = peptideFilter;
+	}
+
+	@Override
+	public Boolean isLookProteoforms() {
+		return lookProteoforms;
+	}
+
+	@Override
+	public File getUniprotReleasesFolder() {
+		return uniprotReleasesFolder;
+	}
+
+	public void setLookProteoforms(Boolean lookProteoforms) {
+		this.lookProteoforms = lookProteoforms;
+	}
+
+	public void setUniprotReleasesFolder(File uniprotReleasesFolder) {
+		this.uniprotReleasesFolder = uniprotReleasesFolder;
 	}
 }

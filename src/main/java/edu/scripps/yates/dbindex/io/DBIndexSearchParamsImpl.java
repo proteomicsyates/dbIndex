@@ -1,5 +1,7 @@
 package edu.scripps.yates.dbindex.io;
 
+import java.io.File;
+
 import edu.scripps.yates.dbindex.DBIndexer.IndexType;
 import edu.scripps.yates.dbindex.model.Enzyme;
 import edu.scripps.yates.dbindex.util.IndexUtil;
@@ -36,6 +38,8 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 	private boolean usingMongoDB;
 	private boolean semiCleavage;
 	private PeptideFilter peptideFilter;
+	private Boolean lookProteoforms;
+	private File uniprotReleasesFolder;
 
 	public DBIndexSearchParamsImpl(IndexType indexType, boolean inMemoryIndex, int indexFactor, String dataBaseName,
 			int maxMissedCleavages, double maxPrecursorMass, double minPrecursorMass, boolean useIndex,
@@ -485,6 +489,24 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 	 */
 	public void setPeptideFilter(PeptideFilter peptideFilter) {
 		this.peptideFilter = peptideFilter;
+	}
+
+	@Override
+	public Boolean isLookProteoforms() {
+		return lookProteoforms;
+	}
+
+	@Override
+	public File getUniprotReleasesFolder() {
+		return uniprotReleasesFolder;
+	}
+
+	public void setLookProteoforms(Boolean lookProteoforms) {
+		this.lookProteoforms = lookProteoforms;
+	}
+
+	public void setUniprotReleasesFolder(File uniprotReleasesFolder) {
+		this.uniprotReleasesFolder = uniprotReleasesFolder;
 	}
 
 }
