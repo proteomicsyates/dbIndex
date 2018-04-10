@@ -24,9 +24,9 @@ public class DBIndexInterface {
 	private DBIndexer indexer;
 	private static final String PINT_DEVELOPER_ENV_VAR = "PINT_DEVELOPER";
 
-	private final Map<String, Set<IndexedProtein>> proteinsByPeptideSeqs = new THashMap<String, Set<IndexedProtein>>();
-	private final static Map<File, DBIndexInterface> dbIndexByFile = new THashMap<File, DBIndexInterface>();
-	private final static Map<String, DBIndexInterface> dbIndexByParamKey = new THashMap<String, DBIndexInterface>();
+	private final Map<String, Set<IndexedProtein>> proteinsByPeptideSeqs = new THashMap<>();
+	private final static Map<File, DBIndexInterface> dbIndexByFile = new THashMap<>();
+	private final static Map<String, DBIndexInterface> dbIndexByParamKey = new THashMap<>();
 
 	public static DBIndexInterface getByParamFile(File paramFile) {
 		if (dbIndexByFile.containsKey(paramFile)) {
@@ -122,6 +122,7 @@ public class DBIndexInterface {
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
+			throw e;
 		}
 
 	}
