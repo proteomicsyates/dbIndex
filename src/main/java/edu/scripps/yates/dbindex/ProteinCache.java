@@ -81,6 +81,7 @@ public class ProteinCache {
 	 */
 	void addProtein(String def, String protein) {
 		defs.add(def);
+		final int proteinIndex = defs.size() - 1;
 		sequences.add(protein);
 	}
 
@@ -101,17 +102,16 @@ public class ProteinCache {
 	 * @return
 	 */
 	String getPeptideSequence(long protId, int seqOffset, int seqLen) {
-		String protSeq = getProteinSequence(protId);
+		final String protSeq = getProteinSequence(protId);
 		String peptideSeq = null;
 
 		try {
 
 			peptideSeq = protSeq.substring(seqOffset, seqOffset + seqLen);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			log.error("Error tryin to get substring from " + protSeq);
-			log.error("Using beginIndex:" + seqOffset + " and length: "
-					+ seqLen);
+			log.error("Using beginIndex:" + seqOffset + " and length: " + seqLen);
 			log.error(e.getMessage());
 		}
 
@@ -136,11 +136,10 @@ public class ProteinCache {
 	}
 
 	public List<IndexedProtein> getProteins(IndexedSequence sequence) {
-		List<IndexedProtein> ret = new ArrayList<IndexedProtein>();
+		final List<IndexedProtein> ret = new ArrayList<IndexedProtein>();
 
-		for (int proteinId : sequence.getProteinIds()) {
-			IndexedProtein ip = new IndexedProtein(getProteinDef(proteinId),
-					proteinId);
+		for (final int proteinId : sequence.getProteinIds()) {
+			final IndexedProtein ip = new IndexedProtein(getProteinDef(proteinId), proteinId);
 			ret.add(ip);
 		}
 		return ret;

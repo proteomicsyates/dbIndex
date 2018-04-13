@@ -66,17 +66,17 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 			throw new DBIndexStoreException("Not intialized");
 		}
 
-		File indexDir = new File(dbPathBase);
+		final File indexDir = new File(dbPathBase);
 		if (!indexDir.exists()) {
 			return false;
 		}
 
-		File[] indexFiles = indexDir.listFiles();
+		final File[] indexFiles = indexDir.listFiles();
 		if (indexFiles.length == 0) {
 			return false;
 		}
 
-		return getNumberSequences() > 0;
+		return hasSequences();
 
 	}
 
@@ -90,14 +90,14 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 			throw new DBIndexStoreException("Already intialized");
 		}
 
-		File dbBase = new File(databaseID).getAbsoluteFile();
+		final File dbBase = new File(databaseID).getAbsoluteFile();
 		String baseName = dbBase.getName();
 		if (!baseName.endsWith(IDX_SUFFIX)) {
 			baseName = baseName + IDX_SUFFIX;
 		}
-		File parentDir = dbBase.getParentFile();
+		final File parentDir = dbBase.getParentFile();
 
-		File indexDir = new File(parentDir.getAbsolutePath() + File.separator + baseName);
+		final File indexDir = new File(parentDir.getAbsolutePath() + File.separator + baseName);
 		if (indexDir.exists() && !indexDir.isDirectory()) {
 			logger.info("Trying to delete old index file: " + indexDir.getAbsolutePath());
 			indexDir.delete();
@@ -106,7 +106,7 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 
 		try {
 			indexDir.mkdir();
-		} catch (SecurityException e) {
+		} catch (final SecurityException e) {
 		}
 
 		dbPathBase = indexDir.getAbsolutePath();
@@ -127,10 +127,10 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 			// merge
 			// during
 			// index
-			String bucketId = dbPathBase + File.separator + i + IDX_SUFFIX;
+			final String bucketId = dbPathBase + File.separator + i + IDX_SUFFIX;
 			try {
 				buckets[i].init(bucketId);
-			} catch (DBIndexStoreException e) {
+			} catch (final DBIndexStoreException e) {
 				logger.error("Error initializing bucket " + i, e);
 				throw e;
 			}
@@ -183,6 +183,17 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 		return total;
 	}
 
+	public boolean hasSequences() throws DBIndexStoreException {
+
+		for (int i = 0; i < Constants.NUM_BUCKETS; ++i) {
+			final long total = buckets[i].getNumberSequences();
+			if (total > 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private int getBucketForMass(double precMass) {
 		return (int) precMass / Constants.BUCKET_MASS_RANGE;
 	}
@@ -199,7 +210,7 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 			logger.error("Trying to get a sequence for more than supported mass: " + maxMass);
 		}
 
-		int[] ret = new int[2];
+		final int[] ret = new int[2];
 		ret[0] = (int) minMass / Constants.BUCKET_MASS_RANGE;
 		ret[1] = (int) maxMass / Constants.BUCKET_MASS_RANGE;
 
@@ -218,13 +229,13 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 		final char[] mandatoryInternalAAs = sparam.getMandatoryInternalAAs();
 		if (mandatoryInternalAAs != null && mandatoryInternalAAs.length > 0) {
 			// to not repeat
-			Set<String> aas = new THashSet<String>();
-			for (char mandatoryInternalAAChar : mandatoryInternalAAs) {
+			final Set<String> aas = new THashSet<String>();
+			for (final char mandatoryInternalAAChar : mandatoryInternalAAs) {
 				final String mandatoryInternalAA = String.valueOf(mandatoryInternalAAChar);
 				if (!aas.contains(mandatoryInternalAA)) {
 					aas.add(mandatoryInternalAA);
 					// exclude the last AA, which is the cleavage site
-					String sequenceTMP = sequence.substring(0, sequence.length() - 1);
+					final String sequenceTMP = sequence.substring(0, sequence.length() - 1);
 					if (sequenceTMP.contains(mandatoryInternalAA)) {
 						return FilterResult.INCLUDE;
 					}
@@ -250,7 +261,7 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 			logger.info("Total peptides indexed so far: " + totalSeqCount);
 		}
 
-		int bucket = getBucketForMass(precMass);
+		final int bucket = getBucketForMass(precMass);
 		if (bucket > Constants.NUM_BUCKETS - 1) {
 			logger.error("Cannot add to index, unsupported precursor mass: " + precMass + " for sequence: " + sequence
 					+ ". Max supported mass is: " + MAX_MASS);
@@ -269,14 +280,14 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 
 		int seqOffset = peptideSequence.getSequenceOffset();
 		if (seqOffset == IndexedSequence.OFFSET_UNKNOWN) {
-			String pepSeq = peptideSequence.getSequence();
+			final String pepSeq = peptideSequence.getSequence();
 			seqOffset = proteinSequence.indexOf(pepSeq);
 		}
 		if (seqOffset == -1) {
 			throw new RuntimeException("Could not get subsequence, unexpected error: peptide: " + peptideSequence
 					+ ", protein: " + protein);
 		}
-		int seqLen = peptideSequence.getSequenceLen();
+		final int seqLen = peptideSequence.getSequenceLen();
 
 		return Util.getResidues(peptideSequence, seqOffset, seqLen, proteinSequence);
 
@@ -288,7 +299,7 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 			throw new DBIndexStoreException("Indexer is not initialized");
 		}
 
-		List<IndexedSequence> ret = new ArrayList<IndexedSequence>();
+		final List<IndexedSequence> ret = new ArrayList<IndexedSequence>();
 		// logger.log(Level.FINE, "Starting peptide sequences query");
 		// long start = System.currentTimeMillis();
 
@@ -297,11 +308,11 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 		if (minMass < 0) {
 			minMass = 0;
 		}
-		double maxMass = precMass + tolerance;
+		final double maxMass = precMass + tolerance;
 
 		// System.out.println("==============" + precMass + " ==" + tolerance +
 		// " " + minMass + " " + maxMass);
-		int[] bucketRange = getBucketsForMassRange(minMass, maxMass);
+		final int[] bucketRange = getBucketsForMassRange(minMass, maxMass);
 		if (bucketRange[0] > Constants.NUM_BUCKETS - 1 || bucketRange[1] > Constants.NUM_BUCKETS - 1) {
 			logger.warn(
 					"Cannot query, unsupported precursor mass: " + precMass + ". Max supported mass is: " + MAX_MASS);
@@ -309,7 +320,7 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 		}
 
 		for (int bucket = bucketRange[0]; bucket <= bucketRange[1]; ++bucket) {
-			List<IndexedSequence> sequencesPerBucket = buckets[bucket].getSequences(precMass, tolerance);
+			final List<IndexedSequence> sequencesPerBucket = buckets[bucket].getSequences(precMass, tolerance);
 			ret.addAll(sequencesPerBucket);
 		}
 
@@ -324,7 +335,7 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 	public List<IndexedSequence> getSequences(List<MassRange> ranges) throws DBIndexStoreException {
 		if (ranges.size() == 1) {
 			// simple case - single range, use the single range version
-			MassRange range = ranges.get(0);
+			final MassRange range = ranges.get(0);
 			return getSequences(range.getPrecMass(), range.getTolerance());
 		}
 
@@ -336,14 +347,14 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 		}
 
 		// convert mass ranges to intverals and merge overlapping mass ranges
-		ArrayList<Interval> intervals = new ArrayList<Interval>();
-		for (MassRange range : ranges) {
-			Interval ith = Interval.massRangeToInterval(range);
+		final ArrayList<Interval> intervals = new ArrayList<Interval>();
+		for (final MassRange range : ranges) {
+			final Interval ith = Interval.massRangeToInterval(range);
 			intervals.add(ith);
 		}
-		List<Interval> mergedIntervals = MergeIntervals.mergeIntervals(intervals);
+		final List<Interval> mergedIntervals = MergeIntervals.mergeIntervals(intervals);
 
-		List<IndexedSequence> ret = new ArrayList<IndexedSequence>();
+		final List<IndexedSequence> ret = new ArrayList<IndexedSequence>();
 
 		// contruct composite queries per bucket
 		// store mass ranges falling in every bucket
@@ -351,13 +362,13 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 		// and using [][] requires extra conversion later to adapt to API
 		final List bucketIntervals[] = new ArrayList[buckets.length];
 
-		for (Interval massInterval : mergedIntervals) {
+		for (final Interval massInterval : mergedIntervals) {
 
-			double minMass = massInterval.getStart();
-			double maxMass = massInterval.getEnd();
+			final double minMass = massInterval.getStart();
+			final double maxMass = massInterval.getEnd();
 
 			// figure out which buckets the range falls in
-			int[] bucketRange = getBucketsForMassRange(minMass, maxMass);
+			final int[] bucketRange = getBucketsForMassRange(minMass, maxMass);
 			if (bucketRange[0] > Constants.NUM_BUCKETS - 1 || bucketRange[1] > Constants.NUM_BUCKETS - 1) {
 				logger.error("Cannot query, unsupported precursor mass: " + minMass + "-" + maxMass
 						+ ". Max supported mass is: " + MAX_MASS);
@@ -382,12 +393,13 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 
 		// query the buckets that have mass ranges assigned
 		for (int bucket = 0; bucket < buckets.length; ++bucket) {
-			List<Interval> queryBucketIntervals = bucketIntervals[bucket];
+			final List<Interval> queryBucketIntervals = bucketIntervals[bucket];
 			if (queryBucketIntervals == null) {
 				continue; // skip, no intervals for this bucket
 			}
 
-			List<IndexedSequence> sequencesPerBucket = buckets[bucket].getSequencesIntervals(queryBucketIntervals);
+			final List<IndexedSequence> sequencesPerBucket = buckets[bucket]
+					.getSequencesIntervals(queryBucketIntervals);
 			ret.addAll(sequencesPerBucket);
 		}
 
@@ -421,10 +433,10 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 
 	@Override
 	public List<IndexedProtein> getProteins(IndexedSequence sequence) throws DBIndexStoreException {
-		List<IndexedProtein> ret = new ArrayList<IndexedProtein>();
+		final List<IndexedProtein> ret = new ArrayList<IndexedProtein>();
 
-		for (Integer protId : sequence.getProteinIds()) {
-			IndexedProtein ip = new IndexedProtein(proteinCache.getProteinDef(protId), protId);
+		for (final Integer protId : sequence.getProteinIds()) {
+			final IndexedProtein ip = new IndexedProtein(proteinCache.getProteinDef(protId), protId);
 			ret.add(ip);
 		}
 
@@ -440,20 +452,20 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 	public static void main(String[] args) {
 		DBIndexStore store = new DBIndexStoreSQLiteMult(SearchParams.getInstance(), false);
 
-		String protDef1 = "4R79.2 CE19650 WBGene00007067 Ras family status:Partially_confirmed TR:Q9XXA4 protein_id:CAA20282.1";
-		String protDef2 = "Reverse_4R79.2  CE19650 WBGene00007067 Ras family status:Partially_confirmed TR:Q9XXA4 protein_id:CAA20282.1";
+		final String protDef1 = "4R79.2 CE19650 WBGene00007067 Ras family status:Partially_confirmed TR:Q9XXA4 protein_id:CAA20282.1";
+		final String protDef2 = "Reverse_4R79.2  CE19650 WBGene00007067 Ras family status:Partially_confirmed TR:Q9XXA4 protein_id:CAA20282.1";
 
 		try {
 			logger.info("Testing init");
-			File idx = new File("./test.fasta.idx");
+			final File idx = new File("./test.fasta.idx");
 			if (idx.exists() && idx.isDirectory()) {
-				for (File f : idx.listFiles()) {
+				for (final File f : idx.listFiles()) {
 					f.delete();
 				}
 				idx.delete();
 			}
 
-			ProteinCache protCache = new ProteinCache();
+			final ProteinCache protCache = new ProteinCache();
 			store.init("./test.fasta");
 			store.setProteinCache(protCache);
 
@@ -461,7 +473,7 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 			logger.info("Testing adds 1");
 			store.startAddSeq();
 
-			long protId = store.addProteinDef(0, protDef1, "ABCDEFGHIJKL");
+			final long protId = store.addProteinDef(0, protDef1, "ABCDEFGHIJKL");
 			protCache.addProtein("4R79.2", "ABCDEFGHIJKL");
 
 			store.addSequence(1f, 0, 1, "A", null, null, protId);
@@ -473,7 +485,7 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 			store.addSequence(3, 6, 3, "GHI", null, null, protId);
 			// store.addSequence(3, 6, 3, "GHI", null, null, protId);
 			// store.stopAddSeq();
-		} catch (DBIndexStoreException ex) {
+		} catch (final DBIndexStoreException ex) {
 			logger.error(null, ex);
 		}
 
@@ -482,8 +494,8 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 			logger.info("Testing adds 2");
 			// store.startAddSeq();
 
-			long protId = store.addProteinDef(1, protDef2, "GHIJKLMNOPR");
-			ProteinCache protCache = new ProteinCache();
+			final long protId = store.addProteinDef(1, protDef2, "GHIJKLMNOPR");
+			final ProteinCache protCache = new ProteinCache();
 			protCache.addProtein("Reverse_4R79.2", "GHIJKLMN");
 
 			store.addSequence(3, 1, 3, "HIJ", null, null, protId);
@@ -493,50 +505,50 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 			store.addSequence(3, 0, 3, "GHI", null, null, protId); // test dup
 			store.addSequence(3, 0, 3, "GHI", null, null, protId); // test dup
 			store.stopAddSeq();
-		} catch (DBIndexStoreException ex) {
+		} catch (final DBIndexStoreException ex) {
 			logger.error(null, ex);
 		}
 
 		try {
 			// test gets
 			logger.info("Testing gets 1");
-			List<IndexedSequence> res1 = store.getSequences(10, 8.9f);
-			for (IndexedSequence seq : res1) {
+			final List<IndexedSequence> res1 = store.getSequences(10, 8.9f);
+			for (final IndexedSequence seq : res1) {
 				System.out.println(seq);
-				List<IndexedProtein> proteins = store.getProteins(seq);
-				for (IndexedProtein protein : proteins) {
-					ResidueInfo res = store.getResidues(seq, protein);
+				final List<IndexedProtein> proteins = store.getProteins(seq);
+				for (final IndexedProtein protein : proteins) {
+					final ResidueInfo res = store.getResidues(seq, protein);
 					System.out.println(protein);
 					System.out.println(res);
 				}
 			}
-		} catch (DBIndexStoreException ex) {
+		} catch (final DBIndexStoreException ex) {
 			logger.error(null, ex);
 		}
 
 		try {
 			// test gets
 			System.out.println("Testing range gets 1");
-			MassRange r1 = new MassRange(2, 1f);
-			MassRange r2 = new MassRange(6, 1f);
-			MassRange r3 = new MassRange(6, 1f); // test redundant
-			MassRange r4 = new MassRange(6, 1.2f); // test overlapping
-			List<MassRange> ranges = new ArrayList<MassRange>();
+			final MassRange r1 = new MassRange(2, 1f);
+			final MassRange r2 = new MassRange(6, 1f);
+			final MassRange r3 = new MassRange(6, 1f); // test redundant
+			final MassRange r4 = new MassRange(6, 1.2f); // test overlapping
+			final List<MassRange> ranges = new ArrayList<MassRange>();
 			ranges.add(r2);
 			ranges.add(r1);
 			ranges.add(r3);
 			ranges.add(r4);
-			List<IndexedSequence> res1 = store.getSequences(ranges);
-			for (IndexedSequence seq : res1) {
+			final List<IndexedSequence> res1 = store.getSequences(ranges);
+			for (final IndexedSequence seq : res1) {
 				System.out.println(seq);
-				List<IndexedProtein> proteins = store.getProteins(seq);
-				for (IndexedProtein protein : proteins) {
-					ResidueInfo res = store.getResidues(seq, protein);
+				final List<IndexedProtein> proteins = store.getProteins(seq);
+				for (final IndexedProtein protein : proteins) {
+					final ResidueInfo res = store.getResidues(seq, protein);
 					System.out.println(protein);
 					System.out.println(res);
 				}
 			}
-		} catch (DBIndexStoreException ex) {
+		} catch (final DBIndexStoreException ex) {
 			logger.error(null, ex);
 		}
 
@@ -549,20 +561,20 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 			store.init("EBI-IPI_Human_IPI_Human_3_85_06-29-2011_reversed.fasta");
 			for (int i = 0; i < 1000; ++i) {
 				logger.info("Testing getting sequence " + i);
-				List<IndexedSequence> res = store.getSequences(i, 3f);
+				final List<IndexedSequence> res = store.getSequences(i, 3f);
 				if (res.size() > 0) {
-					IndexedSequence seq = res.get(0);
+					final IndexedSequence seq = res.get(0);
 					logger.info("Got " + res.size() + " sequences, first sequence: " + seq);
-					List<IndexedProtein> proteins = store.getProteins(seq);
+					final List<IndexedProtein> proteins = store.getProteins(seq);
 					logger.info("Got " + res.size() + " sequences, first sequence's proteins: ");
-					for (IndexedProtein protein : proteins) {
+					for (final IndexedProtein protein : proteins) {
 						System.out.println(protein);
 					}
 				}
 
 			}
 
-		} catch (DBIndexStoreException ex) {
+		} catch (final DBIndexStoreException ex) {
 			logger.error(null, ex);
 		}
 
@@ -571,16 +583,16 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 			store = new DBIndexStoreSQLiteMult(SearchParams.getInstance(), false);
 			store.init("test_02.fasta");
 
-			List<IndexedSequence> res = store.getSequences(1000, 3000);
-			for (IndexedSequence seq : res) {
+			final List<IndexedSequence> res = store.getSequences(1000, 3000);
+			for (final IndexedSequence seq : res) {
 				System.out.println(seq);
-				List<IndexedProtein> prots = store.getProteins(seq);
-				for (IndexedProtein prot : prots) {
+				final List<IndexedProtein> prots = store.getProteins(seq);
+				for (final IndexedProtein prot : prots) {
 					System.out.println("\t" + prot);
 				}
 			}
 
-		} catch (DBIndexStoreException ex) {
+		} catch (final DBIndexStoreException ex) {
 			logger.error(null, ex);
 		}
 

@@ -49,11 +49,11 @@ public class DBIndexInterface {
 	 * @param paramFile
 	 */
 	public DBIndexInterface(File paramFile) {
-		String paramFileName = SearchParamReader.DEFAULT_PARAM_FILE_NAME;
+		final String paramFileName = SearchParamReader.DEFAULT_PARAM_FILE_NAME;
 
 		try {
 
-			String dbIndexPath = getDBIndexPath();
+			final String dbIndexPath = getDBIndexPath();
 			SearchParamReader pr = null;
 			if (paramFile != null) {
 				pr = new SearchParamReader(paramFile);
@@ -61,7 +61,7 @@ public class DBIndexInterface {
 				pr = new SearchParamReader(dbIndexPath, paramFileName);
 			}
 
-			SearchParams sParam = pr.getSearchParams();
+			final SearchParams sParam = pr.getSearchParams();
 			final edu.scripps.yates.dbindex.DBIndexer.IndexerMode indexerMode = sParam.isUseIndex()
 					? IndexerMode.SEARCH_INDEXED : IndexerMode.SEARCH_UNINDEXED;
 
@@ -69,25 +69,31 @@ public class DBIndexInterface {
 			try {
 				indexer.init();
 
-			} catch (DBIndexerException ex) {
+			} catch (final DBIndexerException ex) {
 				indexer = new DBIndexer(sParam, IndexerMode.INDEX);
 				try {
 					indexer.init();
 					indexer.run();
-				} catch (DBIndexerException e) {
+				} catch (final DBIndexerException e) {
 					e.printStackTrace();
 					log.error("Could not initialize the indexer in search mode and init the worker thread");
 				}
 			}
 			dbIndexByFile.put(paramFile, this);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
 
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
 		}
+
+	}
+
+	public DBIndexInterface(DBIndexSearchParams sParam) {
+
+		this(sParam, sParam.isUseIndex() ? IndexerMode.SEARCH_INDEXED : IndexerMode.SEARCH_UNINDEXED);
 
 	}
 
@@ -97,10 +103,9 @@ public class DBIndexInterface {
 	 *
 	 * @param paramFile
 	 */
-	public DBIndexInterface(DBIndexSearchParams sParam) {
+	public DBIndexInterface(DBIndexSearchParams sParam, edu.scripps.yates.dbindex.DBIndexer.IndexerMode indexerMode) {
 		try {
-			final edu.scripps.yates.dbindex.DBIndexer.IndexerMode indexerMode = sParam.isUseIndex()
-					? IndexerMode.SEARCH_INDEXED : IndexerMode.SEARCH_UNINDEXED;
+
 			// init the masses
 			AssignMass.getInstance(sParam.isUseMonoParent());
 
@@ -108,18 +113,18 @@ public class DBIndexInterface {
 			try {
 				indexer.init();
 
-			} catch (DBIndexerException ex) {
+			} catch (final DBIndexerException ex) {
 				indexer = new DBIndexer(sParam, IndexerMode.INDEX);
 				try {
 					indexer.init();
 					indexer.run();
-				} catch (DBIndexerException e) {
+				} catch (final DBIndexerException e) {
 					e.printStackTrace();
 					log.error("Could not initialize the indexer in search mode and init the worker thread");
 				}
 			}
 			dbIndexByParamKey.put(sParam.getFullIndexFileName(), this);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
 			throw e;
@@ -129,7 +134,7 @@ public class DBIndexInterface {
 
 	public static String getDBIndexPath() {
 		if (dbIndexPath == null) {
-			Map<String, String> env = System.getenv();
+			final Map<String, String> env = System.getenv();
 			String dbIndexPathProperty = PropertiesReader.DBINDEX_PATH_SERVER;
 			if (env.containsKey(PINT_DEVELOPER_ENV_VAR) && env.get(PINT_DEVELOPER_ENV_VAR).equals("true")) {
 				log.info("USING DEVELOPMENT MODE");
@@ -139,7 +144,7 @@ public class DBIndexInterface {
 			try {
 				dbIndexPath = (String) PropertiesReader.getProperties().get(dbIndexPathProperty);
 				log.info("Using local folder: " + dbIndexPath);
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -236,44 +241,44 @@ public class DBIndexInterface {
 	 */
 	public static DBIndexSearchParams getDefaultDBIndexParams(String fastaFilePath, boolean inMemoryIndex) {
 		try {
-			IndexType indexType = DBIndexer.IndexType.valueOf(
+			final IndexType indexType = DBIndexer.IndexType.valueOf(
 					String.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.DEFAULT_INDEX_TYPE)));
 
-			int indexFactor = Integer
+			final int indexFactor = Integer
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.DEFAULT_INDEX_FACTOR));
-			String dataBaseName = fastaFilePath;
-			int maxMissedCleavages = Integer.valueOf(PropertiesReader.getProperties()
+			final String dataBaseName = fastaFilePath;
+			final int maxMissedCleavages = Integer.valueOf(PropertiesReader.getProperties()
 					.getProperty(PropertiesReader.DEFAULT_MAX_INTERNAL_CLEAVAGES_SITES));
-			double maxPrecursorMass = Double
+			final double maxPrecursorMass = Double
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.MAX_PRECURSOR_MASS));
-			double minPrecursorMass = Double
+			final double minPrecursorMass = Double
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.MIN_PRECURSOR_MASS));
-			boolean useIndex = Boolean
+			final boolean useIndex = Boolean
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.USE_INDEX));
-			String enzymeNocutResidues = String
+			final String enzymeNocutResidues = String
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.ENZYME_NOCUT_RESIDUES));
 
-			String enzymeResidues = String
+			final String enzymeResidues = String
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.ENZYME_RESIDUES));
 
-			int enzymeOffset = Integer
+			final int enzymeOffset = Integer
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.ENZYME_OFFSET));
 
-			boolean useMono = Boolean
+			final boolean useMono = Boolean
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.MASS_TYPE_PARENT));
 
-			boolean isH2OPlusProtonAdded = Boolean
+			final boolean isH2OPlusProtonAdded = Boolean
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.ADD_H2O_PLUS_PROTON));
-			int massGroupFactor = Integer
+			final int massGroupFactor = Integer
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.MASS_GROUP_FACTOR));
 
-			DBIndexSearchParamsImpl ret = new DBIndexSearchParamsImpl(indexType, inMemoryIndex, indexFactor,
+			final DBIndexSearchParamsImpl ret = new DBIndexSearchParamsImpl(indexType, inMemoryIndex, indexFactor,
 					dataBaseName, maxMissedCleavages, maxPrecursorMass, minPrecursorMass, useIndex, enzymeNocutResidues,
 					enzymeResidues, enzymeOffset, useMono, isH2OPlusProtonAdded, massGroupFactor, null, false, null);
 			return ret;
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 			e.printStackTrace();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -290,7 +295,7 @@ public class DBIndexInterface {
 	public static DBIndexSearchParams getDefaultDBIndexParams(String fastaFilePath) {
 		boolean inMemoryIndex;
 		try {
-			Map<String, String> env = System.getenv();
+			final Map<String, String> env = System.getenv();
 			if (env.containsKey(PINT_DEVELOPER_ENV_VAR) && env.get(PINT_DEVELOPER_ENV_VAR).equals("true")) {
 				log.info("USING DEVELOPMENT MODE");
 
@@ -302,7 +307,7 @@ public class DBIndexInterface {
 			}
 			log.info("InMemoryIndex=" + inMemoryIndex);
 			return getDefaultDBIndexParams(fastaFilePath, inMemoryIndex);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -331,7 +336,7 @@ public class DBIndexInterface {
 	public static DBIndexSearchParams getDefaultDBIndexParamsForCrosslinkerAnalysis(String fastaFilePath) {
 		boolean inMemoryIndex;
 		try {
-			Map<String, String> env = System.getenv();
+			final Map<String, String> env = System.getenv();
 			if (env.containsKey(PINT_DEVELOPER_ENV_VAR) && env.get(PINT_DEVELOPER_ENV_VAR).equals("true")) {
 				log.info("USING DEVELOPMENT MODE");
 				inMemoryIndex = false;
@@ -342,7 +347,7 @@ public class DBIndexInterface {
 			}
 			log.info("InMemoryIndex=" + inMemoryIndex);
 			return getDefaultDBIndexParamsForCrosslinkerAnalysis(fastaFilePath, inMemoryIndex);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -361,47 +366,47 @@ public class DBIndexInterface {
 	public static DBIndexSearchParams getDefaultDBIndexParamsForCrosslinkerAnalysis(String fastaFilePath,
 			boolean inMemoryIndex) {
 		try {
-			IndexType indexType = DBIndexer.IndexType.valueOf(
+			final IndexType indexType = DBIndexer.IndexType.valueOf(
 					String.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.DEFAULT_INDEX_TYPE)));
 
-			int indexFactor = Integer
+			final int indexFactor = Integer
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.DEFAULT_INDEX_FACTOR));
-			String dataBaseName = fastaFilePath;
-			int maxMissedCleavages = Integer.valueOf(PropertiesReader.getProperties()
+			final String dataBaseName = fastaFilePath;
+			final int maxMissedCleavages = Integer.valueOf(PropertiesReader.getProperties()
 					.getProperty(PropertiesReader.DEFAULT_MAX_INTERNAL_CLEAVAGES_SITES));
-			double maxPrecursorMass = Double
+			final double maxPrecursorMass = Double
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.MAX_PRECURSOR_MASS));
-			double minPrecursorMass = Double
+			final double minPrecursorMass = Double
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.MIN_PRECURSOR_MASS));
-			boolean useIndex = Boolean
+			final boolean useIndex = Boolean
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.USE_INDEX));
-			String enzymeNocutResidues = String
+			final String enzymeNocutResidues = String
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.ENZYME_NOCUT_RESIDUES));
 
-			String enzymeResidues = String
+			final String enzymeResidues = String
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.ENZYME_RESIDUES));
 
-			int enzymeOffset = Integer
+			final int enzymeOffset = Integer
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.ENZYME_OFFSET));
 
-			boolean useMono = Boolean
+			final boolean useMono = Boolean
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.MASS_TYPE_PARENT));
 			// SET TO FALSE TO ALLOW CROSSLINKER ANALYSES
-			boolean isH2OPlusProtonAdded = false;
-			int massGroupFactor = Integer
+			final boolean isH2OPlusProtonAdded = false;
+			final int massGroupFactor = Integer
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.MASS_GROUP_FACTOR));
 
-			char[] mandatoryInternalAAs = PropertiesReader.getProperties()
+			final char[] mandatoryInternalAAs = PropertiesReader.getProperties()
 					.getProperty(PropertiesReader.MANDATORY_INTERNAL_AAs).toCharArray();
 
-			DBIndexSearchParamsImpl ret = new DBIndexSearchParamsImpl(indexType, inMemoryIndex, indexFactor,
+			final DBIndexSearchParamsImpl ret = new DBIndexSearchParamsImpl(indexType, inMemoryIndex, indexFactor,
 					dataBaseName, maxMissedCleavages, maxPrecursorMass, minPrecursorMass, useIndex, enzymeNocutResidues,
 					enzymeResidues, enzymeOffset, useMono, isH2OPlusProtonAdded, massGroupFactor, mandatoryInternalAAs,
 					false, null);
 			return ret;
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 			e.printStackTrace();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 		return null;
