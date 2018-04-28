@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.ws.rs.NotSupportedException;
+
 import com.mongodb.MongoException;
 
 import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
@@ -91,7 +93,7 @@ public class DBIndexStoreMongoDb implements DBIndexStore {
 			System.out.println("Connected to MongoD_client");
 			// fastadefreader.setDefs(this.);
 
-		} catch (MongoException ex) {
+		} catch (final MongoException ex) {
 			logger.log(Level.SEVERE, "Cannot connect to MongoDb instance at port: " + DB_PORT, ex);
 			throw new DBIndexStoreException("Cannot connect to MongoDb instance at port: " + DB_PORT, ex);
 		}
@@ -154,9 +156,9 @@ public class DBIndexStoreMongoDb implements DBIndexStore {
 	@Override
 	public List<IndexedSequence> getSequences(double precMass, double tolerance) throws DBIndexStoreException {
 
-		List<IndexedSequence> allSeqs = new ArrayList<IndexedSequence>();
+		final List<IndexedSequence> allSeqs = new ArrayList<IndexedSequence>();
 
-		List<MassRange> massRanges = new ArrayList<MassRange>();
+		final List<MassRange> massRanges = new ArrayList<MassRange>();
 		massRanges.add(new MassRange(precMass, tolerance));
 		final MongoSeqIter sequencesIter = mongoConnect.getSequencesIter(massRanges);
 		while (sequencesIter.hasNext()) {
@@ -169,7 +171,7 @@ public class DBIndexStoreMongoDb implements DBIndexStore {
 
 	@Override
 	public List<IndexedSequence> getSequences(List<MassRange> ranges) throws DBIndexStoreException {
-		List<IndexedSequence> list = new ArrayList<IndexedSequence>();
+		final List<IndexedSequence> list = new ArrayList<IndexedSequence>();
 		final MongoSeqIter sequencesIter = mongoConnect.getSequencesIter(ranges);
 		while (sequencesIter.hasNext()) {
 			list.add(sequencesIter.next());
@@ -203,11 +205,11 @@ public class DBIndexStoreMongoDb implements DBIndexStore {
 	@Override
 	public List<IndexedProtein> getProteins(IndexedSequence sequence) throws DBIndexStoreException {
 		// get prot id from index and prot ids from cache
-		List<IndexedProtein> ret = new ArrayList<IndexedProtein>();
+		final List<IndexedProtein> ret = new ArrayList<IndexedProtein>();
 
 		try {
 			final List<String> parents = mongoConnect.getParents(sequence.getSequence(), sParam, false);
-			for (String string : parents) {
+			for (final String string : parents) {
 				final String[] split = string.split("\t");
 				long proteinID = -1;
 				String name = null;
@@ -229,10 +231,10 @@ public class DBIndexStoreMongoDb implements DBIndexStore {
 					proteinID = Long.valueOf(split[0]);
 					name = split[0];
 				}
-				IndexedProtein protein = new IndexedProtein(name, proteinID);
+				final IndexedProtein protein = new IndexedProtein(name, proteinID);
 				ret.add(protein);
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 
@@ -246,7 +248,7 @@ public class DBIndexStoreMongoDb implements DBIndexStore {
 			return 0l;
 		}
 
-		long numSeqDB = mongoConnect.getSeqDBCollection() != null ? mongoConnect.getSeqDBCollection().count() : 0;
+		final long numSeqDB = mongoConnect.getSeqDBCollection() != null ? mongoConnect.getSeqDBCollection().count() : 0;
 
 		return numSeqDB;
 	}
@@ -258,4 +260,8 @@ public class DBIndexStoreMongoDb implements DBIndexStore {
 		return new ResidueInfo(peptideSequence.getResLeft(), peptideSequence.getResLeft());
 	}
 
+	@Override
+	public List<Integer> getEntryKeys() throws DBIndexStoreException {
+		throw new NotSupportedException("Method not implemented");
+	}
 }

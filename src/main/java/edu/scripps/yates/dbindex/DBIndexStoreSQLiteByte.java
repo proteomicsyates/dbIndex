@@ -99,7 +99,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 
 			getSeqMassRanges2_Statements = new PreparedStatement[Constants.MAX_MASS_RANGES];
 
-			StringBuilder stSb = new StringBuilder();
+			final StringBuilder stSb = new StringBuilder();
 			stSb.append("SELECT DISTINCT precursor_mass_key, data ");
 			stSb.append("FROM ").append(getIndexTableName()).append(" WHERE ");
 			for (int st = 0; st < Constants.MAX_MASS_RANGES; ++st) {
@@ -116,7 +116,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 			getSeqExistsStatement = con.prepareStatement("SELECT precursor_mass_key " + "FROM " + getIndexTableName()
 					+ " " + "WHERE precursor_mass_key = ? LIMIT 1;");
 
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			logger.error("Error initializing statements in db, path: " + dbPath, e);
 			throw new DBIndexStoreException("Error initializing statements in db, path: " + dbPath, e);
 		}
@@ -178,7 +178,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 	 */
 	private void updateCachedData(double precMass, int seqOffset, int seqLength, int proteinId) {
 		// changed by Salva 11Nov2014, using the value on IndexUtil
-		int rowId = (int) (precMass * sparam.getMassGroupFactor());
+		final int rowId = (int) (precMass * sparam.getMassGroupFactor());
 
 		// change by Salva 21Nov2014
 		// DynByteBuffer byteBuffer = data[rowId];
@@ -191,16 +191,16 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 		}
 
 		// store in Little-Endian order
-		byte[] seqMassB = DynByteBuffer.toByteArray(precMass);
+		final byte[] seqMassB = DynByteBuffer.toByteArray(precMass);
 		byteBuffer.add(seqMassB);
 
-		byte[] seqOffsetB = DynByteBuffer.toByteArray(seqOffset);
+		final byte[] seqOffsetB = DynByteBuffer.toByteArray(seqOffset);
 		byteBuffer.add(seqOffsetB);
 
-		byte[] seqLengthB = DynByteBuffer.toByteArray(seqLength);
+		final byte[] seqLengthB = DynByteBuffer.toByteArray(seqLength);
 		byteBuffer.add(seqLengthB);
 
-		byte[] proteinIdB = DynByteBuffer.toByteArray(proteinId);
+		final byte[] proteinIdB = DynByteBuffer.toByteArray(proteinId);
 		byteBuffer.add(proteinIdB);
 
 		// commit this mass after COMMIT_SEQUENCES sequences
@@ -210,7 +210,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 					insertSequence(rowId, byteBuffer);
 					// clear since we wrote it to db
 					byteBuffer.clear();
-				} catch (SQLException e) {
+				} catch (final SQLException e) {
 					logger.error("Error commiting mass buffer");
 				}
 			}
@@ -260,12 +260,12 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 		// change by Salva 21Nov2014
 		// for (int massKey = 0; massKey < MAX_MASS; ++massKey) {
 		// for (int massKey = 0; massKey < data.length; ++massKey) {
-		for (Integer massKey : dataMap.keys()) {
+		for (final Integer massKey : dataMap.keys()) {
 
 			// see if already in index
 			// change by Salva 21Nov2014
 			// DynByteBuffer cached = data[massKey];
-			DynByteBuffer cached = dataMap.get(massKey);
+			final DynByteBuffer cached = dataMap.get(massKey);
 			if (cached == null || cached.getSize() == 0) {
 				continue;
 			}
@@ -327,7 +327,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 				seqCount = 0;
 				try {
 					commitCachedData();
-				} catch (SQLException ex) {
+				} catch (final SQLException ex) {
 					logger.error("Error commiting cached data", ex);
 				}
 			}
@@ -353,17 +353,17 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 		// logger.log(Level.FINE, "Starting peptide sequences query");
 		// long start = System.currentTimeMillis();
 
-		double toleranceFactor = tolerance; // precMass * tolerance;
+		final double toleranceFactor = tolerance; // precMass * tolerance;
 		double minMassF = precMass - toleranceFactor;
 		if (minMassF < 0f) {
 			minMassF = 0;
 		}
-		double maxMassF = precMass + toleranceFactor;
+		final double maxMassF = precMass + toleranceFactor;
 		// changed by Salva 11Nov2014, using the value on IndexUtil
-		int precMassInt = (int) (precMass * sparam.getMassGroupFactor());
+		final int precMassInt = (int) (precMass * sparam.getMassGroupFactor());
 		// long toleranceInt = (long) (tolerance * MASS_STORE_MULT);
 		// changed by Salva 11Nov2014, using the value on IndexUtil
-		int toleranceInt = (int) (toleranceFactor * sparam.getMassGroupFactor()); // Robin
+		final int toleranceInt = (int) (toleranceFactor * sparam.getMassGroupFactor()); // Robin
 		// fixed
 		// the
 		// ppm
@@ -380,7 +380,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 		int maxMass = precMassInt + toleranceInt;
 		// change by Salva 21Nov2014
 		maxMass = (int) (maxMassF * sparam.getMassGroupFactor());
-		List<IndexedSequence> ret = new ArrayList<IndexedSequence>();
+		final List<IndexedSequence> ret = new ArrayList<IndexedSequence>();
 
 		ResultSet rs = null;
 		try {
@@ -398,15 +398,15 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 
 			}
 
-		} catch (SQLException e) {
-			String msg = "Error getting peptides ";
+		} catch (final SQLException e) {
+			final String msg = "Error getting peptides ";
 			logger.error(msg, e);
 			throw new DBIndexStoreException(msg, e);
 		} finally {
 			if (rs != null) {
 				try {
 					rs.close();
-				} catch (SQLException ex) {
+				} catch (final SQLException ex) {
 					logger.error(null, ex);
 				}
 			}
@@ -422,7 +422,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 	@Override
 	public List<IndexedSequence> getSequences(List<MassRange> ranges) throws DBIndexStoreException {
 		if (ranges.size() == 1) {
-			MassRange range = ranges.get(0);
+			final MassRange range = ranges.get(0);
 			return getSequences(range.getPrecMass(), range.getTolerance());
 		}
 
@@ -440,9 +440,9 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 	private void parseAddPeptideInfo(byte[] data, List<IndexedSequence> toInsert, double minMass, double maxMass) {
 
 		// to collapse multiple sequences into single one, with multproteins
-		Map<String, List<IndexedSeqInternal>> temp = new THashMap<String, List<IndexedSeqInternal>>();
+		final Map<String, List<IndexedSeqInternal>> temp = new THashMap<String, List<IndexedSeqInternal>>();
 
-		int dataLength = data.length;
+		final int dataLength = data.length;
 
 		// if (dataLength % 4 != 0) {
 		// throw new RuntimeException("Unexpected number of peptide items: "
@@ -456,7 +456,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 			final int fourth = i + 20;
 
 			byte[] slice = Arrays.copyOfRange(data, i, first);
-			double seqMass = DynByteBuffer.toDouble(slice);
+			final double seqMass = DynByteBuffer.toDouble(slice);
 
 			if (seqMass < minMass || seqMass > maxMass) {
 				// skip the sequence, it qualified the bucket, but not the
@@ -465,11 +465,11 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 			}
 
 			slice = Arrays.copyOfRange(data, first, second);
-			int offset = DynByteBuffer.toInt(slice);
+			final int offset = DynByteBuffer.toInt(slice);
 			slice = Arrays.copyOfRange(data, second, third);
-			int length = DynByteBuffer.toInt(slice);
+			final int length = DynByteBuffer.toInt(slice);
 			slice = Arrays.copyOfRange(data, third, fourth);
-			int proteinId = DynByteBuffer.toInt(slice);
+			final int proteinId = DynByteBuffer.toInt(slice);
 
 			String peptideSequence = null;
 			// System.out.print("prot id: " + proteinId + " offset: " +
@@ -495,25 +495,25 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 
 		// group the same peptides from many proteins into single peptide
 		// with protein id list
-		for (String pepSeqKey : temp.keySet()) {
+		for (final String pepSeqKey : temp.keySet()) {
 
-			List<IndexedSeqInternal> sequences = temp.get(pepSeqKey);
+			final List<IndexedSeqInternal> sequences = temp.get(pepSeqKey);
 
-			TIntHashSet proteinIds = new TIntHashSet();
-			for (IndexedSeqInternal tempSeq : sequences) {
+			final TIntHashSet proteinIds = new TIntHashSet();
+			for (final IndexedSeqInternal tempSeq : sequences) {
 				proteinIds.add(tempSeq.proteinId);
 			}
 
-			IndexedSeqInternal firstSeq = sequences.get(0);
-			IndexedSequence mergedSequence = new IndexedSequence(0, firstSeq.mass, pepSeqKey, "", "");
-			ArrayList<Integer> proteinIds2 = new ArrayList<Integer>();
-			for (int integer : proteinIds._set) {
+			final IndexedSeqInternal firstSeq = sequences.get(0);
+			final IndexedSequence mergedSequence = new IndexedSequence(0, firstSeq.mass, pepSeqKey, "", "");
+			final ArrayList<Integer> proteinIds2 = new ArrayList<Integer>();
+			for (final int integer : proteinIds._set) {
 				proteinIds2.add(integer);
 			}
 			mergedSequence.setProteinIds(proteinIds2);
 			// set residues
 			final String protSequence = proteinCache.getProteinSequence(firstSeq.proteinId);
-			ResidueInfo residues = Util.getResidues(null, firstSeq.offset, firstSeq.length, protSequence);
+			final ResidueInfo residues = Util.getResidues(null, firstSeq.offset, firstSeq.length, protSequence);
 			mergedSequence.setResidues(residues);
 			toInsert.add(mergedSequence);
 		}
@@ -565,7 +565,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 			executeStatement("CREATE TABLE IF NOT EXISTS " + getIndexTableName() + " "
 					+ "(precursor_mass_key INTEGER PRIMARY KEY, " + "data BINARY" + ");");
 
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			logger.error("Error creating tables, ", e);
 			throw new DBIndexStoreException("Error creating tables. ", e);
 		}
@@ -585,7 +585,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 			// "Creating precursor_mass_key_index_dsc ");
 			executeStatement("CREATE INDEX IF NOT EXISTS precursor_mass_key_index_dsc ON " + getIndexTableName()
 					+ " (precursor_mass_key DESC);");
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			e.printStackTrace();
 			logger.error("Error creating index, ", e);
 			throw new DBIndexStoreException("Error creating index, ", e);
@@ -637,7 +637,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 				con.close();
 				con = null;
 			}
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			logger.debug("Error closing SQLite connection", ex);
 		}
 	}
@@ -653,14 +653,44 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 			// we don't really now, return number of rows for now
 			rs = executeQuery("SELECT COUNT(*) FROM " + getIndexTableName());
 			return rs.getLong(1);
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			logger.error("Error executing query to get number of sequences.", ex);
 			throw new DBIndexStoreException("Error executing query to get number of sequences.", ex);
 		} finally {
 			if (rs != null) {
 				try {
 					rs.close();
-				} catch (SQLException ex) {
+				} catch (final SQLException ex) {
+					logger.error(null, ex);
+				}
+			}
+		}
+
+	}
+
+	@Override
+	public List<Integer> getEntryKeys() throws DBIndexStoreException {
+		if (!inited) {
+			throw new DBIndexStoreException("Indexer is not initialized");
+		}
+
+		ResultSet rs = null;
+		try {
+			// we don't really now, return number of rows for now
+			rs = executeQuery("SELECT precursor_mass_key FROM " + getIndexTableName());
+			final List<Integer> ret = new ArrayList<Integer>();
+			while (rs.next()) {
+				ret.add(rs.getInt(1));
+			}
+			return ret;
+		} catch (final SQLException ex) {
+			logger.error("Error executing query to get number of sequences.", ex);
+			throw new DBIndexStoreException("Error executing query to get number of sequences.", ex);
+		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (final SQLException ex) {
 					logger.error(null, ex);
 				}
 			}

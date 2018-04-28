@@ -183,6 +183,16 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 		return total;
 	}
 
+	@Override
+	public List<Integer> getEntryKeys() throws DBIndexStoreException {
+		final List<Integer> ret = new ArrayList<Integer>();
+
+		for (int i = 0; i < Constants.NUM_BUCKETS; ++i) {
+			ret.addAll(buckets[i].getEntryKeys());
+		}
+		return ret;
+	}
+
 	public boolean hasSequences() throws DBIndexStoreException {
 
 		for (int i = 0; i < Constants.NUM_BUCKETS; ++i) {

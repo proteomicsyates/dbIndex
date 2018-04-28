@@ -22,7 +22,9 @@ public interface DBIndexStore {
 	 * If database already exists, new sequences added will be appended. Care
 	 * must be taken by the client not to index the same database multiple times
 	 * and create duplicate entries.
+	 * 
 	 * @param databaseID id to associate with the storage
+	 * 
 	 * @throws DBIndexStoreException exception thrown when an error associates
 	 * with the underlying DB storage occured
 	 */
@@ -207,6 +209,8 @@ public interface DBIndexStore {
 	 *             exception thrown if could not get residues
 	 */
 	ResidueInfo getResidues(IndexedSequence peptideSequence, IndexedProtein protein) throws DBIndexStoreException;
+
+	public List<Integer> getEntryKeys() throws DBIndexStoreException;
 
 }
 

@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.ws.rs.NotSupportedException;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.document.Document;
@@ -109,10 +111,10 @@ public class DBIndexStoreLucene implements DBIndexStore {
 
 		// analyzer = new StandardAnalyzer(LUCENE_VERSION);
 		writeAnalyzer = new SimpleAnalyzer(LUCENE_VERSION);
-		IndexWriterConfig config = new IndexWriterConfig(LUCENE_VERSION, writeAnalyzer);
+		final IndexWriterConfig config = new IndexWriterConfig(LUCENE_VERSION, writeAnalyzer);
 
 		try {
-			Directory dir = FSDirectory.open(new File(indexDir));
+			final Directory dir = FSDirectory.open(new File(indexDir));
 			config.setOpenMode(OpenMode.CREATE);
 			config.setRAMBufferSizeMB(2048.0);
 			// TODO disable auto commit
@@ -121,7 +123,7 @@ public class DBIndexStoreLucene implements DBIndexStore {
 			// document.add(new Field(FIELD_PATH, path, Field.Store.YES,
 			// Field.Index.UN_TOKENIZED));
 
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			logger.log(Level.SEVERE, "Error setting up index", e);
 			throw new DBIndexStoreException("Error setting up index", e);
 		}
@@ -132,11 +134,11 @@ public class DBIndexStoreLucene implements DBIndexStore {
 		try {
 			indexReader = DirectoryReader.open(FSDirectory.open(new File(indexDir)));
 			indexSearcher = new IndexSearcher(indexReader);
-		} catch (org.apache.lucene.index.IndexNotFoundException e) {
+		} catch (final org.apache.lucene.index.IndexNotFoundException e) {
 			logger.log(Level.WARNING, "Index not found, OK if running in index mode " + indexDir, e);
 			// TODO maybe in index mode, TOOD fix, may need to know the mode how
 			// to initialize
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			logger.log(Level.SEVERE, "Cannot initialize reader for indexDir: " + indexDir, ex);
 			throw new DBIndexStoreException("Cannot initialize reader for indexDir: " + indexDir, ex);
 		}
@@ -158,14 +160,14 @@ public class DBIndexStoreLucene implements DBIndexStore {
 				logger.log(Level.INFO, "Closing writing index");
 				indexWriter.close();
 			}
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			logger.log(Level.SEVERE, "Error closing the indexer", ex);
 		}
 	}
 
 	@Override
 	public boolean indexExists() throws DBIndexStoreException {
-		File dir = new File(indexDir);
+		final File dir = new File(indexDir);
 		if (dir.exists() && dir.isDirectory() && dir.listFiles().length == 0) {
 			return false;
 		}
@@ -196,7 +198,7 @@ public class DBIndexStoreLucene implements DBIndexStore {
 		try {
 			indexWriter.addDocument(document);
 			// indexWriter.commit();
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			logger.log(Level.SEVERE, "Error indexing a sequence", ex);
 			throw new DBIndexStoreException("Error indexing a sequence", ex);
 		}
@@ -206,11 +208,11 @@ public class DBIndexStoreLucene implements DBIndexStore {
 	private List<IndexedSequence> runQuery(Query query) throws DBIndexStoreException {
 		// System.out.println("Searching for: " + query.toString());
 		// Date start = new Date();
-		ResultsCollector resultsCollector = new ResultsCollector();
+		final ResultsCollector resultsCollector = new ResultsCollector();
 		try {
 			indexSearcher.search(query, resultsCollector);
 
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			logger.log(Level.SEVERE, "Error searching with query: " + query.toString(), ex);
 			throw new DBIndexStoreException("Error searching with query: " + query.toString(), ex);
 		}
@@ -236,9 +238,9 @@ public class DBIndexStoreLucene implements DBIndexStore {
 		if (massLow < 0.0) {
 			massLow = 0.0;
 		}
-		double massHigh = precMass + tolerance;
+		final double massHigh = precMass + tolerance;
 
-		Query query = NumericRangeQuery.newDoubleRange(searchField, massLow, massHigh, true, true);
+		final Query query = NumericRangeQuery.newDoubleRange(searchField, massLow, massHigh, true, true);
 
 		return runQuery(query);
 	}
@@ -251,19 +253,19 @@ public class DBIndexStoreLucene implements DBIndexStore {
 					"Cannot search, searcher not initialized on the index, are you running in indexing mode?");
 		}
 
-		org.apache.lucene.search.BooleanQuery composite = new org.apache.lucene.search.BooleanQuery();
+		final org.apache.lucene.search.BooleanQuery composite = new org.apache.lucene.search.BooleanQuery();
 
-		for (MassRange range : ranges) {
+		for (final MassRange range : ranges) {
 
-			double precMass = range.getPrecMass();
-			double tolerance = range.getTolerance();
+			final double precMass = range.getPrecMass();
+			final double tolerance = range.getTolerance();
 			double massLow = precMass - tolerance;
 			if (massLow < 0.0) {
 				massLow = 0.0;
 			}
-			double massHigh = precMass + tolerance;
+			final double massHigh = precMass + tolerance;
 
-			Query query = NumericRangeQuery.newDoubleRange(searchField, massLow, massHigh, true, true);
+			final Query query = NumericRangeQuery.newDoubleRange(searchField, massLow, massHigh, true, true);
 			composite.add(query, org.apache.lucene.search.BooleanClause.Occur.SHOULD);
 		}
 
@@ -290,10 +292,10 @@ public class DBIndexStoreLucene implements DBIndexStore {
 	@Override
 	public List<IndexedProtein> getProteins(IndexedSequence sequence) throws DBIndexStoreException {
 		// get prot id from index and prot ids from cache
-		List<IndexedProtein> ret = new ArrayList<IndexedProtein>();
+		final List<IndexedProtein> ret = new ArrayList<IndexedProtein>();
 
-		for (Integer protId : sequence.getProteinIds()) {
-			IndexedProtein ip = new IndexedProtein(protCache.getProteinDef(protId), protId);
+		for (final Integer protId : sequence.getProteinIds()) {
+			final IndexedProtein ip = new IndexedProtein(protCache.getProteinDef(protId), protId);
 			ret.add(ip);
 		}
 
@@ -324,20 +326,20 @@ public class DBIndexStoreLucene implements DBIndexStore {
 	public static void main(String[] args) {
 		DBIndexStore store = new DBIndexStoreLucene();
 
-		String protDef1 = "4R79.2 CE19650 WBGene00007067 Ras family status:Partially_confirmed TR:Q9XXA4 protein_id:CAA20282.1";
-		String protDef2 = "Reverse_4R79.2  CE19650 WBGene00007067 Ras family status:Partially_confirmed TR:Q9XXA4 protein_id:CAA20282.1";
+		final String protDef1 = "4R79.2 CE19650 WBGene00007067 Ras family status:Partially_confirmed TR:Q9XXA4 protein_id:CAA20282.1";
+		final String protDef2 = "Reverse_4R79.2  CE19650 WBGene00007067 Ras family status:Partially_confirmed TR:Q9XXA4 protein_id:CAA20282.1";
 
 		try {
 			logger.log(Level.INFO, "Testing init");
-			File idx = new File("./test.fasta.idx");
+			final File idx = new File("./test.fasta.idx");
 			if (idx.exists() && idx.isDirectory()) {
-				for (File f : idx.listFiles()) {
+				for (final File f : idx.listFiles()) {
 					f.delete();
 				}
 				idx.delete();
 			}
 
-			ProteinCache protCache = new ProteinCache();
+			final ProteinCache protCache = new ProteinCache();
 			store.init("./test.fasta");
 			store.setProteinCache(protCache);
 
@@ -345,7 +347,7 @@ public class DBIndexStoreLucene implements DBIndexStore {
 			logger.log(Level.INFO, "Testing adds 1");
 			store.startAddSeq();
 
-			long protId = store.addProteinDef(0, protDef1, "ABCDEFGHIJKL");
+			final long protId = store.addProteinDef(0, protDef1, "ABCDEFGHIJKL");
 			protCache.addProtein("4R79.2", "ABCDEFGHIJKL");
 
 			store.addSequence(1f, 0, 1, "A", null, null, protId);
@@ -357,7 +359,7 @@ public class DBIndexStoreLucene implements DBIndexStore {
 			store.addSequence(3, 6, 3, "GHI", null, null, protId);
 			// store.addSequence(3, 6, 3, "GHI", null, null, protId);
 			// store.stopAddSeq();
-		} catch (DBIndexStoreException ex) {
+		} catch (final DBIndexStoreException ex) {
 			logger.log(Level.SEVERE, null, ex);
 		}
 
@@ -366,8 +368,8 @@ public class DBIndexStoreLucene implements DBIndexStore {
 			logger.log(Level.INFO, "Testing adds 2");
 			// store.startAddSeq();
 
-			long protId = store.addProteinDef(1, protDef2, "GHIJKLMNOPR");
-			ProteinCache protCache = new ProteinCache();
+			final long protId = store.addProteinDef(1, protDef2, "GHIJKLMNOPR");
+			final ProteinCache protCache = new ProteinCache();
 			protCache.addProtein("Reverse_4R79.2", "GHIJKLMN");
 
 			store.addSequence(3, 1, 3, "HIJ", null, null, protId);
@@ -377,50 +379,50 @@ public class DBIndexStoreLucene implements DBIndexStore {
 			store.addSequence(3, 0, 3, "GHI", null, null, protId); // test dup
 			store.addSequence(3, 0, 3, "GHI", null, null, protId); // test dup
 			store.stopAddSeq();
-		} catch (DBIndexStoreException ex) {
+		} catch (final DBIndexStoreException ex) {
 			logger.log(Level.SEVERE, null, ex);
 		}
 
 		try {
 			// test gets
 			logger.log(Level.INFO, "Testing gets 1");
-			List<IndexedSequence> res1 = store.getSequences(10, 8.9f);
-			for (IndexedSequence seq : res1) {
+			final List<IndexedSequence> res1 = store.getSequences(10, 8.9f);
+			for (final IndexedSequence seq : res1) {
 				System.out.println(seq);
-				List<IndexedProtein> proteins = store.getProteins(seq);
-				for (IndexedProtein protein : proteins) {
-					ResidueInfo res = store.getResidues(seq, protein);
+				final List<IndexedProtein> proteins = store.getProteins(seq);
+				for (final IndexedProtein protein : proteins) {
+					final ResidueInfo res = store.getResidues(seq, protein);
 					System.out.println(protein);
 					System.out.println(res);
 				}
 			}
-		} catch (DBIndexStoreException ex) {
+		} catch (final DBIndexStoreException ex) {
 			logger.log(Level.SEVERE, null, ex);
 		}
 
 		try {
 			// test gets
 			System.out.println("Testing range gets 1");
-			MassRange r1 = new MassRange(2, 1f);
-			MassRange r2 = new MassRange(6, 1f);
-			MassRange r3 = new MassRange(6, 1f); // test redundant
-			MassRange r4 = new MassRange(6, 1.2f); // test overlapping
-			List<MassRange> ranges = new ArrayList<MassRange>();
+			final MassRange r1 = new MassRange(2, 1f);
+			final MassRange r2 = new MassRange(6, 1f);
+			final MassRange r3 = new MassRange(6, 1f); // test redundant
+			final MassRange r4 = new MassRange(6, 1.2f); // test overlapping
+			final List<MassRange> ranges = new ArrayList<MassRange>();
 			ranges.add(r2);
 			ranges.add(r1);
 			ranges.add(r3);
 			ranges.add(r4);
-			List<IndexedSequence> res1 = store.getSequences(ranges);
-			for (IndexedSequence seq : res1) {
+			final List<IndexedSequence> res1 = store.getSequences(ranges);
+			for (final IndexedSequence seq : res1) {
 				System.out.println(seq);
-				List<IndexedProtein> proteins = store.getProteins(seq);
-				for (IndexedProtein protein : proteins) {
-					ResidueInfo res = store.getResidues(seq, protein);
+				final List<IndexedProtein> proteins = store.getProteins(seq);
+				for (final IndexedProtein protein : proteins) {
+					final ResidueInfo res = store.getResidues(seq, protein);
 					System.out.println(protein);
 					System.out.println(res);
 				}
 			}
-		} catch (DBIndexStoreException ex) {
+		} catch (final DBIndexStoreException ex) {
 			logger.log(Level.SEVERE, null, ex);
 		}
 
@@ -433,20 +435,20 @@ public class DBIndexStoreLucene implements DBIndexStore {
 			store.init("EBI-IPI_Human_IPI_Human_3_85_06-29-2011_reversed.fasta");
 			for (int i = 0; i < 1000; ++i) {
 				logger.log(Level.INFO, "Testing getting sequence " + i);
-				List<IndexedSequence> res = store.getSequences(i, 3f);
+				final List<IndexedSequence> res = store.getSequences(i, 3f);
 				if (res.size() > 0) {
-					IndexedSequence seq = res.get(0);
+					final IndexedSequence seq = res.get(0);
 					logger.log(Level.INFO, "Got " + res.size() + " sequences, first sequence: " + seq);
-					List<IndexedProtein> proteins = store.getProteins(seq);
+					final List<IndexedProtein> proteins = store.getProteins(seq);
 					logger.log(Level.INFO, "Got " + res.size() + " sequences, first sequence's proteins: ");
-					for (IndexedProtein protein : proteins) {
+					for (final IndexedProtein protein : proteins) {
 						System.out.println(protein);
 					}
 				}
 
 			}
 
-		} catch (DBIndexStoreException ex) {
+		} catch (final DBIndexStoreException ex) {
 			logger.log(Level.SEVERE, null, ex);
 		}
 
@@ -455,16 +457,16 @@ public class DBIndexStoreLucene implements DBIndexStore {
 			store = new DBIndexStoreLucene();
 			store.init("test_02.fasta");
 
-			List<IndexedSequence> res = store.getSequences(1000, 3000);
-			for (IndexedSequence seq : res) {
+			final List<IndexedSequence> res = store.getSequences(1000, 3000);
+			for (final IndexedSequence seq : res) {
 				System.out.println(seq);
-				List<IndexedProtein> prots = store.getProteins(seq);
-				for (IndexedProtein prot : prots) {
+				final List<IndexedProtein> prots = store.getProteins(seq);
+				for (final IndexedProtein prot : prots) {
 					System.out.println("\t" + prot);
 				}
 			}
 
-		} catch (DBIndexStoreException ex) {
+		} catch (final DBIndexStoreException ex) {
 			logger.log(Level.SEVERE, null, ex);
 		}
 
@@ -482,25 +484,25 @@ public class DBIndexStoreLucene implements DBIndexStore {
 
 		@Override
 		public void collect(int i) throws IOException {
-			AtomicReader reader = curReader.reader();
+			final AtomicReader reader = curReader.reader();
 
 			final Document doc = reader.document(i);
 
 			// System.out.println("DOC: " + doc.toString());
 
-			List<IndexableField> fields = doc.getFields();
+			final List<IndexableField> fields = doc.getFields();
 			if (fields.isEmpty()) {
 				return;
 			}
 
-			IndexableField mass = doc.getField(FIELDS.MASS.toString());
-			double massF = mass.numericValue().doubleValue();
-			IndexableField offset = doc.getField(FIELDS.OFFSET.toString());
-			int offsetI = offset.numericValue().intValue();
-			IndexableField protId = doc.getField(FIELDS.PROT_ID.toString());
-			int protIdI = protId.numericValue().intValue();
-			IndexableField len = doc.getField(FIELDS.LEN.toString());
-			int lenI = len.numericValue().intValue();
+			final IndexableField mass = doc.getField(FIELDS.MASS.toString());
+			final double massF = mass.numericValue().doubleValue();
+			final IndexableField offset = doc.getField(FIELDS.OFFSET.toString());
+			final int offsetI = offset.numericValue().intValue();
+			final IndexableField protId = doc.getField(FIELDS.PROT_ID.toString());
+			final int protIdI = protId.numericValue().intValue();
+			final IndexableField len = doc.getField(FIELDS.LEN.toString());
+			final int lenI = len.numericValue().intValue();
 
 			String peptideSequence = null;
 			// System.out.print("prot id: " + protId + " offset: " + offsetI +
@@ -523,28 +525,28 @@ public class DBIndexStoreLucene implements DBIndexStore {
 		}
 
 		List<IndexedSequence> getSequences() {
-			List<IndexedSequence> ret = new ArrayList<IndexedSequence>();
+			final List<IndexedSequence> ret = new ArrayList<IndexedSequence>();
 			// group the same peptides from many proteins into single peptide
 			// with protein id list
-			for (String pepSeqKey : temp.keySet()) {
+			for (final String pepSeqKey : temp.keySet()) {
 
-				List<IndexedSeqInternal> sequences = temp.get(pepSeqKey);
+				final List<IndexedSeqInternal> sequences = temp.get(pepSeqKey);
 
-				TIntHashSet proteinIds = new TIntHashSet();
-				for (IndexedSeqInternal tempSeq : sequences) {
+				final TIntHashSet proteinIds = new TIntHashSet();
+				for (final IndexedSeqInternal tempSeq : sequences) {
 					proteinIds.add(tempSeq.proteinId);
 				}
 
-				IndexedSeqInternal firstSeq = sequences.get(0);
-				IndexedSequence mergedSequence = new IndexedSequence(0, firstSeq.mass, pepSeqKey, "", "");
-				ArrayList<Integer> proteinIds2 = new ArrayList<Integer>();
-				for (int integer : proteinIds._set) {
+				final IndexedSeqInternal firstSeq = sequences.get(0);
+				final IndexedSequence mergedSequence = new IndexedSequence(0, firstSeq.mass, pepSeqKey, "", "");
+				final ArrayList<Integer> proteinIds2 = new ArrayList<Integer>();
+				for (final int integer : proteinIds._set) {
 					proteinIds2.add(integer);
 				}
 				mergedSequence.setProteinIds(proteinIds2);
 				// set residues
 				final String protSequence = protCache.getProteinSequence(firstSeq.proteinId);
-				ResidueInfo residues = Util.getResidues(null, firstSeq.offset, firstSeq.length, protSequence);
+				final ResidueInfo residues = Util.getResidues(null, firstSeq.offset, firstSeq.length, protSequence);
 				mergedSequence.setResidues(residues);
 				ret.add(mergedSequence);
 			}
@@ -566,5 +568,10 @@ public class DBIndexStoreLucene implements DBIndexStore {
 	@Override
 	public Iterator<IndexedSequence> getSequencesIterator(List<MassRange> ranges) throws DBIndexStoreException {
 		return getSequences(ranges).iterator();
+	}
+
+	@Override
+	public List<Integer> getEntryKeys() throws DBIndexStoreException {
+		throw new NotSupportedException("Method not implemented");
 	}
 }
