@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.NotSupportedException;
+
 import gnu.trove.map.hash.THashMap;
 
 /**
@@ -42,7 +44,7 @@ public class MassRangeFilteringIndex implements DBIndexStore {
 		maxMasses = new double[numRanges];
 
 		int rangeNum = 0;
-		for (MassRange range : massRanges) {
+		for (final MassRange range : massRanges) {
 			final double precMass = range.getPrecMass();
 			final double tol = range.getTolerance();
 
@@ -50,7 +52,7 @@ public class MassRangeFilteringIndex implements DBIndexStore {
 			if (minMass == 0) {
 				minMass = 0f;
 			}
-			double maxMass = precMass + tol;
+			final double maxMass = precMass + tol;
 			minMasses[rangeNum] = minMass;
 			maxMasses[rangeNum] = maxMass;
 
@@ -114,7 +116,7 @@ public class MassRangeFilteringIndex implements DBIndexStore {
 			matchingSequences.put(sequence, indexedSequence);
 		} else {
 			// add protein to existing
-			List<Integer> protIds = indexedSequence.getProteinIds();
+			final List<Integer> protIds = indexedSequence.getProteinIds();
 			if (!protIds.contains((int) proteinId)) {
 				protIds.add((int) proteinId);
 			}
@@ -153,12 +155,12 @@ public class MassRangeFilteringIndex implements DBIndexStore {
 
 	@Override
 	public List<IndexedProtein> getProteins(IndexedSequence sequence) throws DBIndexStoreException {
-		List<Integer> proteinIds = sequence.getProteinIds();
+		final List<Integer> proteinIds = sequence.getProteinIds();
 
-		List<IndexedProtein> ret = new ArrayList<IndexedProtein>();
+		final List<IndexedProtein> ret = new ArrayList<IndexedProtein>();
 
-		for (int protId : proteinIds) {
-			IndexedProtein indexedProtein = new IndexedProtein(protId);
+		for (final int protId : proteinIds) {
+			final IndexedProtein indexedProtein = new IndexedProtein(protId);
 
 			final String accession = proteinCache.getProteinDef(protId);
 			indexedProtein.setAccession(accession);
@@ -179,7 +181,7 @@ public class MassRangeFilteringIndex implements DBIndexStore {
 	public ResidueInfo getResidues(IndexedSequence peptideSequence, IndexedProtein protein)
 			throws DBIndexStoreException {
 		// stored in the sequence itself, no need to calculate
-		ResidueInfo residues = new ResidueInfo(peptideSequence.getResLeft(), peptideSequence.getResRight());
+		final ResidueInfo residues = new ResidueInfo(peptideSequence.getResLeft(), peptideSequence.getResRight());
 		return residues;
 	}
 
@@ -200,5 +202,10 @@ public class MassRangeFilteringIndex implements DBIndexStore {
 	@Override
 	public Iterator<IndexedSequence> getSequencesIterator(List<MassRange> ranges) throws DBIndexStoreException {
 		return getSequences(ranges).iterator();
+	}
+
+	@Override
+	public List<Integer> getEntryKeys() throws DBIndexStoreException {
+		throw new NotSupportedException("Method not implemented");
 	}
 }

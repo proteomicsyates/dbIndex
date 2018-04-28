@@ -72,7 +72,7 @@ public class IndexUtil {
 	}
 
 	public static String createFullIndexFileName(DBIndexSearchParams params) {
-		String uniqueIndexName = params.getDatabaseName() + "_";
+		final String uniqueIndexName = params.getDatabaseName() + "_";
 
 		// generate a unique string based on current params that affect the
 		// index
@@ -119,7 +119,7 @@ public class IndexUtil {
 		}
 
 		final String uniqueParamsStr = uniqueParams.toString();
-		String uniqueParamsStrHash = Util.getMd5(uniqueParamsStr);
+		final String uniqueParamsStrHash = Util.getMd5(uniqueParamsStr);
 		log.info("Index Unique String: " + uniqueParamsStr);
 		log.info("Index Unique hashkey: " + uniqueParamsStrHash);
 		return uniqueIndexName + uniqueParamsStrHash;
@@ -127,9 +127,9 @@ public class IndexUtil {
 
 	public static FastaReader getFastaReader(DBIndexSearchParams params) {
 		if (params.isLookProteoforms() != null && params.isLookProteoforms()) {
-			UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(params.getUniprotReleasesFolder(),
-					true);
-			UniprotProteoformRetriever proteoFormRetriever = new UniprotProteoformRetrieverFromXML(uplr);
+			final UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(
+					params.getUniprotReleasesFolder(), true);
+			final UniprotProteoformRetriever proteoFormRetriever = new UniprotProteoformRetrieverFromXML(uplr, null);
 			return new ProteoFormFastaReader(params.getDatabaseName(), proteoFormRetriever);
 		} else {
 			return new FastaReader(params.getDatabaseName());
