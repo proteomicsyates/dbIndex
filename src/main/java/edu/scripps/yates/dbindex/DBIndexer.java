@@ -13,6 +13,8 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
+import com.compomics.util.general.UnknownElementMassException;
+
 import edu.scripps.yates.dbindex.DBIndexStore.FilterResult;
 import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
 import edu.scripps.yates.dbindex.io.SearchParamReader;
@@ -23,6 +25,7 @@ import edu.scripps.yates.dbindex.util.PeptideFilter;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.fasta.Fasta;
 import edu.scripps.yates.utilities.fasta.FastaReader;
+import edu.scripps.yates.utilities.masses.FormulaCalculator;
 import gnu.trove.set.hash.THashSet;
 
 /**
@@ -79,6 +82,7 @@ public class DBIndexer {
 	private final PeptideFilter peptideFilter;
 	private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(DBIndexer.class);
 	private static final int MAX_SEQ_LENGTH = 10000;
+	private static final FormulaCalculator formulaCalculator = new FormulaCalculator();
 
 	public static void main(String[] args) {
 
@@ -101,22 +105,22 @@ public class DBIndexer {
 			preader = new SearchParamReader(path, SearchParamReader.DEFAULT_PARAM_FILE_NAME);
 			// preader = new SearchParamReader(args[0],
 			// SearchParamReader.DEFAULT_PARAM_FILE_NAME);
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			logger.error("Error getting params", ex);
 			return;
 		}
-		DBIndexSearchParams sparam = preader.getParam();
+		final DBIndexSearchParams sparam = preader.getParam();
 
 		if (!sparam.getIndexType().equals(IndexType.INDEX_LARGE)) {
 			throw new RuntimeException("Merge only works for large db index type, other indexed have merge built-in");
 		}
 
 		// indexer in indexing mode
-		DBIndexStoreFiles largeIndex = new DBIndexStoreFiles();
+		final DBIndexStoreFiles largeIndex = new DBIndexStoreFiles();
 		try {
 			largeIndex.merge(sparam);
 
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			logger.error("Error running merge on large index.", ex);
 		}
 
@@ -128,18 +132,18 @@ public class DBIndexer {
 			preader = new SearchParamReader(path, paramFile);
 			// preader = new SearchParamReader(args[0],
 			// SearchParamReader.DEFAULT_PARAM_FILE_NAME);
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			logger.error("Error getting params", ex);
 			return;
 		}
-		DBIndexSearchParams sparam = preader.getParam();
+		final DBIndexSearchParams sparam = preader.getParam();
 
 		// indexer in indexing mode
 		final DBIndexer indexer = new DBIndexer(sparam, IndexerMode.INDEX);
 		try {
 			indexer.init();
 			indexer.run();
-		} catch (DBIndexerException ex) {
+		} catch (final DBIndexerException ex) {
 			logger.error("Error running indexer in the index mode.", ex);
 		}
 
@@ -225,21 +229,22 @@ public class DBIndexer {
 	 *            fasta to index
 	 * @throws IOException
 	 */
-	private void cutSeq(final String protAccession, final String protSeq) throws IOException {
+	private void cutSeq(final String protAccession, String protSeq) throws IOException {
 
 		// Enzyme enz = sparam.getEnzyme();
-		final int length = protSeq.length();
+		int length = protSeq.length();
 		//
 		// AssignMass aMass = AssignMass.getInstance(true);
 
 		final char[] pepSeq = new char[MAX_SEQ_LENGTH]; // max seq length
 		int curSeqI = 0;
-
-		int maxIntCleavage = sparam.getMaxMissedCleavages();
+		double aaMass = 0;
+		final int maxIntCleavage = sparam.getMaxMissedCleavages();
 		// at least one of this AAs has to be in the sequence:
 		final char[] mandatoryInternalAAs = sparam.getMandatoryInternalAAs();
+
 		try {
-			long proteinId = indexStore.addProteinDef(++protNum, protAccession, protSeq);
+			final long proteinId = indexStore.addProteinDef(++protNum, protAccession, protSeq);
 			// System.out.println(fasta.getSequestLikeAccession());
 			// System.out.println(fasta.getDefline());
 			// System.out.println(protSeq);
@@ -276,8 +281,26 @@ public class DBIndexer {
 					pepSize++;
 
 					final char curIon = protSeq.charAt(end);
-					pepSeq[curSeqI++] = curIon;
-					final double aaMass = AssignMass.getMass(curIon);
+					if (curIon == '[') {
+						logger.debug("starting formula at " + end);
+						final StringBuilder chemicalFormula = new StringBuilder();
+						while (protSeq.charAt(++end) != ']') {
+							chemicalFormula.append(protSeq.charAt(end));
+						}
+
+						aaMass = formulaCalculator.calculateMass(chemicalFormula.toString());
+
+						// remove the formula from the protein sequence
+						protSeq = protSeq.replace("[" + chemicalFormula + "]", "");
+						// position index properly
+						end -= chemicalFormula.length() + 2;
+						length = protSeq.length();
+						logger.info("Found PTM formula " + chemicalFormula.toString() + " equals to " + aaMass
+								+ " at position " + (end + 1) + " of protein " + protAccession);
+					} else {
+						pepSeq[curSeqI++] = curIon;
+						aaMass = AssignMass.getMass(curIon);
+					}
 					precMass = precMass + aaMass;
 					final String peptideSeqString = String.valueOf(Arrays.copyOf(pepSeq, curSeqI));
 					if (peptideFilter != null && !peptideFilter.isValid(peptideSeqString)) {
@@ -306,7 +329,7 @@ public class DBIndexer {
 
 							if (mandatoryInternalAAs != null) {
 								boolean found = false;
-								for (char internalAA : mandatoryInternalAAs) {
+								for (final char internalAA : mandatoryInternalAAs) {
 									if (peptideSeqString.indexOf(internalAA) >= 0) {
 										found = true;
 									}
@@ -330,13 +353,13 @@ public class DBIndexer {
 								final int resLeftI = start >= Constants.MAX_INDEX_RESIDUE_LEN
 										? start - Constants.MAX_INDEX_RESIDUE_LEN : 0;
 								final int resLeftLen = Math.min(Constants.MAX_INDEX_RESIDUE_LEN, start);
-								StringBuilder sbLeft = new StringBuilder(Constants.MAX_INDEX_RESIDUE_LEN);
+								final StringBuilder sbLeft = new StringBuilder(Constants.MAX_INDEX_RESIDUE_LEN);
 								for (int ii = 0; ii < resLeftLen; ++ii) {
 									sbLeft.append(protSeq.charAt(ii + resLeftI));
 								}
 								final int resRightI = end + 1;
 								final int resRightLen = Math.min(Constants.MAX_INDEX_RESIDUE_LEN, length - end - 1);
-								StringBuilder sbRight = new StringBuilder(Constants.MAX_INDEX_RESIDUE_LEN);
+								final StringBuilder sbRight = new StringBuilder(Constants.MAX_INDEX_RESIDUE_LEN);
 								if (resRightI < length) {
 									for (int jj = 0; jj < resRightLen; ++jj) {
 										sbRight.append(protSeq.charAt(jj + resRightI));
@@ -367,7 +390,10 @@ public class DBIndexer {
 				}
 				//
 			}
-		} catch (DBIndexStoreException e) {
+		} catch (final DBIndexStoreException e) {
+			logger.error("Error writing sequence to db index store, ", e);
+		} catch (final UnknownElementMassException e) {
+			e.printStackTrace();
 			logger.error("Error writing sequence to db index store, ", e);
 		}
 
@@ -389,7 +415,7 @@ public class DBIndexer {
 		final String dbName = sparam.getDatabaseName();
 
 		if (!sparam.isUsingMongoDB()) {
-			File dbFile = new File(dbName);
+			final File dbFile = new File(dbName);
 			if (!dbFile.exists() || !dbFile.canRead()) {
 				throw new DBIndexerException("Cannot read (and index) the Fasta database file: " + dbName);
 			}
@@ -413,7 +439,7 @@ public class DBIndexer {
 				setProteinCache();
 			}
 			inited = true;
-		} catch (DBIndexStoreException ex) {
+		} catch (final DBIndexStoreException ex) {
 			logger.error("Could not initialize index storage.", ex);
 			throw new DBIndexerException("Could not initialize index storage.");
 		}
@@ -440,13 +466,13 @@ public class DBIndexer {
 				Iterator<Fasta> itr = null;
 				try {
 					itr = IndexUtil.getFastaReader(sparam).getFastas();
-				} catch (IOException ex) {
+				} catch (final IOException ex) {
 					logger.error("Could not set protein cache", ex);
 					return;
 				}
 
 				while (itr.hasNext()) {
-					Fasta fasta = itr.next();
+					final Fasta fasta = itr.next();
 					// SALVA CHANGE
 					// protCache.addProtein(fasta.getSequestLikeAccession(),
 					// fasta.getSequence());
@@ -493,7 +519,7 @@ public class DBIndexer {
 					logger.warn("Found no sequences in the index, will now index.");
 				}
 			}
-		} catch (DBIndexStoreException ex) {
+		} catch (final DBIndexStoreException ex) {
 			logger.error("Could not query number of sequences", ex);
 			return;
 		}
@@ -501,18 +527,18 @@ public class DBIndexer {
 		FileInputStream fis = null; // fasta reader
 
 		// setup status writer
-		String statusFilePath = Util.getFileBaseName(sparam.getDatabaseName()) + "log";
+		final String statusFilePath = Util.getFileBaseName(sparam.getDatabaseName()) + "log";
 		FileWriter statusWriter = null;
 		int totalProteins = 0;
 		String totalProteinsString = null;
 		int indexedProteins = 0;
-		long t0 = System.currentTimeMillis();
-		FastaReader fastaReader = IndexUtil.getFastaReader(sparam);
+		final long t0 = System.currentTimeMillis();
+		final FastaReader fastaReader = IndexUtil.getFastaReader(sparam);
 		try {
 			statusWriter = new FileWriter(statusFilePath);
 			totalProteins = fastaReader.getNumberFastas();
 			totalProteinsString = String.valueOf(totalProteins);
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			logger.error("Error initializing index progress writer for file path: " + statusFilePath, ex);
 		}
 
@@ -526,12 +552,12 @@ public class DBIndexer {
 
 			// create prot cache, in case searcher is kicked off in the same
 			// process after indexing is done
-			ProteinCache protCache = getProteinCache();
+			final ProteinCache protCache = getProteinCache();
 			indexStore.setProteinCache(protCache);
 
-			for (Iterator<Fasta> itr = fastaReader.getFastas(); itr.hasNext();) {
+			for (final Iterator<Fasta> itr = fastaReader.getFastas(); itr.hasNext();) {
 
-				Fasta fasta = itr.next();
+				final Fasta fasta = itr.next();
 				// change by SALVA in order to keep all the information of the
 				// header in the index
 				// protCache.addProtein(fasta.getSequestLikeAccession(),
@@ -549,14 +575,14 @@ public class DBIndexer {
 						statusWriter.flush();
 					}
 				}
-				int percentage = indexedProteins * 100 / totalProteins;
+				final int percentage = indexedProteins * 100 / totalProteins;
 				if (currentPercentage != percentage) {
 					logger.info(indexedProteins + " proteins indexed (" + percentage + "%)");
 					currentPercentage = percentage;
 					// average time per percentage:
-					double avgTime = (System.currentTimeMillis() - t0) / currentPercentage;
-					int percentageRemaining = 100 - currentPercentage;
-					double estimatedRemainingTime = percentageRemaining * avgTime;
+					final double avgTime = (System.currentTimeMillis() - t0) / currentPercentage;
+					final int percentageRemaining = 100 - currentPercentage;
+					final double estimatedRemainingTime = percentageRemaining * avgTime;
 					logger.info(DatesUtil.getDescriptiveTimeFromMillisecs(estimatedRemainingTime) + " remaining...");
 				}
 
@@ -564,11 +590,11 @@ public class DBIndexer {
 			// System.out.print("Printing the last buffer....");
 			// indexStore.lastBuffertoDatabase();
 
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			ex.printStackTrace();
 			logger.error("Error initializing and adding sequences", ex);
 			throw new DBIndexerException("Error initializing and adding sequences", ex);
-		} catch (DBIndexStoreException ex) {
+		} catch (final DBIndexStoreException ex) {
 			ex.printStackTrace();
 			logger.error("Error initializing and adding sequences", ex);
 			throw new DBIndexerException("Error initializing and adding sequences", ex);
@@ -577,7 +603,7 @@ public class DBIndexer {
 				if (fis != null) {
 					try {
 						fis.close();
-					} catch (IOException ex) {
+					} catch (final IOException ex) {
 						ex.printStackTrace();
 						logger.error("Cannot close stream", ex);
 					}
@@ -588,13 +614,13 @@ public class DBIndexer {
 					try {
 						statusWriter.flush();
 						statusWriter.close();
-					} catch (IOException ex) {
+					} catch (final IOException ex) {
 						ex.printStackTrace();
 						logger.warn("Errir closing index status writer", ex);
 					}
 				}
 
-			} catch (DBIndexStoreException ex) {
+			} catch (final DBIndexStoreException ex) {
 				ex.printStackTrace();
 				logger.error("Error finalizing adding sequences", ex);
 			}
@@ -633,7 +659,7 @@ public class DBIndexer {
 			try {
 				// stores sequences that match only in our temporary "index"
 				cutSeq(protDef, protSequence);
-			} catch (IOException ex) {
+			} catch (final IOException ex) {
 				logger.error("Error cutting sequence in no-index mode: " + protSequence, ex);
 			}
 
@@ -643,7 +669,7 @@ public class DBIndexer {
 		try {
 			sequences = indexStore.getSequences(massRanges);
 
-		} catch (DBIndexStoreException ex) {
+		} catch (final DBIndexStoreException ex) {
 			logger.error("Error getting sequences from in-memory filtering index", ex);
 		}
 
@@ -667,14 +693,14 @@ public class DBIndexer {
 	 */
 	public List<IndexedSequence> getSequencesUsingDaltonTolerance(double precursorMass, double massToleranceInDa) {
 		if (mode.equals(IndexerMode.SEARCH_UNINDEXED)) {
-			MassRange range = new MassRange(precursorMass, massToleranceInDa);
-			List<MassRange> ranges = new ArrayList<MassRange>();
+			final MassRange range = new MassRange(precursorMass, massToleranceInDa);
+			final List<MassRange> ranges = new ArrayList<MassRange>();
 			ranges.add(range);
 			return cutAndSearch(ranges);
 		} else {
 			try {
 				return indexStore.getSequences(precursorMass, massToleranceInDa);
-			} catch (DBIndexStoreException ex) {
+			} catch (final DBIndexStoreException ex) {
 				logger.error("Error getting sequences for the mass.", ex);
 				return null;
 			}
@@ -697,11 +723,11 @@ public class DBIndexer {
 	 */
 	public List<IndexedSequence> getSequencesUsingPPMTolerance(double precursorMass, double massToleranceInPPM) {
 
-		double massTolerance = IndexUtil.getToleranceInDalton(precursorMass, massToleranceInPPM);
+		final double massTolerance = IndexUtil.getToleranceInDalton(precursorMass, massToleranceInPPM);
 
 		if (mode.equals(IndexerMode.SEARCH_UNINDEXED)) {
-			MassRange range = new MassRange(precursorMass, massTolerance);
-			List<MassRange> ranges = new ArrayList<MassRange>();
+			final MassRange range = new MassRange(precursorMass, massTolerance);
+			final List<MassRange> ranges = new ArrayList<MassRange>();
 			ranges.add(range);
 			return cutAndSearch(ranges);
 		} else {
@@ -719,8 +745,8 @@ public class DBIndexer {
 
 				while (true) {
 					// calculate the tolerance of the lowerBound
-					double massTolerance2 = IndexUtil.getToleranceInDalton(upperBound, massToleranceInPPM);
-					double lowerBoundOfUpperBoundMass = upperBound - massTolerance2;
+					final double massTolerance2 = IndexUtil.getToleranceInDalton(upperBound, massToleranceInPPM);
+					final double lowerBoundOfUpperBoundMass = upperBound - massTolerance2;
 					if (lowerBoundOfUpperBoundMass < precursorMass) {
 						final List<IndexedSequence> sequences2 = indexStore.getSequences(upperBound, 0.0f);
 						if (sequences2.isEmpty()) {
@@ -728,7 +754,7 @@ public class DBIndexer {
 						} else {
 
 							int numNewSeqs = 0;
-							for (IndexedSequence indexedSequence2 : sequences2) {
+							for (final IndexedSequence indexedSequence2 : sequences2) {
 								if (!sequences.contains(indexedSequence2)) {
 									sequences.add(indexedSequence2);
 									numNewSeqs++;
@@ -741,7 +767,7 @@ public class DBIndexer {
 					} else {
 						break;
 					}
-					double newupperBound = upperBound + Constants.PRECISION;
+					final double newupperBound = upperBound + Constants.PRECISION;
 					if (newupperBound == upperBound)
 						break;
 					upperBound = newupperBound;
@@ -749,7 +775,7 @@ public class DBIndexer {
 				}
 
 				return sequences;
-			} catch (DBIndexStoreException ex) {
+			} catch (final DBIndexStoreException ex) {
 				logger.error("Error getting sequences for the mass.", ex);
 				return null;
 			}
@@ -767,19 +793,19 @@ public class DBIndexer {
 	 */
 	public List<IndexedSequence> getSequences(List<MassRange> massRanges) {
 		List<IndexedSequence> sequences = null;
-		long t1 = System.currentTimeMillis();
+		final long t1 = System.currentTimeMillis();
 		if (mode.equals(IndexerMode.SEARCH_UNINDEXED)) {
 			sequences = cutAndSearch(massRanges);
 		} else {
 			try {
 
 				sequences = indexStore.getSequences(massRanges);
-			} catch (DBIndexStoreException ex) {
+			} catch (final DBIndexStoreException ex) {
 				logger.error("Error getting sequences for the mass ranges: " + massRanges.toString(), ex);
 				return null;
 			}
 		}
-		long t2 = System.currentTimeMillis();
+		final long t2 = System.currentTimeMillis();
 		// System.out.println("DEBUG DBINdexer.getSequences(), seqs: " +
 		// sequences.size() + ", time: " + ((t2-t1)) + "ms");
 
@@ -799,7 +825,7 @@ public class DBIndexer {
 	public List<IndexedProtein> getProteins(IndexedSequence seq) {
 		try {
 			return indexStore.getProteins(seq);
-		} catch (DBIndexStoreException ex) {
+		} catch (final DBIndexStoreException ex) {
 			logger.error("Error getting protein for the sequence", ex);
 			return null;
 		}
@@ -855,26 +881,26 @@ public class DBIndexer {
 	 * @return list of indexed protein objects associated with the sequence
 	 */
 	public Set<IndexedProtein> getProteins(String seq) {
-		Set<IndexedProtein> ret = new THashSet<IndexedProtein>();
+		final Set<IndexedProtein> ret = new THashSet<IndexedProtein>();
 		try {
 			if (!sparam.isUsingSeqDB()) {
 				// get the mass of the sequence
 				final boolean h2oPlusProtonAdded = sparam.isH2OPlusProtonAdded();
-				double mass = IndexUtil.calculateMass(seq, h2oPlusProtonAdded);
+				final double mass = IndexUtil.calculateMass(seq, h2oPlusProtonAdded);
 				// get the indexed sequences in the database
-				List<IndexedSequence> indexedSequences = getSequencesUsingDaltonTolerance(mass, 0.0f);
-				for (IndexedSequence indexedSequence : indexedSequences) {
+				final List<IndexedSequence> indexedSequences = getSequencesUsingDaltonTolerance(mass, 0.0f);
+				for (final IndexedSequence indexedSequence : indexedSequences) {
 					final String sequence = indexedSequence.getSequence();
 					if (sequence.equals(seq))
 						ret.addAll(indexStore.getProteins(indexedSequence));
 
 				}
 			} else {
-				IndexedSequence indexPeptide = new IndexedSequence();
+				final IndexedSequence indexPeptide = new IndexedSequence();
 				indexPeptide.setSequence(seq);
 				ret.addAll(indexStore.getProteins(indexPeptide));
 			}
-		} catch (DBIndexStoreException ex) {
+		} catch (final DBIndexStoreException ex) {
 			logger.error("Error getting protein for the sequence", ex);
 			return null;
 		}
@@ -896,7 +922,7 @@ public class DBIndexer {
 			final String dbindexPath = DBIndexInterface.getDBIndexPath();
 			final File dbIndexFolder = new File(dbindexPath);
 			if (!fastaFile.getParentFile().equals(dbIndexFolder)) {
-				File newFile = new File(dbIndexFolder.getAbsolutePath() + File.separator
+				final File newFile = new File(dbIndexFolder.getAbsolutePath() + File.separator
 						+ FilenameUtils.getName(fastaFile.getAbsolutePath()));
 				if (newFile.exists())
 					return newFile;
@@ -905,9 +931,24 @@ public class DBIndexer {
 				if (newFile.exists())
 					return newFile;
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 		return fastaFile;
+	}
+
+	public long getNumParentMasses() throws DBIndexStoreException {
+		return indexStore.getNumberSequences();
+
+	}
+
+	public List<Double> getParentMasses() throws DBIndexStoreException {
+		final List<Integer> entryKeys = indexStore.getEntryKeys();
+		final List<Double> ret = new ArrayList<Double>();
+		for (final Integer entryKey : entryKeys) {
+			ret.add(entryKey * 1.0 / sparam.getMassGroupFactor());
+		}
+		return ret;
+
 	}
 }
