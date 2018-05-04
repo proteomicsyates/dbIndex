@@ -7,11 +7,6 @@ package edu.scripps.yates.dbindex;
 
 public class Constants {
 
-	public static double PROTON = 1.007276466;
-	public static double H = 1.007825;
-	public static final double H2O = 15.9949145 + 2 * H;
-	public static final double H2O_PROTON = H2O + PROTON;
-	public static final double H2O_PROTON_SCALED_DOWN = H2O_PROTON * 1000;
 	public static final int MIN_PEP_LENGTH = 6;
 	// public static final int MIN_FRAG_NUM=10;
 	// public static final int MIN_PRECURSOR=600;
@@ -19,9 +14,6 @@ public class Constants {
 
 	public static final int PREFIX_RESIDUES = 4;
 	public static final int PREFIX_RESIDUES2 = 8;
-
-	public static final double MADD_DIFF_C12C13 = 1.003354826;
-	public static final int MADD_DIFF_C12C13_PPM = 1003;
 
 	// ////////SCORING //////////////
 	public static final int SCORE_BIN_SIZE = 200;
