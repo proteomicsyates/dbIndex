@@ -213,22 +213,3 @@ public interface DBIndexStore {
 	public List<Integer> getEntryKeys() throws DBIndexStoreException;
 
 }
-
-/**
- * Exception thrown when error accessing the db store occurred
- */
-class DBIndexStoreException extends Throwable {
-
-	public DBIndexStoreException(String message) {
-		super(message);
-	}
-
-	public DBIndexStoreException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
-	public DBIndexStoreException(Throwable cause) {
-		super(cause);
-	}
-
-}
