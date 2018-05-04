@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import edu.scripps.yates.dbindex.DBIndexer.IndexerMode;
 import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
 import edu.scripps.yates.dbindex.io.SearchParams;
 import gnu.trove.set.hash.THashSet;
@@ -17,18 +16,18 @@ import gnu.trove.set.hash.THashSet;
  * @author Adam
  *
  */
-public final class DBIndexStoreSQLiteMult implements DBIndexStore {
+public class DBIndexStoreSQLiteMult implements DBIndexStore {
 
-	private long totalSeqCount = 0;
-	private boolean inited = false;
-	private ProteinCache proteinCache;
-	private String dbPathBase = null;
+	protected long totalSeqCount = 0;
+	protected boolean inited = false;
+	protected ProteinCache proteinCache;
+	protected String dbPathBase = null;
 	private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger
 			.getLogger(DBIndexStoreSQLiteMult.class);
-	private final DBIndexStoreSQLiteByteIndexMerge[] buckets;
-	private static final String IDX_SUFFIX = ".idx";
+	protected final DBIndexStoreSQLiteByteIndexMerge[] buckets;
+	protected static final String IDX_SUFFIX = ".idx";
 	// we divide into buckets based on this
-	private static final int MAX_MASS = (int) Constants.MAX_PRECURSOR_MASS;
+	protected static final int MAX_MASS = (int) Constants.MAX_PRECURSOR_MASS;
 	// adjust number of buckets to make sure no single bucket ends up with more
 	// than 100million sequences
 
@@ -38,11 +37,11 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 	// offset (4), length (4),
 	// protein id (4)
 
-	private final DBIndexSearchParams sparam;
-	private boolean inMemoryIndex = false;
-	private IndexerMode indexerMode;
+	protected final DBIndexSearchParams sparam;
+	protected boolean inMemoryIndex = false;
 
-	public DBIndexStoreSQLiteMult(edu.scripps.yates.dbindex.io.DBIndexSearchParams sparam, boolean inMemoryIndex) {
+	public DBIndexStoreSQLiteMult(edu.scripps.yates.dbindex.io.DBIndexSearchParams sparam, boolean inMemoryIndex,
+			DBIndexStoreSQLiteByteIndexMerge[] buckets) {
 		inited = false;
 		this.sparam = sparam;
 		totalSeqCount = 0;
@@ -52,12 +51,16 @@ public final class DBIndexStoreSQLiteMult implements DBIndexStore {
 		Constants.NUM_BUCKETS = sparam.getIndexFactor();
 		Constants.BUCKET_MASS_RANGE = MAX_MASS / Constants.NUM_BUCKETS;
 
-		buckets = new DBIndexStoreSQLiteByteIndexMerge[Constants.NUM_BUCKETS];
+		this.buckets = buckets;
 
 		if (inMemoryIndex) {
 			// throw new
 			// IllegalArgumentException("In-memory index not supported");
 		}
+	}
+
+	public DBIndexStoreSQLiteMult(edu.scripps.yates.dbindex.io.DBIndexSearchParams sparam, boolean inMemoryIndex) {
+		this(sparam, inMemoryIndex, new DBIndexStoreSQLiteByteIndexMerge[sparam.getIndexFactor()]);
 	}
 
 	@Override

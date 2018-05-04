@@ -41,7 +41,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 	// private final DynByteBuffer data[] = new DynByteBuffer[MAX_MASS];
 	// private final DynByteBuffer data[] = new DynByteBuffer[MAX_MASS
 	// * IndexUtil.getMassGroupFactor()];
-	private final TIntObjectHashMap<DynByteBuffer> dataMap = new TIntObjectHashMap<DynByteBuffer>();
+	protected final TIntObjectHashMap<DynByteBuffer> dataMap = new TIntObjectHashMap<DynByteBuffer>();
 
 	// we really only need MAX_MASS / NUM_BUCKETS, but need to shift
 
@@ -50,28 +50,28 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 	private int curCommit = 0;
 	private static final int SEQ_UPDATE_INTERVAL = 20000;
 	// seq count since last commit of entire cache
-	private int seqCount = 0;
+	protected int seqCount = 0;
 	// total sequence count indexed
-	private int totalSeqCount = 0;
+	protected int totalSeqCount = 0;
 	// full cache commit interval
 	// NOTE: optimized for 7GB heap space, adjsut this setting accordingly
 	// private static final int FULL_CACHE_COMMIT_INTERVAL = (100 * 1000 * 1000)
 	// / Constants.NUM_BUCKETS;
-	private static final int FULL_CACHE_COMMIT_INTERVAL = (1000000) / Constants.NUM_BUCKETS;
+	protected static final int FULL_CACHE_COMMIT_INTERVAL = (1000000) / Constants.NUM_BUCKETS;
 
 	;
 
-	DBIndexStoreSQLiteByte(int bucketId, ProteinCache proteinCache) {
+	protected DBIndexStoreSQLiteByte(int bucketId, ProteinCache proteinCache) {
 		super(proteinCache);
 		this.bucketId = bucketId;
 	}
 
-	DBIndexStoreSQLiteByte(boolean inMemory, int bucketId, ProteinCache proteinCache) {
+	protected DBIndexStoreSQLiteByte(boolean inMemory, int bucketId, ProteinCache proteinCache) {
 		super(SearchParams.getInstance(), inMemory, proteinCache);
 		this.bucketId = bucketId;
 	}
 
-	DBIndexStoreSQLiteByte(DBIndexSearchParams searchParams, boolean inMemory, int bucketId,
+	protected DBIndexStoreSQLiteByte(DBIndexSearchParams searchParams, boolean inMemory, int bucketId,
 			ProteinCache proteinCache) {
 		super(searchParams, inMemory, proteinCache);
 		this.bucketId = bucketId;
@@ -176,7 +176,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 	 * @param seqLength
 	 * @param proteinId
 	 */
-	private void updateCachedData(double precMass, int seqOffset, int seqLength, int proteinId) {
+	protected void updateCachedData(double precMass, int seqOffset, int seqLength, int proteinId) {
 		// changed by Salva 11Nov2014, using the value on IndexUtil
 		final int rowId = (int) (precMass * sparam.getMassGroupFactor());
 
@@ -224,7 +224,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 	 * @param buf
 	 * @throws SQLException
 	 */
-	private void insertSequence(int rowId, DynByteBuffer buf) throws SQLException {
+	protected void insertSequence(int rowId, DynByteBuffer buf) throws SQLException {
 
 		// logger.info( bucketId +
 		// ": Commiting cached sequence data for rowId: " + rowId);
@@ -284,7 +284,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 				addSeqStatement.setBytes(2, cached.getData());
 				addSeqStatement.executeUpdate();
 			}
-
+			cached.clear();
 		}
 
 		// clear cached data
@@ -316,7 +316,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 
 		totalSeqCount++;
 
-		updateCachedData(precMass, seqOffset, seqLength, (int) proteinId);
+		updateCachedData(precMass, (short) seqOffset, (short) seqLength, (int) proteinId);
 
 		if (true) {
 			// despite commiting each sequence, commit and clear all after
@@ -437,7 +437,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 	 * @param minMass
 	 * @param maxMass
 	 */
-	private void parseAddPeptideInfo(byte[] data, List<IndexedSequence> toInsert, double minMass, double maxMass) {
+	protected void parseAddPeptideInfo(byte[] data, List<IndexedSequence> toInsert, double minMass, double maxMass) {
 
 		// to collapse multiple sequences into single one, with multproteins
 		final Map<String, List<IndexedSeqInternal>> temp = new THashMap<String, List<IndexedSeqInternal>>();

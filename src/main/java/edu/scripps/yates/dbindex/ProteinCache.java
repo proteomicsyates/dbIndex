@@ -18,8 +18,8 @@ import org.apache.log4j.Logger;
  */
 public class ProteinCache {
 	private static final Logger log = Logger.getLogger(ProteinCache.class);
-	private final ArrayList<String> sequences;
-	private final ArrayList<String> defs;
+	protected final ArrayList<String> sequences;
+	protected final ArrayList<String> defs;
 	public static final int EST_SIZE = 200000;
 	private static ProteinCache instance = null;
 
@@ -55,7 +55,7 @@ public class ProteinCache {
 	 *            protein id, 1 based
 	 * @return protein sequence string
 	 */
-	String getProteinSequence(long proteinId) {
+	public String getProteinSequence(long proteinId) {
 		return sequences.get((int) proteinId);
 	}
 
@@ -79,10 +79,11 @@ public class ProteinCache {
 	 * @param protein
 	 *            sequence of protein to add to the cache
 	 */
-	void addProtein(String def, String protein) {
+	public int addProtein(String def, String protein) {
 		defs.add(def);
 		final int proteinIndex = defs.size() - 1;
 		sequences.add(protein);
+		return proteinIndex;
 	}
 
 	/*
@@ -101,7 +102,7 @@ public class ProteinCache {
 	 * @param seqLen
 	 * @return
 	 */
-	String getPeptideSequence(long protId, int seqOffset, int seqLen) {
+	public String getPeptideSequence(long protId, int seqOffset, int seqLen) {
 		final String protSeq = getProteinSequence(protId);
 		String peptideSeq = null;
 

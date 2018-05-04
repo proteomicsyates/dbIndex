@@ -10,10 +10,10 @@ package edu.scripps.yates.dbindex;
  * 
  * @author Adam
  */
-class IndexedSeqInternal implements Comparable<IndexedSeqInternal> {
+public class IndexedSeqInternal implements Comparable<IndexedSeqInternal> {
 
-	public IndexedSeqInternal(double mass, int offset, int length,
-			int proteinId, String sequence, String protDescription) {
+	public IndexedSeqInternal(double mass, int offset, int length, int proteinId, String sequence,
+			String protDescription) {
 		this.mass = mass;
 		this.offset = offset;
 		this.length = length;
@@ -23,8 +23,7 @@ class IndexedSeqInternal implements Comparable<IndexedSeqInternal> {
 
 	}
 
-	public IndexedSeqInternal(double mass, int offset, int length,
-			int proteinId, String sequence) {
+	public IndexedSeqInternal(double mass, int offset, int length, int proteinId, String sequence) {
 		this.mass = mass;
 		this.offset = offset;
 		this.length = length;
@@ -57,8 +56,7 @@ class IndexedSeqInternal implements Comparable<IndexedSeqInternal> {
 			return false;
 		}
 		final IndexedSeqInternal other = (IndexedSeqInternal) obj;
-		if ((sequence == null) ? (other.sequence != null) : !sequence
-				.equals(other.sequence)) {
+		if ((sequence == null) ? (other.sequence != null) : !sequence.equals(other.sequence)) {
 			return false;
 		}
 		return true;

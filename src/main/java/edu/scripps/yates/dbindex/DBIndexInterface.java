@@ -21,12 +21,12 @@ import gnu.trove.map.hash.THashMap;
 public class DBIndexInterface {
 	private final static Logger log = Logger.getLogger(DBIndexInterface.class);
 	private static String dbIndexPath;
-	private DBIndexer indexer;
+	protected DBIndexer indexer;
 	private static final String PINT_DEVELOPER_ENV_VAR = "PINT_DEVELOPER";
 
 	private final Map<String, Set<IndexedProtein>> proteinsByPeptideSeqs = new THashMap<>();
-	private final static Map<File, DBIndexInterface> dbIndexByFile = new THashMap<>();
-	private final static Map<String, DBIndexInterface> dbIndexByParamKey = new THashMap<>();
+	protected final static Map<File, DBIndexInterface> dbIndexByFile = new THashMap<>();
+	protected final static Map<String, DBIndexInterface> dbIndexByParamKey = new THashMap<>();
 
 	public static DBIndexInterface getByParamFile(File paramFile) {
 		if (dbIndexByFile.containsKey(paramFile)) {
@@ -40,6 +40,10 @@ public class DBIndexInterface {
 			return dbIndexByParamKey.get(sParam.getFullIndexFileName());
 		}
 		return new DBIndexInterface(sParam);
+	}
+
+	public DBIndexInterface() {
+
 	}
 
 	/**

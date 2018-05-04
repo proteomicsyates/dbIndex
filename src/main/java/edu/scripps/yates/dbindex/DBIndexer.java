@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -13,8 +14,10 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
+import com.compomics.dbtoolkit.io.implementations.FASTADBLoader;
 import com.compomics.util.general.UnknownElementMassException;
 
+import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.dbindex.DBIndexStore.FilterResult;
 import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
 import edu.scripps.yates.dbindex.io.SearchParamReader;
@@ -24,6 +27,7 @@ import edu.scripps.yates.dbindex.util.IndexUtil;
 import edu.scripps.yates.dbindex.util.PeptideFilter;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.fasta.Fasta;
+import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.fasta.FastaReader;
 import edu.scripps.yates.utilities.masses.FormulaCalculator;
 import gnu.trove.set.hash.THashSet;
@@ -72,16 +76,16 @@ public class DBIndexer {
 
 	private final IndexerMode mode;
 	private IndexType indexType;
-	private DBIndexStore indexStore;
-	private final DBIndexSearchParams sparam;
+	protected DBIndexStore indexStore;
+	protected final DBIndexSearchParams sparam;
 	// private double massTolerance;
 	private boolean inited;
 	private String indexName; // index name that is params-specific
-	private long protNum; // protein number in sequence, starting at 1
-	private ProteinCache proteinCache;
-	private final PeptideFilter peptideFilter;
+	protected long protNum; // protein number in sequence, starting at 1
+	protected ProteinCache proteinCache;
+	protected final PeptideFilter peptideFilter;
 	private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(DBIndexer.class);
-	private static final int MAX_SEQ_LENGTH = 10000;
+	protected static final int MAX_SEQ_LENGTH = 10000;
 	private static final FormulaCalculator formulaCalculator = new FormulaCalculator();
 
 	public static void main(String[] args) {
@@ -147,6 +151,17 @@ public class DBIndexer {
 			logger.error("Error running indexer in the index mode.", ex);
 		}
 
+	}
+
+	public DBIndexer(edu.scripps.yates.dbindex.io.DBIndexSearchParams sparam, IndexerMode mode,
+			DBIndexStore dbIndexStore) {
+		IndexUtil.setNumRowsToLookup(0);
+		this.sparam = sparam;
+		this.mode = mode;
+		peptideFilter = sparam.getPeptideFilter();
+		indexStore = dbIndexStore;
+		inited = false;
+		protNum = -1;
 	}
 
 	/**
@@ -229,8 +244,7 @@ public class DBIndexer {
 	 *            fasta to index
 	 * @throws IOException
 	 */
-	private void cutSeq(final String protAccession, String protSeq) throws IOException {
-
+	protected void cutSeq(final String protAccession, String protSeq) throws IOException {
 		// Enzyme enz = sparam.getEnzyme();
 		int length = protSeq.length();
 		//
@@ -262,7 +276,7 @@ public class DBIndexer {
 
 				// Salva added 24Nov2014
 				if (sparam.isH2OPlusProtonAdded())
-					precMass += Constants.H2O_PROTON;
+					precMass += AssignMass.H2O_PROTON;
 				precMass += AssignMass.getcTerm();
 				precMass += AssignMass.getnTerm();
 				// System.out.println("===>>" + precMass + "\t" +
@@ -545,6 +559,36 @@ public class DBIndexer {
 		int currentPercentage = 0;
 		// start indexing
 		try {
+
+			// getUniprotAnnorations
+			logger.info("Reading FASTA file to retrieve Uniprot annotations from Internet...");
+			final long t1 = System.currentTimeMillis();
+			final UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(
+					sparam.getUniprotReleasesFolder(), true);
+			final Set<String> accs = new HashSet<String>();
+			final FASTADBLoader loader = new FASTADBLoader();
+			if (loader.canReadFile(new File(sparam.getDatabaseName()))) {
+				loader.load(sparam.getDatabaseName());
+				String entry = null;
+				while ((entry = loader.nextFASTAEntry()) != null) {
+					final String uniProtACC = FastaParser.getUniProtACC(entry);
+					if (uniProtACC != null) {
+						accs.add(uniProtACC);
+					}
+				}
+			}
+			if (accs.isEmpty()) {
+				throw new IllegalArgumentException("Reading FASTA file '" + sparam.getDatabaseName()
+						+ "' was not able to extract any single Uniprot protein accession.\nUse a uniprot formated fasta database.");
+			}
+			logger.info(accs.size()
+					+ " proteins extracted from fasta file with Uniprot accession. Now looking in the local index.");
+			uplr.getAnnotatedProteins(null, accs, true);
+			final long t2 = System.currentTimeMillis() - t1;
+			logger.info("Uniprot annotations were saved to local file system at '"
+					+ sparam.getUniprotReleasesFolder().getAbsolutePath() + "' in "
+					+ DatesUtil.getDescriptiveTimeFromMillisecs(t2));
+
 			// index, set protein cache on the fly
 			indexStore.startAddSeq();
 
@@ -562,7 +606,7 @@ public class DBIndexer {
 				// header in the index
 				// protCache.addProtein(fasta.getSequestLikeAccession(),
 				// fasta.getSequence());
-				protCache.addProtein(fasta.getOriginalDefline(), fasta.getSequence());
+
 				cutSeq(fasta);
 				// System.out.print("Printing the last buffer....");
 				// indexStore.lastBuffertoDatabase();
@@ -628,7 +672,7 @@ public class DBIndexer {
 
 	}
 
-	private ProteinCache getProteinCache() {
+	protected ProteinCache getProteinCache() {
 		if (proteinCache == null) {
 			proteinCache = new ProteinCache();
 		}

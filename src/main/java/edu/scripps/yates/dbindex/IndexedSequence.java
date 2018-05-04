@@ -175,7 +175,7 @@ public class IndexedSequence {
 		this.sequenceOffset = sequenceOffset;
 		sequenceLen = length;
 
-		for (String each : pArr)
+		for (final String each : pArr)
 			proteinIds.add(Integer.parseInt(each));
 	}
 
@@ -261,7 +261,7 @@ public class IndexedSequence {
 	}
 
 	public String getWholeSequence() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append(resLeft).append(".");
 		if (isModified) {
 			sb.append(modSequence);
@@ -274,7 +274,7 @@ public class IndexedSequence {
 	}
 
 	public String getSimpleSequence() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append(resLeft.charAt(resLeft.length() - 1)).append(".");
 		if (isModified) {
 			sb.append(modSequence);
@@ -316,7 +316,7 @@ public class IndexedSequence {
 	 * @param res
 	 *            residue info to set
 	 */
-	void setResidues(ResidueInfo res) {
+	public void setResidues(ResidueInfo res) {
 		resLeft = res.getResidueLeft();
 		resRight = res.getResidueRight();
 	}
@@ -331,7 +331,8 @@ public class IndexedSequence {
 
 	public IndexedSequence getCopy() {
 
-		IndexedSequence iseq = new IndexedSequence(id, mass, sequenceOffset, sequenceLen, sequence, resLeft, resRight);
+		final IndexedSequence iseq = new IndexedSequence(id, mass, sequenceOffset, sequenceLen, sequence, resLeft,
+				resRight);
 		iseq.setProteinIds(proteinIds);
 		return iseq;
 	}
