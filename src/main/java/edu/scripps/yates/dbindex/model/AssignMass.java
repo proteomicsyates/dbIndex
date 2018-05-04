@@ -2,6 +2,7 @@ package edu.scripps.yates.dbindex.model;
 
 public class AssignMass {
 	public static final int SIZE = 256;
+
 	public static final double DIFFMASSC12C13 = 1.003354826;
 
 	public static final double MADD_DIFF_C12C13 = 1.003354826;
@@ -9,20 +10,38 @@ public class AssignMass {
 	private static final double double_ZERO = 0.000001;
 
 	private static final double[] aaMassAvg = new double[SIZE];
-	private static final double[] aaMassMono = new double[SIZE];
-	public static final double NH3 = 17.02647;
-	public static final double H2O = 18.01051;
-	public static final double CO = 27.99491;
+	protected static final double[] aaMassMono = new double[SIZE];
+	// added by SALVA May-3rd-2018
+	public static final double H = 1.00784;
+	public static final double O = 15.99903;
+	public static final double N = 14.00643;
+	public static final double C = 12.0096;
+	public static final double S = 32.059;
+	public static final double H2O = H * 2 + O;
+	public static final double NH3 = N + H * 3;
+	public static final double CO = C + O;
+	// public static final double NH3 = 17.02647;
+	// public static final double H2O = 18.01051;
+	// public static final double CO = 27.99491;
+
 	public static final double NH3_CS2 = 8.513235;
 	public static final double H2O_CS2 = 9.005255;
 	public static final double CO_CS2 = 13.997455;
 
-	public static final int NH3_INT = 17026;
-	public static final int H2O_INT = 18011;
-	public static final int CO_INT = 27995;
+	// change by Salva
+	// public static final int NH3_INT = 17026;
+	// public static final int H2O_INT = 18011;
+	// public static final int CO_INT = 27995;
+	public static final int NH3_INT = 17029;
+	public static final int H2O_INT = 18014;
+	public static final int CO_INT = 28009;
 	public static final int NH3_CS2_INT = 8513;
 	public static final int H2O_CS2_INT = 9005;
 	public static final int CO_CS2_INT = 13998;
+
+	public static final double PROTON = 1.007276466;
+	public static final double H2O_PROTON = H2O + PROTON;
+	public static final double H2O_PROTON_SCALED_DOWN = H2O_PROTON * 1000;
 
 	private static double[] aaMasses;
 	private static AssignMass assignMass;
@@ -53,12 +72,21 @@ public class AssignMass {
 		aaMassMono['L'] = 113.0840636;
 		aaMassAvg['I'] = 113.15944;
 		aaMassMono['I'] = 113.0840636;
+		// X means any AA, so this is done to not crash, but the resulting mass
+		// shouldn't make sense
 		aaMassAvg['X'] = 113.15944;
 		aaMassMono['X'] = 113.0840636;
 		aaMassAvg['N'] = 114.10384;
 		aaMassMono['N'] = 114.0429272;
-		aaMassAvg['O'] = 114.14720;
-		aaMassMono['O'] = 114.0793126;
+		// added by SALVA May-3rd-2018
+		// pyrrolysine
+		// aaMassAvg['O'] = 114.14720;
+		// aaMassMono['O'] = 114.0793126;
+		aaMassAvg['O'] = 237.30249;
+		aaMassMono['O'] = 237.147785;
+
+		// according to Uniprot B is Aspartic acid or Asparagine, that is, D or
+		// N
 		aaMassAvg['B'] = 114.59622;
 		aaMassMono['B'] = 114.5349350;
 		aaMassAvg['D'] = 115.08860;
@@ -67,6 +95,8 @@ public class AssignMass {
 		aaMassMono['Q'] = 128.0585772;
 		aaMassAvg['K'] = 128.17408;
 		aaMassMono['K'] = 128.0949626;
+		// according to Uniprot, Z is Glutamic acid or Glutamine, that is, E or
+		// Q
 		aaMassAvg['Z'] = 128.62310;
 		aaMassMono['Z'] = 128.5505850;
 		aaMassAvg['E'] = 129.11548;
@@ -83,6 +113,10 @@ public class AssignMass {
 		aaMassMono['Y'] = 163.0633282;
 		aaMassAvg['W'] = 186.21320;
 		aaMassMono['W'] = 186.0793126;
+		// added by SALVA May-3rd-2018
+		// U is selenocysteine
+		aaMassAvg['U'] = 150.04249;
+		aaMassMono['U'] = 150.953693;
 	}
 
 	static {
@@ -499,7 +533,7 @@ public class AssignMass {
 	private static boolean useMono = true;
 
 	public static void main(String[] args) {
-		AssignMass am = new AssignMass(true);
+		final AssignMass am = new AssignMass(true);
 	}
 
 	public static AssignMass getInstance(boolean useMono) {
@@ -516,14 +550,14 @@ public class AssignMass {
 	public static double[] getFragIonArr(String seq, int ion) {
 
 		final int size = seq.length() - 1; // TODO BUG ? should be seq.length()
-		double[] arr = new double[size];
+		final double[] arr = new double[size];
 		// System.out.println(size + " " + seq.length()+ "");
 
 		int count = 0;
 		double addMass = 0.0;
 
 		for (int i = 0; i < size; i++) {
-			double mass = getMass(seq.charAt(i));
+			final double mass = getMass(seq.charAt(i));
 
 			if (mass <= double_ZERO)
 				continue;
@@ -563,7 +597,7 @@ public class AssignMass {
 		// seq="YLK";
 
 		final int size = seq.length() - 1; // TODO BUG? should be seq.length()
-		double[] rarr = new double[size];
+		final double[] rarr = new double[size];
 
 		// System.out.println(size + " " + seq + "\t" + seq.length());
 
@@ -571,7 +605,7 @@ public class AssignMass {
 		double raddMass = 0.0;
 
 		for (int i = 0; i < size; i++) {
-			double rmass = getMass(seq.charAt(rcount + 1));
+			final double rmass = getMass(seq.charAt(rcount + 1));
 			if (rmass <= double_ZERO)
 				continue;
 			raddMass += rmass;
@@ -610,14 +644,14 @@ public class AssignMass {
 	public static double[] getFragIonArrMod(String seq, int ion, int[] modIndexHash) {
 
 		final int size = seq.length() - 1;
-		double[] arr = new double[size];
+		final double[] arr = new double[size];
 		// System.out.println(size + " " + seq.length()+ "");
 
 		int count = 0;
 		double addMass = 0.0;
 
 		for (int i = 0; i < size; i++) {
-			char ch = seq.charAt(i);
+			final char ch = seq.charAt(i);
 			double mass = getMass(ch);
 
 			if (modIndexHash[i] > 0) {
@@ -656,14 +690,14 @@ public class AssignMass {
 	public static double[] getFragIonArrRevMod(String seq, int ion, int[] modIndexHash) {
 
 		final int size = seq.length() - 1; // TODO BUG? should be seq.length()
-		double[] rarr = new double[size];
+		final double[] rarr = new double[size];
 
 		// System.out.println(size + " " + seq + "\t" + seq.length());
 		int rcount = size - 1;
 		double raddMass = 0.0;
 
 		for (int i = 0; i < size; i++) {
-			char ch = seq.charAt(rcount + 1);
+			final char ch = seq.charAt(rcount + 1);
 
 			double rmass = getMass(ch);
 
