@@ -22,7 +22,7 @@ public class Util {
 
 	public static String getMd5(String in) {
 		try {
-			MessageDigest md5 = MessageDigest.getInstance("MD5");
+			final MessageDigest md5 = MessageDigest.getInstance("MD5");
 			md5.update(in.getBytes(), 0, in.length());
 
 			return new BigInteger(1, md5.digest()).toString(16);
@@ -35,7 +35,7 @@ public class Util {
 
 	public static byte[] getMd5Bytes(String in) {
 		try {
-			MessageDigest md5 = MessageDigest.getInstance("MD5");
+			final MessageDigest md5 = MessageDigest.getInstance("MD5");
 			md5.update(in.getBytes(), 0, in.length());
 			return md5.digest();
 
@@ -56,13 +56,13 @@ public class Util {
 		RandomAccessFile fileHandler = null;
 		try {
 			fileHandler = new java.io.RandomAccessFile(file, "r");
-			long fileLength = file.length() - 1;
-			StringBuilder sb = new StringBuilder();
+			final long fileLength = file.length() - 1;
+			final StringBuilder sb = new StringBuilder();
 			int line = 0;
 
 			for (long filePointer = fileLength; filePointer != -1; filePointer--) {
 				fileHandler.seek(filePointer);
-				int readByte = fileHandler.readByte();
+				final int readByte = fileHandler.readByte();
 
 				if (readByte == 0xA) {
 					if (line == lines) {
@@ -86,21 +86,20 @@ public class Util {
 			}
 
 			sb.deleteCharAt(sb.length() - 1);
-			String lastLine = sb.reverse().toString();
+			final String lastLine = sb.reverse().toString();
 			return lastLine;
-		} catch (java.io.FileNotFoundException e) {
+		} catch (final java.io.FileNotFoundException e) {
 			e.printStackTrace();
 			return null;
-		} catch (java.io.IOException e) {
+		} catch (final java.io.IOException e) {
 			e.printStackTrace();
 			return null;
 		} finally {
 			if (fileHandler != null) {
 				try {
 					fileHandler.close();
-				} catch (IOException ex) {
-					Logger.getLogger(Util.class.getName()).log(Level.SEVERE,
-							null, ex);
+				} catch (final IOException ex) {
+					Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, ex);
 				}
 			}
 		}
@@ -114,7 +113,7 @@ public class Util {
 	 * @throws IOException
 	 */
 	public static int countLines(String filename) throws IOException {
-		LineNumberReader reader = new LineNumberReader(new FileReader(filename));
+		final LineNumberReader reader = new LineNumberReader(new FileReader(filename));
 		int cnt = 0;
 		String lineRead = "";
 		while ((lineRead = reader.readLine()) != null) {
@@ -125,29 +124,22 @@ public class Util {
 		return cnt;
 	}
 
-	static ResidueInfo getResidues(IndexedSequence peptideSequence,
-			int seqOffset, int seqLen, String proteinSequence) {
-		int protLen = proteinSequence.length();
+	public static ResidueInfo getResidues(IndexedSequence peptideSequence, int seqOffset, int seqLen,
+			String proteinSequence) {
+		final int protLen = proteinSequence.length();
 
-		final int resLeftI = seqOffset >= Constants.MAX_INDEX_RESIDUE_LEN ? seqOffset
-				- Constants.MAX_INDEX_RESIDUE_LEN
+		final int resLeftI = seqOffset >= Constants.MAX_INDEX_RESIDUE_LEN ? seqOffset - Constants.MAX_INDEX_RESIDUE_LEN
 				: 0;
-		final int resLeftLen = Math.min(Constants.MAX_INDEX_RESIDUE_LEN,
-				seqOffset);
-		StringBuilder sbLeft = new StringBuilder(
-				Constants.MAX_INDEX_RESIDUE_LEN);
-		sbLeft.append(proteinSequence
-				.substring(resLeftI, resLeftI + resLeftLen));
+		final int resLeftLen = Math.min(Constants.MAX_INDEX_RESIDUE_LEN, seqOffset);
+		final StringBuilder sbLeft = new StringBuilder(Constants.MAX_INDEX_RESIDUE_LEN);
+		sbLeft.append(proteinSequence.substring(resLeftI, resLeftI + resLeftLen));
 
 		final int end = seqOffset + seqLen;
 		final int resRightI = end; // + 1;
-		final int resRightLen = Math.min(Constants.MAX_INDEX_RESIDUE_LEN,
-				protLen - end - 1);
-		StringBuilder sbRight = new StringBuilder(
-				Constants.MAX_INDEX_RESIDUE_LEN);
+		final int resRightLen = Math.min(Constants.MAX_INDEX_RESIDUE_LEN, protLen - end - 1);
+		final StringBuilder sbRight = new StringBuilder(Constants.MAX_INDEX_RESIDUE_LEN);
 		if (resRightI < protLen) {
-			sbRight.append(proteinSequence.substring(resRightI, resRightI
-					+ resRightLen));
+			sbRight.append(proteinSequence.substring(resRightI, resRightI + resRightLen));
 		}
 
 		// add -- markers to fill Constants.MAX_INDEX_RESIDUE_LEN length
