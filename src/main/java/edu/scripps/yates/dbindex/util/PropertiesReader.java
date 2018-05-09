@@ -23,19 +23,20 @@ public class PropertiesReader {
 	public static final String ADD_H2O_PLUS_PROTON = "add_h2o_plus_proton";
 	public static final String MANDATORY_INTERNAL_AAs = "mandatory_internal_AAs";
 	public static final String SEMICLEAVAGE = "default_semicleavage";
+	public static final String UNIPROT_VERSION = "uniprot_version";
 
 	public static Properties getProperties() throws Exception {
-		ClassLoader cl = PropertiesReader.class.getClassLoader();
+		final ClassLoader cl = PropertiesReader.class.getClassLoader();
 		InputStream is;
 
 		is = cl.getResourceAsStream(PROPERTIES_FILE_NAME);
 		if (is == null)
 			throw new Exception(PROPERTIES_FILE_NAME + " file not found");
 
-		Properties prop = new Properties();
+		final Properties prop = new Properties();
 		try {
 			prop.load(is);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException(e);
 		}
