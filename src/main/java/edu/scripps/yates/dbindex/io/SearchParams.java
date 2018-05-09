@@ -121,6 +121,7 @@ public class SearchParams implements DBIndexSearchParams {
 	private PeptideFilter peptideFilter;
 	private Boolean lookProteoforms;
 	private File uniprotReleasesFolder;
+	private String uniprotVersion;
 
 	public static SearchParams getInstance() {
 		if (sparams == null)
@@ -299,7 +300,7 @@ public class SearchParams implements DBIndexSearchParams {
 	public void setEnzymeBreakAA(String enzymeBreakAA, int numMaxMissedClavages, boolean semiCleave) {
 		enzymeArr = enzymeBreakAA.toCharArray();
 		enzyme = new Enzyme(enzymeArr, numMaxMissedClavages, semiCleave);
-		for (char ch : enzymeArr)
+		for (final char ch : enzymeArr)
 			enzyme.addCleavePosition(ch);
 
 		this.enzymeBreakAA = enzymeBreakAA;
@@ -345,7 +346,7 @@ public class SearchParams implements DBIndexSearchParams {
 	public void setIonSeries(int[] ionSeries) {
 
 		int count = 0;
-		List<Integer> l = new ArrayList<Integer>();
+		final List<Integer> l = new ArrayList<Integer>();
 
 		for (int i = 0; i < ionSeries.length; i++) {
 
@@ -364,9 +365,9 @@ public class SearchParams implements DBIndexSearchParams {
 			count++;
 		}
 
-		int[] arr = new int[l.size()];
+		final int[] arr = new int[l.size()];
 		count = 0;
-		for (Iterator<Integer> itr = l.iterator(); itr.hasNext();) {
+		for (final Iterator<Integer> itr = l.iterator(); itr.hasNext();) {
 			arr[count++] = itr.next();
 		}
 
@@ -661,7 +662,7 @@ public class SearchParams implements DBIndexSearchParams {
 	@Override
 	public String getFullIndexFileName() {
 
-		String uniqueIndexName = databaseName + "_";
+		final String uniqueIndexName = databaseName + "_";
 
 		// generate a unique string based on current params that affect the
 		// index
@@ -694,7 +695,7 @@ public class SearchParams implements DBIndexSearchParams {
 
 		// logger.log(Level.INFO, "Unique params: " + uniqueParamsStr);
 
-		String uniqueParamsStrHash = Util.getMd5(uniqueParamsStr);
+		final String uniqueParamsStrHash = Util.getMd5(uniqueParamsStr);
 		System.out.println("param===========" + uniqueParamsStr + "\t" + uniqueParamsStrHash);
 
 		return uniqueIndexName + uniqueParamsStrHash;
@@ -725,7 +726,7 @@ public class SearchParams implements DBIndexSearchParams {
 	}
 
 	public void setMinPrecursorMass(double minPrecursorMass) {
-		this.minPrecursorMass = minPrecursorMass;
+		SearchParams.minPrecursorMass = minPrecursorMass;
 	}
 
 	@Override
@@ -734,7 +735,7 @@ public class SearchParams implements DBIndexSearchParams {
 	}
 
 	public void setMaxPrecursorMass(double maxPrecursorMass) {
-		this.maxPrecursorMass = maxPrecursorMass;
+		SearchParams.maxPrecursorMass = maxPrecursorMass;
 	}
 
 	public int getMinFragPeakNum() {
@@ -994,5 +995,14 @@ public class SearchParams implements DBIndexSearchParams {
 
 	public void setUniprotReleasesFolder(File uniprotReleasesFolder) {
 		this.uniprotReleasesFolder = uniprotReleasesFolder;
+	}
+
+	@Override
+	public String getUniprotVersion() {
+		return uniprotVersion;
+	}
+
+	public void setUniprotVersion(String uniprotVersion) {
+		this.uniprotVersion = uniprotVersion;
 	}
 }
