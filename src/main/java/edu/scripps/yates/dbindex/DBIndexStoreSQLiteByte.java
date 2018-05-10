@@ -12,6 +12,7 @@ import java.util.Map;
 import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
 import edu.scripps.yates.dbindex.io.SearchParams;
 import edu.scripps.yates.dbindex.util.IndexUtil;
+import edu.scripps.yates.utilities.bytes.DynByteBuffer;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.set.hash.TIntHashSet;
@@ -53,13 +54,12 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 	protected int seqCount = 0;
 	// total sequence count indexed
 	protected int totalSeqCount = 0;
+	private final TIntHashSet massKeys = new TIntHashSet();
 	// full cache commit interval
 	// NOTE: optimized for 7GB heap space, adjsut this setting accordingly
 	// private static final int FULL_CACHE_COMMIT_INTERVAL = (100 * 1000 * 1000)
 	// / Constants.NUM_BUCKETS;
 	protected static final int FULL_CACHE_COMMIT_INTERVAL = (1000000) / Constants.NUM_BUCKETS;
-
-	;
 
 	protected DBIndexStoreSQLiteByte(int bucketId, ProteinCache proteinCache) {
 		super(proteinCache);
@@ -157,15 +157,16 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 	 * @throws SQLException
 	 */
 	private boolean getSequenceExists(int massKey) throws SQLException {
-		boolean ret = false;
-		getSeqExistsStatement.setInt(1, massKey);
-		final ResultSet rs = getSeqExistsStatement.executeQuery();
-		if (rs.next()) {
-			ret = true;
-		}
-		rs.close();
-
-		return ret;
+		// instead of accessing the DB, keep a HashSet in memory with the
+		// massKeys
+		return massKeys.contains(massKey);
+		/*
+		 * boolean ret = false; getSeqExistsStatement.setInt(1, massKey); final
+		 * ResultSet rs = getSeqExistsStatement.executeQuery(); if (rs.next()) {
+		 * ret = true; } rs.close();
+		 * 
+		 * return ret;
+		 */
 	}
 
 	/**
@@ -220,28 +221,30 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 	/**
 	 * updates db rows with the sequence, optionally commits it
 	 *
-	 * @param rowId
+	 * @param massKey
 	 * @param buf
 	 * @throws SQLException
 	 */
-	protected void insertSequence(int rowId, DynByteBuffer buf) throws SQLException {
+	protected void insertSequence(int massKey, DynByteBuffer buf) throws SQLException {
 
 		// logger.info( bucketId +
 		// ": Commiting cached sequence data for rowId: " + rowId);
-		if (getSequenceExists(rowId)) {
+		if (getSequenceExists(massKey)) {
 			// merge, bytes in db with the bytes in cache
 			// build up updated string
 
 			updateAppendSeqStatement.setBytes(1, buf.getData());
-			updateAppendSeqStatement.setInt(2, rowId);
+			updateAppendSeqStatement.setInt(2, massKey);
 			updateAppendSeqStatement.executeUpdate();
 		} else {
 			// write a brand new row for the mass
 
 			// insert
-			addSeqStatement.setInt(1, rowId);
+			addSeqStatement.setInt(1, massKey);
 			addSeqStatement.setBytes(2, buf.getData());
 			addSeqStatement.executeUpdate();
+			// keep mass key
+			massKeys.add(massKey);
 		}
 
 		if (curCommit++ == SEQ_UPDATE_INTERVAL) {
@@ -283,6 +286,8 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 				addSeqStatement.setInt(1, massKey);
 				addSeqStatement.setBytes(2, cached.getData());
 				addSeqStatement.executeUpdate();
+				// keep mass key
+				massKeys.add(massKey);
 			}
 			cached.clear();
 		}
@@ -313,7 +318,9 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 		if (!inited) {
 			throw new DBIndexStoreException("Indexer is not initialized");
 		}
-
+		if ("YFDRDDVALKNF".equals(sequence)) {
+			System.out.println(sequence + "\t" + precMass);
+		}
 		totalSeqCount++;
 
 		updateCachedData(precMass, (short) seqOffset, (short) seqLength, (int) proteinId);

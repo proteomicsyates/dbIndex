@@ -276,9 +276,13 @@ public class DBIndexInterface {
 			final int massGroupFactor = Integer
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.MASS_GROUP_FACTOR));
 
+			final String uniprotVersion = String
+					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.UNIPROT_VERSION));
+
 			final DBIndexSearchParamsImpl ret = new DBIndexSearchParamsImpl(indexType, inMemoryIndex, indexFactor,
 					dataBaseName, maxMissedCleavages, maxPrecursorMass, minPrecursorMass, useIndex, enzymeNocutResidues,
-					enzymeResidues, enzymeOffset, useMono, isH2OPlusProtonAdded, massGroupFactor, null, false, null);
+					enzymeResidues, enzymeOffset, useMono, isH2OPlusProtonAdded, massGroupFactor, null, false, null,
+					uniprotVersion);
 			return ret;
 		} catch (final NumberFormatException e) {
 			e.printStackTrace();
@@ -402,11 +406,12 @@ public class DBIndexInterface {
 
 			final char[] mandatoryInternalAAs = PropertiesReader.getProperties()
 					.getProperty(PropertiesReader.MANDATORY_INTERNAL_AAs).toCharArray();
-
+			final String uniprotVersion = String
+					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.UNIPROT_VERSION));
 			final DBIndexSearchParamsImpl ret = new DBIndexSearchParamsImpl(indexType, inMemoryIndex, indexFactor,
 					dataBaseName, maxMissedCleavages, maxPrecursorMass, minPrecursorMass, useIndex, enzymeNocutResidues,
 					enzymeResidues, enzymeOffset, useMono, isH2OPlusProtonAdded, massGroupFactor, mandatoryInternalAAs,
-					false, null);
+					false, null, uniprotVersion);
 			return ret;
 		} catch (final NumberFormatException e) {
 			e.printStackTrace();

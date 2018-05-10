@@ -89,9 +89,9 @@ public class ProteinCache {
 	/*
 	 * @harshil Shah
 	 */
-	public void addProtein(String def) {
+	public int addProtein(String def) {
 		defs.add(def);
-
+		return defs.size() - 1;
 	}
 
 	/**
@@ -132,7 +132,7 @@ public class ProteinCache {
 	 * 
 	 * @return true if populated / not empty
 	 */
-	synchronized boolean isPopulated() {
+	protected synchronized boolean isPopulated() {
 		return !sequences.isEmpty();
 	}
 

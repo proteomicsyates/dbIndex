@@ -94,4 +94,6 @@ public interface DBIndexSearchParams {
 
 	File getUniprotReleasesFolder();
 
+	String getUniprotVersion();
+
 }

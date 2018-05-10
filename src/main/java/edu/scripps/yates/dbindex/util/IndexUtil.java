@@ -2,6 +2,10 @@ package edu.scripps.yates.dbindex.util;
 
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
+import edu.scripps.yates.annotations.uniprot.proteoform.UniprotProteoformRetriever;
+import edu.scripps.yates.annotations.uniprot.proteoform.fasta.ProteoFormFastaReader;
+import edu.scripps.yates.annotations.uniprot.proteoform.xml.UniprotProteoformRetrieverFromXML;
 import edu.scripps.yates.dbindex.Constants;
 import edu.scripps.yates.dbindex.Util;
 import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
@@ -68,6 +72,10 @@ public class IndexUtil {
 	}
 
 	public static String createFullIndexFileName(DBIndexSearchParams params) {
+		return createFullIndexFileName(params, null);
+	}
+
+	public static String createFullIndexFileName(DBIndexSearchParams params, String sufix) {
 		final String uniqueIndexName = params.getDatabaseName() + "_";
 
 		// generate a unique string based on current params that affect the
@@ -113,7 +121,9 @@ public class IndexUtil {
 		if (params.isLookProteoforms() != null && params.isLookProteoforms()) {
 			uniqueParams.append(", proteoForms=true");
 		}
-
+		if (sufix != null) {
+			uniqueParams.append(sufix);
+		}
 		final String uniqueParamsStr = uniqueParams.toString();
 		final String uniqueParamsStrHash = Util.getMd5(uniqueParamsStr);
 		log.info("Index Unique String: " + uniqueParamsStr);
@@ -122,17 +132,14 @@ public class IndexUtil {
 	}
 
 	public static FastaReader getFastaReader(DBIndexSearchParams params) {
-		// if (params.isLookProteoforms() != null && params.isLookProteoforms())
-		// {
-		// final UniprotProteinLocalRetriever uplr = new
-		// UniprotProteinLocalRetriever(
-		// params.getUniprotReleasesFolder(), true);
-		// final UniprotProteoformRetriever proteoFormRetriever = new
-		// UniprotProteoformRetrieverFromXML(uplr, null);
-		// return new ProteoFormFastaReader(params.getDatabaseName(),
-		// proteoFormRetriever);
-		// } else {
-		return new FastaReader(params.getDatabaseName());
-		// }
+		if (params.isLookProteoforms() != null && params.isLookProteoforms()) {
+			final UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(
+					params.getUniprotReleasesFolder(), true);
+			final UniprotProteoformRetriever proteoFormRetriever = new UniprotProteoformRetrieverFromXML(uplr,
+					params.getUniprotVersion());
+			return new ProteoFormFastaReader(params.getDatabaseName(), proteoFormRetriever);
+		} else {
+			return new FastaReader(params.getDatabaseName());
+		}
 	}
 }

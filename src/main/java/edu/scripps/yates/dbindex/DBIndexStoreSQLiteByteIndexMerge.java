@@ -11,6 +11,7 @@ import java.util.Map;
 
 import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
 import edu.scripps.yates.dbindex.util.IndexUtil;
+import edu.scripps.yates.utilities.bytes.DynByteBuffer;
 import gnu.trove.map.hash.THashMap;
 
 /**

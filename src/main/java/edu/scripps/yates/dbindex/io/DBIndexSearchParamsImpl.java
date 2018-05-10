@@ -40,12 +40,13 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 	private PeptideFilter peptideFilter;
 	private Boolean lookProteoforms;
 	private File uniprotReleasesFolder;
+	private String uniprotVersion;
 
 	public DBIndexSearchParamsImpl(IndexType indexType, boolean inMemoryIndex, int indexFactor, String dataBaseName,
 			int maxMissedCleavages, double maxPrecursorMass, double minPrecursorMass, boolean useIndex,
 			String enzymeNocutResidues, String enzymeResidues, int enzymeOffset, boolean isUseMonoParent,
 			boolean isH2OPlusProtonAdded, int massGroupFactor, char[] mandatoryInternalAAs, boolean semiCleavage,
-			PeptideFilter peptideFilter) {
+			PeptideFilter peptideFilter, String uniprotVersion) {
 		this.indexType = indexType;
 		this.inMemoryIndex = inMemoryIndex;
 		this.indexFactor = indexFactor;
@@ -59,7 +60,7 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 		this.semiCleavage = semiCleavage;
 		enzyme = new Enzyme(enzymeArr, maxMissedCleavages, semiCleavage);
 		enzymeArr = enzymeResidues.toCharArray();
-		for (char ch : enzymeArr)
+		for (final char ch : enzymeArr)
 			enzyme.addCleavePosition(ch);
 
 		this.enzymeOffset = enzymeOffset;
@@ -68,11 +69,11 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 		this.massGroupFactor = massGroupFactor;
 		this.mandatoryInternalAAs = mandatoryInternalAAs;
 		this.peptideFilter = peptideFilter;
-
+		this.uniprotVersion = uniprotVersion;
 	}
 
 	public DBIndexSearchParamsImpl(String mongoDBURI, String mongoMassDBName, String mongoSeqDBName,
-			String mongoProtDBName, PeptideFilter peptideFilter) {
+			String mongoProtDBName, PeptideFilter peptideFilter, String uniprotVersion) {
 		this.mongoDBURI = mongoDBURI;
 		usingMongoDB = mongoMassDBName != null && mongoDBURI != null;
 		usingProtDB = mongoProtDBName != null;
@@ -86,6 +87,7 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 		indexType = IndexType.INDEX_LARGE;
 		useIndex = true;
 		this.peptideFilter = peptideFilter;
+		this.uniprotVersion = uniprotVersion;
 	}
 
 	@Override
@@ -299,7 +301,7 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 			this.maxMissedCleavages = maxMissedCleavages;
 
 			enzymeResidues = "";
-			for (char ch : enzymeArr) {
+			for (final char ch : enzymeArr) {
 				enzyme.addCleavePosition(ch);
 				enzymeResidues += ch;
 			}
@@ -507,6 +509,15 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 
 	public void setUniprotReleasesFolder(File uniprotReleasesFolder) {
 		this.uniprotReleasesFolder = uniprotReleasesFolder;
+	}
+
+	@Override
+	public String getUniprotVersion() {
+		return uniprotVersion;
+	}
+
+	public void setUniprotVersion(String uniprotVersion) {
+		this.uniprotVersion = uniprotVersion;
 	}
 
 }

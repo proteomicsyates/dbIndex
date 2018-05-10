@@ -270,7 +270,7 @@ public class DBIndexStoreSQLiteMult implements DBIndexStore {
 		}
 
 		totalSeqCount++;
-		if (totalSeqCount % 1000000 == 0) {
+		if (totalSeqCount % 100000 == 0) {
 			logger.info("Total peptides indexed so far: " + totalSeqCount);
 		}
 

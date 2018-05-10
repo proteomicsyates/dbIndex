@@ -14,7 +14,6 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
-import com.compomics.dbtoolkit.io.implementations.FASTADBLoader;
 import com.compomics.util.general.UnknownElementMassException;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
@@ -30,6 +29,8 @@ import edu.scripps.yates.utilities.fasta.Fasta;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.fasta.FastaReader;
 import edu.scripps.yates.utilities.masses.FormulaCalculator;
+import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
+import edu.scripps.yates.utilities.progresscounter.ProgressPrintingType;
 import gnu.trove.set.hash.THashSet;
 
 /**
@@ -550,40 +551,33 @@ public class DBIndexer {
 		final FastaReader fastaReader = IndexUtil.getFastaReader(sparam);
 		try {
 			statusWriter = new FileWriter(statusFilePath);
-			totalProteins = fastaReader.getNumberFastas();
-			totalProteinsString = String.valueOf(totalProteins);
 		} catch (final IOException ex) {
 			logger.error("Error initializing index progress writer for file path: " + statusFilePath, ex);
 		}
 
-		int currentPercentage = 0;
 		// start indexing
 		try {
 
 			// getUniprotAnnorations
 			logger.info("Reading FASTA file to retrieve Uniprot annotations from Internet...");
 			final long t1 = System.currentTimeMillis();
-			final UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(
-					sparam.getUniprotReleasesFolder(), true);
-			final Set<String> accs = new HashSet<String>();
-			final FASTADBLoader loader = new FASTADBLoader();
-			if (loader.canReadFile(new File(sparam.getDatabaseName()))) {
-				loader.load(sparam.getDatabaseName());
-				String entry = null;
-				while ((entry = loader.nextFASTAEntry()) != null) {
-					final String uniProtACC = FastaParser.getUniProtACC(entry);
-					if (uniProtACC != null) {
-						accs.add(uniProtACC);
-					}
-				}
-			}
-			if (accs.isEmpty()) {
+
+			final Set<String> accs = fastaReader.getUniprotACCsFromFasta();
+
+			if (accs == null || accs.isEmpty()) {
 				throw new IllegalArgumentException("Reading FASTA file '" + sparam.getDatabaseName()
 						+ "' was not able to extract any single Uniprot protein accession.\nUse a uniprot formated fasta database.");
 			}
 			logger.info(accs.size()
 					+ " proteins extracted from fasta file with Uniprot accession. Now looking in the local index.");
-			uplr.getAnnotatedProteins(null, accs, true);
+
+			try {
+				totalProteins = fastaReader.getNumberFastas();
+				totalProteinsString = String.valueOf(totalProteins);
+			} catch (final IOException ex) {
+				totalProteins = accs.size();
+			}
+			getUniprotProteinLocalRetriever().getAnnotatedProteins(null, accs, true);
 			final long t2 = System.currentTimeMillis() - t1;
 			logger.info("Uniprot annotations were saved to local file system at '"
 					+ sparam.getUniprotReleasesFolder().getAbsolutePath() + "' in "
@@ -598,7 +592,9 @@ public class DBIndexer {
 			// process after indexing is done
 			final ProteinCache protCache = getProteinCache();
 			indexStore.setProteinCache(protCache);
-
+			final Set<String> uniprotAccs = new HashSet<String>();
+			final ProgressCounter counter = new ProgressCounter(totalProteins, ProgressPrintingType.PERCENTAGE_STEPS,
+					0);
 			for (final Iterator<Fasta> itr = fastaReader.getFastas(); itr.hasNext();) {
 
 				final Fasta fasta = itr.next();
@@ -608,8 +604,10 @@ public class DBIndexer {
 				// fasta.getSequence());
 
 				cutSeq(fasta);
-				// System.out.print("Printing the last buffer....");
-				// indexStore.lastBuffertoDatabase();
+
+				final String uniprotACC = FastaParser.getUniProtACC(fasta.getOriginalDefline());
+				uniprotAccs.add(uniprotACC);
+				counter.setProgress(uniprotAccs.size());
 
 				++indexedProteins;
 				if (statusWriter != null) {
@@ -619,15 +617,11 @@ public class DBIndexer {
 						statusWriter.flush();
 					}
 				}
-				final int percentage = indexedProteins * 100 / totalProteins;
-				if (currentPercentage != percentage) {
-					logger.info(indexedProteins + " proteins indexed (" + percentage + "%)");
-					currentPercentage = percentage;
-					// average time per percentage:
-					final double avgTime = (System.currentTimeMillis() - t0) / currentPercentage;
-					final int percentageRemaining = 100 - currentPercentage;
-					final double estimatedRemainingTime = percentageRemaining * avgTime;
-					logger.info(DatesUtil.getDescriptiveTimeFromMillisecs(estimatedRemainingTime) + " remaining...");
+
+				final String printIfNecessary = counter.printIfNecessary();
+				if (!"".equals(printIfNecessary)) {
+					logger.info("Proteins indexed: " + printIfNecessary);
+
 				}
 
 			}
@@ -639,6 +633,10 @@ public class DBIndexer {
 			logger.error("Error initializing and adding sequences", ex);
 			throw new DBIndexerException("Error initializing and adding sequences", ex);
 		} catch (final DBIndexStoreException ex) {
+			ex.printStackTrace();
+			logger.error("Error initializing and adding sequences", ex);
+			throw new DBIndexerException("Error initializing and adding sequences", ex);
+		} catch (final Exception ex) {
 			ex.printStackTrace();
 			logger.error("Error initializing and adding sequences", ex);
 			throw new DBIndexerException("Error initializing and adding sequences", ex);
@@ -670,6 +668,12 @@ public class DBIndexer {
 			}
 		}
 
+	}
+
+	protected UniprotProteinLocalRetriever getUniprotProteinLocalRetriever() {
+		final UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(sparam.getUniprotReleasesFolder(),
+				true);
+		return uplr;
 	}
 
 	protected ProteinCache getProteinCache() {
@@ -935,9 +939,9 @@ public class DBIndexer {
 				final List<IndexedSequence> indexedSequences = getSequencesUsingDaltonTolerance(mass, 0.0f);
 				for (final IndexedSequence indexedSequence : indexedSequences) {
 					final String sequence = indexedSequence.getSequence();
-					if (sequence.equals(seq))
+					if (sequence.equals(seq)) {
 						ret.addAll(indexStore.getProteins(indexedSequence));
-
+					}
 				}
 			} else {
 				final IndexedSequence indexPeptide = new IndexedSequence();
