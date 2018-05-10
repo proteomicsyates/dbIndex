@@ -565,7 +565,7 @@ public class DBIndexer {
 			final Set<String> accs = fastaReader.getUniprotACCsFromFasta();
 
 			if (accs == null || accs.isEmpty()) {
-				throw new IllegalArgumentException("Reading FASTA file '" + sparam.getDatabaseName()
+				throw new DBIndexerException("Reading FASTA file '" + sparam.getDatabaseName()
 						+ "' was not able to extract any single Uniprot protein accession.\nUse a uniprot formated fasta database.");
 			}
 			logger.info(accs.size()

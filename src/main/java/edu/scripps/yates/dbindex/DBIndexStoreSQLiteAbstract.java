@@ -85,7 +85,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 			dbPath = dbPath + DB_NAME_SUFFIX;
 		}
 
-		File indexFile = new File(dbPath);
+		final File indexFile = new File(dbPath);
 		if (indexFile.exists() && !indexFile.canRead()) {
 			throw new DBIndexStoreException("Index file already exists and is not readable: " + databaseID
 					+ ", cannot initialize the indexer.");
@@ -96,7 +96,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 			try {
 				// load driver
 				Class.forName("org.sqlite.JDBC");
-			} catch (ClassNotFoundException ex) {
+			} catch (final ClassNotFoundException ex) {
 				logger.error(null, ex);
 				throw new DBIndexStoreException("Could not load sqlite driver, ", ex);
 			}
@@ -106,7 +106,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 			final int cacheSize = 100000 / indexFactor;
 			final int pageSize = 4096;
 
-			SQLiteConfig config = new SQLiteConfig();
+			final SQLiteConfig config = new SQLiteConfig();
 			// optimize for multiple connections that can share data structures
 			config.setSharedCache(true);
 			config.setCacheSize(cacheSize);
@@ -130,7 +130,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 			// TODO handle case when we want in memory for search only, not for
 			// indexing
 			if (inMemory) {
-				File dbFile = new File(dbPath);
+				final File dbFile = new File(dbPath);
 				if (dbFile.exists()) {
 					// search mode
 					// logger.info( "Database index: " + dbPath +
@@ -211,13 +211,13 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 					logger.warn(String.format("sqlite-jdbc version %s loaded in %s mode", SQLiteJDBCLoader.getVersion(),
 							SQLiteJDBCLoader.isNativeMode() ? "native" : "pure-java"));
 				}
-			} catch (Exception ex) {
+			} catch (final Exception ex) {
 				logger.error("Can't check sqlite native mode", ex);
 			}
 
 			inited = true;
 
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			logger.error("Error initializing db, path: " + dbPath, e);
 			throw new DBIndexStoreException("Error initializing db, path: " + dbPath, e);
 		} finally {
@@ -225,7 +225,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 				if (statement != null) {
 					statement.close();
 				}
-			} catch (SQLException ex) {
+			} catch (final SQLException ex) {
 				logger.error(null, ex);
 			}
 		}
@@ -257,7 +257,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 			// needBackup = true;
 			// }
 
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			logger.error("Unable to start add sequence transaction, ", e);
 			throw new DBIndexStoreException("Unable to start add sequence transaction, ", e);
 		}
@@ -280,7 +280,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 		}
 
 		if (!inTransaction) {
-			throw new IllegalStateException("Not in transaction.");
+			throw new DBIndexStoreException("Not in transaction.");
 		}
 
 		// delete the temp index before commit
@@ -302,7 +302,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 			final long numSequences = getNumberSequences();
 			// logger.info( "Number of sequences in " + this.dbPath +
 			// " index: " + numSequences);
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			e.printStackTrace();
 			logger.error("Error commiting transaction, ", e);
 			throw new DBIndexStoreException("Error committing transaction", e);
@@ -311,10 +311,10 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 		if (needBackup) {
 			// logger.info( "Creating backup to " + this.dbPath);
 			try {
-				Statement st = con.createStatement();
+				final Statement st = con.createStatement();
 				st.executeUpdate("backup to " + dbPath);
 				st.close();
-			} catch (SQLException e) {
+			} catch (final SQLException e) {
 				e.printStackTrace();
 				logger.error("Error creating backup, ", e);
 				throw new DBIndexStoreException("Error creating backup", e);
@@ -332,7 +332,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 
 		try {
 			return getLastSequenceId();
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			logger.error("Error executing query to get number of sequences.", ex);
 			throw new DBIndexStoreException("Error executing query to get number of sequences.", ex);
 		}
@@ -346,7 +346,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 		}
 		try {
 			return getNumberSequences() > 0;
-		} catch (DBIndexStoreException ex) {
+		} catch (final DBIndexStoreException ex) {
 			logger.error("Could not check if index exists.", ex);
 			return false;
 		}
@@ -405,7 +405,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 			if (createSt != null) {
 				try {
 					createSt.close();
-				} catch (SQLException ex) {
+				} catch (final SQLException ex) {
 					ex.printStackTrace();
 					logger.error("Error closing statement " + statement, ex);
 				}
@@ -480,7 +480,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 			getMaxProtDefIdStatement = con.prepareStatement("SELECT MAX(id) FROM blazmass_proteins;");
 			getMaxSeqIdStatement = con
 					.prepareStatement("SELECT MAX(" + getSequencesTablePriKey() + ") FROM blazmass_sequences;");
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			logger.error("Could not initialize statement", e);
 			throw new DBIndexStoreException("Could not initialize statement", e);
 		}
@@ -494,7 +494,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 	public void finalize() {
 		try {
 			super.finalize();
-		} catch (Throwable ex) {
+		} catch (final Throwable ex) {
 			logger.error(null, ex);
 		}
 		try {
@@ -512,7 +512,7 @@ public abstract class DBIndexStoreSQLiteAbstract implements DBIndexStore {
 			// if (con != null) {
 			// con.close();
 			// }
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			logger.error("Error closing SQLite connection", ex);
 		}
 	}
