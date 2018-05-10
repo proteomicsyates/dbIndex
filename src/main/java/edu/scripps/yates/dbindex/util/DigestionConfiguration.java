@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.scripps.yates.dbindex.model.PeptideFilter;
+
 public class DigestionConfiguration {
 	private final char[] enzymeArray;
 	private final int numMisscleavages;

@@ -3,6 +3,8 @@ package edu.scripps.yates.dbindex;
 import java.util.Iterator;
 import java.util.List;
 
+import edu.scripps.yates.dbindex.model.ResidueInfo;
+
 /*
  * Interface that abstracts peptide database store Database store supports
  * storage and retrieval of peptide sequences by mass of the precursor, within a

@@ -1,10 +1,6 @@
-package edu.scripps.yates.dbindex.io;
+package edu.scripps.yates.dbindex.model;
 
 import java.io.File;
-
-import edu.scripps.yates.dbindex.DBIndexer.IndexType;
-import edu.scripps.yates.dbindex.model.Enzyme;
-import edu.scripps.yates.dbindex.util.PeptideFilter;
 
 public interface DBIndexSearchParams {
 

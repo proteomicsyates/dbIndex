@@ -11,6 +11,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import edu.scripps.yates.dbindex.model.ResidueInfo;
+
 /**
  * Indexing util
  * 

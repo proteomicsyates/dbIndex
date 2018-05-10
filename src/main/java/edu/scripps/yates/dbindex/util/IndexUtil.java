@@ -1,5 +1,15 @@
 package edu.scripps.yates.dbindex.util;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.RandomAccessFile;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
@@ -7,14 +17,160 @@ import edu.scripps.yates.annotations.uniprot.proteoform.UniprotProteoformRetriev
 import edu.scripps.yates.annotations.uniprot.proteoform.fasta.ProteoFormFastaReader;
 import edu.scripps.yates.annotations.uniprot.proteoform.xml.UniprotProteoformRetrieverFromXML;
 import edu.scripps.yates.dbindex.Constants;
+import edu.scripps.yates.dbindex.IndexedSequence;
+import edu.scripps.yates.dbindex.SearchParams;
 import edu.scripps.yates.dbindex.Util;
-import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
-import edu.scripps.yates.dbindex.io.SearchParams;
-import edu.scripps.yates.dbindex.model.AssignMass;
+import edu.scripps.yates.dbindex.model.DBIndexSearchParams;
+import edu.scripps.yates.dbindex.model.ResidueInfo;
 import edu.scripps.yates.utilities.fasta.FastaReader;
+import edu.scripps.yates.utilities.masses.AssignMass;
 
+/**
+ * Indexing util
+ * 
+ * @author Adam
+ */
 public class IndexUtil {
-	private final static Logger log = Logger.getLogger(IndexUtil.class);
+
+	private static final Logger log = Logger.getLogger(IndexUtil.class);
+
+	public static String getMd5(String in) {
+		try {
+			final MessageDigest md5 = MessageDigest.getInstance("MD5");
+			md5.update(in.getBytes(), 0, in.length());
+
+			return new BigInteger(1, md5.digest()).toString(16);
+
+		} catch (final NoSuchAlgorithmException e) {
+			log.log(Level.INFO, "Could not calculate md5sum ", e);
+			return "";
+		}
+	}
+
+	public static byte[] getMd5Bytes(String in) {
+		try {
+			final MessageDigest md5 = MessageDigest.getInstance("MD5");
+			md5.update(in.getBytes(), 0, in.length());
+			return md5.digest();
+
+		} catch (final NoSuchAlgorithmException e) {
+			log.log(Level.INFO, "Could not calculate md5sum ", e);
+			return new byte[1];
+		}
+	}
+
+	/**
+	 * get last N lines from a file (fast)
+	 * 
+	 * @param file
+	 * @param lines
+	 * @return
+	 */
+	public static String tail(File file, int lines) {
+		RandomAccessFile fileHandler = null;
+		try {
+			fileHandler = new java.io.RandomAccessFile(file, "r");
+			final long fileLength = file.length() - 1;
+			final StringBuilder sb = new StringBuilder();
+			int line = 0;
+
+			for (long filePointer = fileLength; filePointer != -1; filePointer--) {
+				fileHandler.seek(filePointer);
+				final int readByte = fileHandler.readByte();
+
+				if (readByte == 0xA) {
+					if (line == lines) {
+						if (filePointer == fileLength) {
+							continue;
+						} else {
+							break;
+						}
+					}
+				} else if (readByte == 0xD) {
+					line = line + 1;
+					if (line == lines) {
+						if (filePointer == fileLength - 1) {
+							continue;
+						} else {
+							break;
+						}
+					}
+				}
+				sb.append((char) readByte);
+			}
+
+			sb.deleteCharAt(sb.length() - 1);
+			final String lastLine = sb.reverse().toString();
+			return lastLine;
+		} catch (final java.io.FileNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		} catch (final java.io.IOException e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			if (fileHandler != null) {
+				try {
+					fileHandler.close();
+				} catch (final IOException ex) {
+					Logger.getLogger(IndexUtil.class).log(Level.ERROR, null, ex);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Get number of lines in a file (fast)
+	 * 
+	 * @param filename
+	 * @return
+	 * @throws IOException
+	 */
+	public static int countLines(String filename) throws IOException {
+		final LineNumberReader reader = new LineNumberReader(new FileReader(filename));
+		int cnt = 0;
+		String lineRead = "";
+		while ((lineRead = reader.readLine()) != null) {
+		}
+
+		cnt = reader.getLineNumber();
+		reader.close();
+		return cnt;
+	}
+
+	public static ResidueInfo getResidues(IndexedSequence peptideSequence, int seqOffset, int seqLen,
+			String proteinSequence) {
+		final int protLen = proteinSequence.length();
+
+		final int resLeftI = seqOffset >= Constants.MAX_INDEX_RESIDUE_LEN ? seqOffset - Constants.MAX_INDEX_RESIDUE_LEN
+				: 0;
+		final int resLeftLen = Math.min(Constants.MAX_INDEX_RESIDUE_LEN, seqOffset);
+		final StringBuilder sbLeft = new StringBuilder(Constants.MAX_INDEX_RESIDUE_LEN);
+		sbLeft.append(proteinSequence.substring(resLeftI, resLeftI + resLeftLen));
+
+		final int end = seqOffset + seqLen;
+		final int resRightI = end; // + 1;
+		final int resRightLen = Math.min(Constants.MAX_INDEX_RESIDUE_LEN, protLen - end - 1);
+		final StringBuilder sbRight = new StringBuilder(Constants.MAX_INDEX_RESIDUE_LEN);
+		if (resRightI < protLen) {
+			sbRight.append(proteinSequence.substring(resRightI, resRightI + resRightLen));
+		}
+
+		// add -- markers to fill Constants.MAX_INDEX_RESIDUE_LEN length
+		final int lLen = sbLeft.length();
+		for (int c = 0; c < Constants.MAX_INDEX_RESIDUE_LEN - lLen; ++c) {
+			sbLeft.insert(0, '-');
+		}
+		final int rLen = sbRight.length();
+		for (int c = 0; c < Constants.MAX_INDEX_RESIDUE_LEN - rLen; ++c) {
+			sbRight.append('-');
+		}
+
+		final String resLeft = sbLeft.toString();
+		final String resRight = sbRight.toString();
+
+		return new ResidueInfo(resLeft, resRight);
+	}
 
 	/**
 	 * Calculates the mass of a sequence, by summing all the masses of all the

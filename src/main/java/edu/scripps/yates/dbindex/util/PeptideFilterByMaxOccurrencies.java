@@ -1,5 +1,7 @@
 package edu.scripps.yates.dbindex.util;
 
+import edu.scripps.yates.dbindex.model.PeptideFilter;
+
 /**
  * A {@link PeptideFilter} implementation that discard peptides that contains a
  * AA more than X times

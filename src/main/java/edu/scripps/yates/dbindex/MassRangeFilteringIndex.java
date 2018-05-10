@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.ws.rs.NotSupportedException;
 
+import edu.scripps.yates.dbindex.model.ResidueInfo;
 import gnu.trove.map.hash.THashMap;
 
 /**

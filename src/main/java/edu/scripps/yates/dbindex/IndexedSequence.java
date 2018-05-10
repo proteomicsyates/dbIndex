@@ -3,6 +3,8 @@ package edu.scripps.yates.dbindex;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.scripps.yates.dbindex.model.ResidueInfo;
+
 /**
  * Representation of an indexed peptide sequence with mass and residues
  *

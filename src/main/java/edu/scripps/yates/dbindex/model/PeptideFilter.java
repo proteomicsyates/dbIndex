@@ -1,4 +1,4 @@
-package edu.scripps.yates.dbindex.util;
+package edu.scripps.yates.dbindex.model;
 
 public abstract class PeptideFilter {
 	public abstract boolean isValid(String peptideSequence);

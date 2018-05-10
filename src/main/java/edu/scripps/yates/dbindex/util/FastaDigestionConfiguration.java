@@ -3,8 +3,9 @@ package edu.scripps.yates.dbindex.util;
 import java.io.File;
 
 import edu.scripps.yates.dbindex.DBIndexInterface;
-import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
 import edu.scripps.yates.dbindex.io.DBIndexSearchParamsImpl;
+import edu.scripps.yates.dbindex.model.DBIndexSearchParams;
+import edu.scripps.yates.dbindex.model.PeptideFilter;
 
 public class FastaDigestionConfiguration extends DigestionConfiguration {
 	private final File fasta;

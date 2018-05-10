@@ -18,16 +18,17 @@ import com.compomics.util.general.UnknownElementMassException;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.dbindex.DBIndexStore.FilterResult;
-import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
 import edu.scripps.yates.dbindex.io.SearchParamReader;
-import edu.scripps.yates.dbindex.model.AssignMass;
+import edu.scripps.yates.dbindex.model.DBIndexSearchParams;
+import edu.scripps.yates.dbindex.model.IndexType;
+import edu.scripps.yates.dbindex.model.PeptideFilter;
 import edu.scripps.yates.dbindex.model.Util;
 import edu.scripps.yates.dbindex.util.IndexUtil;
-import edu.scripps.yates.dbindex.util.PeptideFilter;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.fasta.Fasta;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.fasta.FastaReader;
+import edu.scripps.yates.utilities.masses.AssignMass;
 import edu.scripps.yates.utilities.masses.FormulaCalculator;
 import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
 import edu.scripps.yates.utilities.progresscounter.ProgressPrintingType;
@@ -52,27 +53,6 @@ public class DBIndexer {
 	public enum IndexerMode {
 
 		INDEX, SEARCH_INDEXED, SEARCH_UNINDEXED,
-	};
-
-	/**
-	 * Different operational modes supported
-	 */
-	public enum IndexType {
-
-		INDEX_NORMAL {
-			@Override
-			public String toString() {
-				return "Normal index (best for small and medium db)";
-			}
-
-		},
-		INDEX_LARGE {
-			@Override
-			public String toString() {
-				return "Large index (best for large db)";
-			}
-
-		},
 	};
 
 	private final IndexerMode mode;
@@ -154,7 +134,7 @@ public class DBIndexer {
 
 	}
 
-	public DBIndexer(edu.scripps.yates.dbindex.io.DBIndexSearchParams sparam, IndexerMode mode,
+	public DBIndexer(edu.scripps.yates.dbindex.model.DBIndexSearchParams sparam, IndexerMode mode,
 			DBIndexStore dbIndexStore) {
 		IndexUtil.setNumRowsToLookup(0);
 		this.sparam = sparam;
@@ -176,7 +156,7 @@ public class DBIndexer {
 	 *            multiplied to get the key in the index. Using any other
 	 *            constructor, the massGroupFactor is 10000
 	 */
-	public DBIndexer(edu.scripps.yates.dbindex.io.DBIndexSearchParams sparam, IndexerMode mode) {
+	public DBIndexer(edu.scripps.yates.dbindex.model.DBIndexSearchParams sparam, IndexerMode mode) {
 		IndexUtil.setNumRowsToLookup(0);
 		this.sparam = sparam;
 		this.mode = mode;

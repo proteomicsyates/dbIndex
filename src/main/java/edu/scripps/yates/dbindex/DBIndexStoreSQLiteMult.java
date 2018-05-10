@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
-import edu.scripps.yates.dbindex.io.SearchParams;
+import edu.scripps.yates.dbindex.model.DBIndexSearchParams;
+import edu.scripps.yates.dbindex.model.ResidueInfo;
 import gnu.trove.set.hash.THashSet;
 
 /**
@@ -40,7 +40,7 @@ public class DBIndexStoreSQLiteMult implements DBIndexStore {
 	protected final DBIndexSearchParams sparam;
 	protected boolean inMemoryIndex = false;
 
-	public DBIndexStoreSQLiteMult(edu.scripps.yates.dbindex.io.DBIndexSearchParams sparam, boolean inMemoryIndex,
+	public DBIndexStoreSQLiteMult(edu.scripps.yates.dbindex.model.DBIndexSearchParams sparam, boolean inMemoryIndex,
 			DBIndexStoreSQLiteByteIndexMerge[] buckets) {
 		inited = false;
 		this.sparam = sparam;
@@ -59,7 +59,7 @@ public class DBIndexStoreSQLiteMult implements DBIndexStore {
 		}
 	}
 
-	public DBIndexStoreSQLiteMult(edu.scripps.yates.dbindex.io.DBIndexSearchParams sparam, boolean inMemoryIndex) {
+	public DBIndexStoreSQLiteMult(edu.scripps.yates.dbindex.model.DBIndexSearchParams sparam, boolean inMemoryIndex) {
 		this(sparam, inMemoryIndex, new DBIndexStoreSQLiteByteIndexMerge[sparam.getIndexFactor()]);
 	}
 

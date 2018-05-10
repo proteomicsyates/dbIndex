@@ -2,10 +2,11 @@ package edu.scripps.yates.dbindex.io;
 
 import java.io.File;
 
-import edu.scripps.yates.dbindex.DBIndexer.IndexType;
+import edu.scripps.yates.dbindex.model.DBIndexSearchParams;
 import edu.scripps.yates.dbindex.model.Enzyme;
+import edu.scripps.yates.dbindex.model.IndexType;
+import edu.scripps.yates.dbindex.model.PeptideFilter;
 import edu.scripps.yates.dbindex.util.IndexUtil;
-import edu.scripps.yates.dbindex.util.PeptideFilter;
 
 public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 	private IndexType indexType;

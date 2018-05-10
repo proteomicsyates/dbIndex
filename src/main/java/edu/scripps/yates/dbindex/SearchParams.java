@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates and open the template in
  * the editor.
  */
-package edu.scripps.yates.dbindex.io;
+package edu.scripps.yates.dbindex;
 
 import java.io.File;
 
@@ -15,11 +15,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import edu.scripps.yates.dbindex.DBIndexer;
-import edu.scripps.yates.dbindex.DBIndexer.IndexType;
-import edu.scripps.yates.dbindex.Util;
+import edu.scripps.yates.dbindex.model.DBIndexSearchParams;
 import edu.scripps.yates.dbindex.model.Enzyme;
-import edu.scripps.yates.dbindex.util.PeptideFilter;
+import edu.scripps.yates.dbindex.model.IndexType;
+import edu.scripps.yates.dbindex.model.ModResidue;
+import edu.scripps.yates.dbindex.model.PeptideFilter;
 
 public class SearchParams implements DBIndexSearchParams {
 
@@ -83,7 +83,7 @@ public class SearchParams implements DBIndexSearchParams {
 	private int minFragPeakNum = 8;
 
 	private boolean useIndex = true;
-	private DBIndexer.IndexType indexType = DBIndexer.IndexType.INDEX_NORMAL; // default
+	private IndexType indexType = IndexType.INDEX_NORMAL; // default
 	private boolean inMemoryIndex = false;
 	private int indexFactor = 6;
 

@@ -28,7 +28,7 @@ import com.mongodb.client.MongoDatabase;
 
 import edu.scripps.yates.dbindex.IndexedSequence;
 import edu.scripps.yates.dbindex.MassRange;
-import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
+import edu.scripps.yates.dbindex.model.DBIndexSearchParams;
 
 /**
  *

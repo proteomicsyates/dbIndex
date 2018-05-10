@@ -1,4 +1,4 @@
-package edu.scripps.yates.dbindex;
+package edu.scripps.yates.dbindex.model;
 
 /**
  *

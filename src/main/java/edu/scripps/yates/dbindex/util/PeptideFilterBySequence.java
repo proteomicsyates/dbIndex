@@ -3,6 +3,8 @@ package edu.scripps.yates.dbindex.util;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.scripps.yates.dbindex.model.PeptideFilter;
+
 /**
  * A {@link PeptideFilter} implementation that discard peptides that match a
  * regular expresion

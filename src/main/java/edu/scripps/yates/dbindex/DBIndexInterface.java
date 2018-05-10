@@ -8,14 +8,13 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.dbindex.DBIndexer.IndexType;
 import edu.scripps.yates.dbindex.DBIndexer.IndexerMode;
-import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
 import edu.scripps.yates.dbindex.io.DBIndexSearchParamsImpl;
 import edu.scripps.yates.dbindex.io.SearchParamReader;
-import edu.scripps.yates.dbindex.io.SearchParams;
-import edu.scripps.yates.dbindex.model.AssignMass;
+import edu.scripps.yates.dbindex.model.DBIndexSearchParams;
+import edu.scripps.yates.dbindex.model.IndexType;
 import edu.scripps.yates.dbindex.util.PropertiesReader;
+import edu.scripps.yates.utilities.masses.AssignMass;
 import gnu.trove.map.hash.THashMap;
 
 public class DBIndexInterface {
@@ -245,7 +244,7 @@ public class DBIndexInterface {
 	 */
 	public static DBIndexSearchParams getDefaultDBIndexParams(String fastaFilePath, boolean inMemoryIndex) {
 		try {
-			final IndexType indexType = DBIndexer.IndexType.valueOf(
+			final IndexType indexType = IndexType.valueOf(
 					String.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.DEFAULT_INDEX_TYPE)));
 
 			final int indexFactor = Integer
@@ -374,7 +373,7 @@ public class DBIndexInterface {
 	public static DBIndexSearchParams getDefaultDBIndexParamsForCrosslinkerAnalysis(String fastaFilePath,
 			boolean inMemoryIndex) {
 		try {
-			final IndexType indexType = DBIndexer.IndexType.valueOf(
+			final IndexType indexType = IndexType.valueOf(
 					String.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.DEFAULT_INDEX_TYPE)));
 
 			final int indexFactor = Integer

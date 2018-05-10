@@ -9,8 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import edu.scripps.yates.dbindex.io.DBIndexSearchParams;
-import edu.scripps.yates.dbindex.io.SearchParams;
+import edu.scripps.yates.dbindex.model.DBIndexSearchParams;
+import edu.scripps.yates.dbindex.model.ResidueInfo;
 import edu.scripps.yates.dbindex.util.IndexUtil;
 import edu.scripps.yates.utilities.bytes.DynByteBuffer;
 import gnu.trove.map.hash.THashMap;
