@@ -6,10 +6,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -65,6 +66,7 @@ public class DBIndexer {
 	protected long protNum; // protein number in sequence, starting at 1
 	protected ProteinCache proteinCache;
 	protected final PeptideFilter peptideFilter;
+	private Pattern decoy;
 	private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(DBIndexer.class);
 	protected static final int MAX_SEQ_LENGTH = 10000;
 	private static final FormulaCalculator formulaCalculator = new FormulaCalculator();
@@ -143,6 +145,9 @@ public class DBIndexer {
 		indexStore = dbIndexStore;
 		inited = false;
 		protNum = -1;
+		if (sparam.getDiscardDecoyRegexp() != null) {
+			decoy = Pattern.compile(sparam.getDiscardDecoyRegexp());
+		}
 	}
 
 	/**
@@ -193,6 +198,9 @@ public class DBIndexer {
 
 		inited = false;
 		protNum = -1;
+		if (sparam.getDiscardDecoyRegexp() != null) {
+			decoy = Pattern.compile(sparam.getDiscardDecoyRegexp());
+		}
 	}
 
 	/**
@@ -572,9 +580,10 @@ public class DBIndexer {
 			// process after indexing is done
 			final ProteinCache protCache = getProteinCache();
 			indexStore.setProteinCache(protCache);
-			final Set<String> uniprotAccs = new HashSet<String>();
-			final ProgressCounter counter = new ProgressCounter(totalProteins, ProgressPrintingType.PERCENTAGE_STEPS,
-					0);
+			final Set<String> uniprotAccs = new THashSet<String>();
+			final ProgressCounter counter = new ProgressCounter(totalProteins, ProgressPrintingType.PERCENTAGE_STEPS, 0,
+					true);
+			int decoyDiscarded = 0;
 			for (final Iterator<Fasta> itr = fastaReader.getFastas(); itr.hasNext();) {
 
 				final Fasta fasta = itr.next();
@@ -582,10 +591,16 @@ public class DBIndexer {
 				// header in the index
 				// protCache.addProtein(fasta.getSequestLikeAccession(),
 				// fasta.getSequence());
-
+				final String uniprotACC = FastaParser.getACC(fasta.getOriginalDefline()).getFirstelement();
+				if (decoy != null) {
+					final Matcher matcher = decoy.matcher(uniprotACC);
+					if (matcher.find()) {
+						decoyDiscarded++;
+						continue;
+					}
+				}
 				cutSeq(fasta);
 
-				final String uniprotACC = FastaParser.getUniProtACC(fasta.getOriginalDefline());
 				uniprotAccs.add(uniprotACC);
 				counter.setProgress(uniprotAccs.size());
 
