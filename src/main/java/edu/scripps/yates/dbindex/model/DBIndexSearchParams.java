@@ -92,4 +92,5 @@ public interface DBIndexSearchParams {
 
 	String getUniprotVersion();
 
+	String getDiscardDecoyRegexp();
 }

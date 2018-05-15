@@ -1005,4 +1005,10 @@ public class SearchParams implements DBIndexSearchParams {
 	public void setUniprotVersion(String uniprotVersion) {
 		this.uniprotVersion = uniprotVersion;
 	}
+
+	@Override
+	public String getDiscardDecoyRegexp() {
+		// we dont discard decoys when searching
+		return null;
+	}
 }

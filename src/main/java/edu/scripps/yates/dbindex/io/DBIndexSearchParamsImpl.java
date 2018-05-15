@@ -42,12 +42,13 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 	private Boolean lookProteoforms;
 	private File uniprotReleasesFolder;
 	private String uniprotVersion;
+	private String discardDecoyRegexp;
 
 	public DBIndexSearchParamsImpl(IndexType indexType, boolean inMemoryIndex, int indexFactor, String dataBaseName,
 			int maxMissedCleavages, double maxPrecursorMass, double minPrecursorMass, boolean useIndex,
 			String enzymeNocutResidues, String enzymeResidues, int enzymeOffset, boolean isUseMonoParent,
 			boolean isH2OPlusProtonAdded, int massGroupFactor, char[] mandatoryInternalAAs, boolean semiCleavage,
-			PeptideFilter peptideFilter, String uniprotVersion) {
+			PeptideFilter peptideFilter, String uniprotVersion, String discardDecoyRegexp) {
 		this.indexType = indexType;
 		this.inMemoryIndex = inMemoryIndex;
 		this.indexFactor = indexFactor;
@@ -71,6 +72,7 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 		this.mandatoryInternalAAs = mandatoryInternalAAs;
 		this.peptideFilter = peptideFilter;
 		this.uniprotVersion = uniprotVersion;
+		this.discardDecoyRegexp = discardDecoyRegexp;
 	}
 
 	public DBIndexSearchParamsImpl(String mongoDBURI, String mongoMassDBName, String mongoSeqDBName,
@@ -519,6 +521,15 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 
 	public void setUniprotVersion(String uniprotVersion) {
 		this.uniprotVersion = uniprotVersion;
+	}
+
+	@Override
+	public String getDiscardDecoyRegexp() {
+		return discardDecoyRegexp;
+	}
+
+	public void setDiscardDecoyRegexp(String discardDecoyRegexp) {
+		this.discardDecoyRegexp = discardDecoyRegexp;
 	}
 
 }
