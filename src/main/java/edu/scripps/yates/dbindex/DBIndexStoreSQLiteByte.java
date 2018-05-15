@@ -443,8 +443,10 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 	 * @param toInsert
 	 * @param minMass
 	 * @param maxMass
+	 * @throws DBIndexStoreException
 	 */
-	protected void parseAddPeptideInfo(byte[] data, List<IndexedSequence> toInsert, double minMass, double maxMass) {
+	protected void parseAddPeptideInfo(byte[] data, List<IndexedSequence> toInsert, double minMass, double maxMass)
+			throws DBIndexStoreException {
 
 		// to collapse multiple sequences into single one, with multproteins
 		final Map<String, List<IndexedSeqInternal>> temp = new THashMap<String, List<IndexedSeqInternal>>();

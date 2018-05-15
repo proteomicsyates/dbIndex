@@ -379,9 +379,11 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 	 *            used to eliminate not matching masses in the 1ppm row
 	 * @param maxMass
 	 *            used to eliminate not matching masses in the 1ppm row
+	 * @throws DBIndexStoreException
 	 */
 	@Override
-	protected void parseAddPeptideInfo(byte[] data, List<IndexedSequence> toInsert, double minMass, double maxMass) {
+	protected void parseAddPeptideInfo(byte[] data, List<IndexedSequence> toInsert, double minMass, double maxMass)
+			throws DBIndexStoreException {
 
 		final int dataLength = data.length;
 
@@ -488,9 +490,10 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 	 *            used to eliminate not matching masses in the 1ppm row
 	 * @param maxMasses
 	 *            used to eliminate not matching masses in the 1ppm row
+	 * @throws DBIndexStoreException
 	 */
 	protected void parseAddPeptideInfo(byte[] data, List<IndexedSequence> toInsert, double[] minMasses,
-			double[] maxMasses) {
+			double[] maxMasses) throws DBIndexStoreException {
 
 		final int dataLength = data.length;
 
