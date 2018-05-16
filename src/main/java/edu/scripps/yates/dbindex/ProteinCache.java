@@ -132,7 +132,7 @@ public class ProteinCache {
 	 * 
 	 * @return true if populated / not empty
 	 */
-	protected synchronized boolean isPopulated() {
+	protected boolean isPopulated() {
 		return !sequences.isEmpty();
 	}
 
