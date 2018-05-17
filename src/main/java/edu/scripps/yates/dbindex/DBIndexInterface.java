@@ -167,8 +167,9 @@ public class DBIndexInterface {
 	 *            mass tolerance, already calculated for that mass as it is
 	 *            mass-dependant
 	 * @return list of matching sequences
+	 * @throws DBIndexStoreException
 	 */
-	public List<IndexedSequence> getSequences(double precursorMass, double massTolerance) {
+	public List<IndexedSequence> getSequences(double precursorMass, double massTolerance) throws DBIndexStoreException {
 		return indexer.getSequencesUsingDaltonTolerance(precursorMass, massTolerance);
 	}
 
@@ -180,8 +181,9 @@ public class DBIndexInterface {
 	 * @param massRanges
 	 *            mass ranges to query
 	 * @return list of matching sequences
+	 * @throws DBIndexStoreException
 	 */
-	public List<IndexedSequence> getSequences(List<MassRange> massRanges) {
+	public List<IndexedSequence> getSequences(List<MassRange> massRanges) throws DBIndexStoreException {
 		return indexer.getSequences(massRanges);
 	}
 
@@ -193,8 +195,9 @@ public class DBIndexInterface {
 	 * @param seq
 	 *            peptide sequence
 	 * @return list of indexed protein objects associated with the sequence
+	 * @throws DBIndexStoreException
 	 */
-	public List<IndexedProtein> getProteins(IndexedSequence seq) {
+	public List<IndexedProtein> getProteins(IndexedSequence seq) throws DBIndexStoreException {
 		return indexer.getProteins(seq);
 	}
 
@@ -206,8 +209,9 @@ public class DBIndexInterface {
 	 * @param seq
 	 *            peptide sequence
 	 * @return list of indexed protein objects associated with the sequence
+	 * @throws DBIndexStoreException
 	 */
-	public Set<IndexedProtein> getProteins(String seq) {
+	public Set<IndexedProtein> getProteins(String seq) throws DBIndexStoreException {
 		// look into the cached proteins
 		if (proteinsByPeptideSeqs.containsKey(seq) && !proteinsByPeptideSeqs.get(seq).isEmpty())
 			return proteinsByPeptideSeqs.get(seq);

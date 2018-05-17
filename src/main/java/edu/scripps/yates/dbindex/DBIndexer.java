@@ -733,20 +733,17 @@ public class DBIndexer {
 	 *            mass tolerance, already calculated for that mass as it is
 	 *            mass-dependant. In Da.
 	 * @return list of matching sequences
+	 * @throws DBIndexStoreException
 	 */
-	public List<IndexedSequence> getSequencesUsingDaltonTolerance(double precursorMass, double massToleranceInDa) {
+	public List<IndexedSequence> getSequencesUsingDaltonTolerance(double precursorMass, double massToleranceInDa)
+			throws DBIndexStoreException {
 		if (mode.equals(IndexerMode.SEARCH_UNINDEXED)) {
 			final MassRange range = new MassRange(precursorMass, massToleranceInDa);
 			final List<MassRange> ranges = new ArrayList<MassRange>();
 			ranges.add(range);
 			return cutAndSearch(ranges);
 		} else {
-			try {
-				return indexStore.getSequences(precursorMass, massToleranceInDa);
-			} catch (final DBIndexStoreException ex) {
-				logger.error("Error getting sequences for the mass.", ex);
-				return null;
-			}
+			return indexStore.getSequences(precursorMass, massToleranceInDa);
 		}
 	}
 
@@ -763,8 +760,10 @@ public class DBIndexer {
 	 * @param massToleranceInPPM
 	 *            mass tolerance in PPM.
 	 * @return list of matching sequences
+	 * @throws DBIndexStoreException
 	 */
-	public List<IndexedSequence> getSequencesUsingPPMTolerance(double precursorMass, double massToleranceInPPM) {
+	public List<IndexedSequence> getSequencesUsingPPMTolerance(double precursorMass, double massToleranceInPPM)
+			throws DBIndexStoreException {
 
 		final double massTolerance = IndexUtil.getToleranceInDalton(precursorMass, massToleranceInPPM);
 
@@ -774,54 +773,51 @@ public class DBIndexer {
 			ranges.add(range);
 			return cutAndSearch(ranges);
 		} else {
-			try {
-				final List<IndexedSequence> sequences = indexStore.getSequences(precursorMass, massTolerance);
 
-				// using a predefined PRECISION, go up in the mass range to
-				// see
-				// if lower bound of higher masses PPM range in lower than
-				// the
-				// actual precursor mass, and in that case, search for that
-				// mass.
+			final List<IndexedSequence> sequences = indexStore.getSequences(precursorMass, massTolerance);
 
-				double upperBound = precursorMass + massTolerance;
+			// using a predefined PRECISION, go up in the mass range to
+			// see
+			// if lower bound of higher masses PPM range in lower than
+			// the
+			// actual precursor mass, and in that case, search for that
+			// mass.
 
-				while (true) {
-					// calculate the tolerance of the lowerBound
-					final double massTolerance2 = IndexUtil.getToleranceInDalton(upperBound, massToleranceInPPM);
-					final double lowerBoundOfUpperBoundMass = upperBound - massTolerance2;
-					if (lowerBoundOfUpperBoundMass < precursorMass) {
-						final List<IndexedSequence> sequences2 = indexStore.getSequences(upperBound, 0.0f);
-						if (sequences2.isEmpty()) {
-							break;
-						} else {
+			double upperBound = precursorMass + massTolerance;
 
-							int numNewSeqs = 0;
-							for (final IndexedSequence indexedSequence2 : sequences2) {
-								if (!sequences.contains(indexedSequence2)) {
-									sequences.add(indexedSequence2);
-									numNewSeqs++;
-								}
-							}
-							if (numNewSeqs > 0)
-								logger.info(numNewSeqs + " new sequences looking in upper mass " + upperBound
-										+ " from precursor mass " + precursorMass);
-						}
+			while (true) {
+				// calculate the tolerance of the lowerBound
+				final double massTolerance2 = IndexUtil.getToleranceInDalton(upperBound, massToleranceInPPM);
+				final double lowerBoundOfUpperBoundMass = upperBound - massTolerance2;
+				if (lowerBoundOfUpperBoundMass < precursorMass) {
+					final List<IndexedSequence> sequences2 = indexStore.getSequences(upperBound, 0.0f);
+					if (sequences2.isEmpty()) {
+						break;
 					} else {
-						break;
+
+						int numNewSeqs = 0;
+						for (final IndexedSequence indexedSequence2 : sequences2) {
+							if (!sequences.contains(indexedSequence2)) {
+								sequences.add(indexedSequence2);
+								numNewSeqs++;
+							}
+						}
+						if (numNewSeqs > 0)
+							logger.info(numNewSeqs + " new sequences looking in upper mass " + upperBound
+									+ " from precursor mass " + precursorMass);
 					}
-					final double newupperBound = upperBound + Constants.PRECISION;
-					if (newupperBound == upperBound)
-						break;
-					upperBound = newupperBound;
-
+				} else {
+					break;
 				}
+				final double newupperBound = upperBound + Constants.PRECISION;
+				if (newupperBound == upperBound)
+					break;
+				upperBound = newupperBound;
 
-				return sequences;
-			} catch (final DBIndexStoreException ex) {
-				logger.error("Error getting sequences for the mass.", ex);
-				return null;
 			}
+
+			return sequences;
+
 		}
 	}
 
@@ -833,20 +829,17 @@ public class DBIndexer {
 	 * @param massRanges
 	 *            mass ranges to query
 	 * @return list of matching sequences
+	 * @throws DBIndexStoreException
 	 */
-	public List<IndexedSequence> getSequences(List<MassRange> massRanges) {
+	public List<IndexedSequence> getSequences(List<MassRange> massRanges) throws DBIndexStoreException {
 		List<IndexedSequence> sequences = null;
 		final long t1 = System.currentTimeMillis();
 		if (mode.equals(IndexerMode.SEARCH_UNINDEXED)) {
 			sequences = cutAndSearch(massRanges);
 		} else {
-			try {
 
-				sequences = indexStore.getSequences(massRanges);
-			} catch (final DBIndexStoreException ex) {
-				logger.error("Error getting sequences for the mass ranges: " + massRanges.toString(), ex);
-				return null;
-			}
+			sequences = indexStore.getSequences(massRanges);
+
 		}
 		final long t2 = System.currentTimeMillis();
 		// System.out.println("DEBUG DBINdexer.getSequences(), seqs: " +
@@ -864,14 +857,12 @@ public class DBIndexer {
 	 * @param seq
 	 *            peptide sequence
 	 * @return list of indexed protein objects associated with the sequence
+	 * @throws DBIndexStoreException
 	 */
-	public List<IndexedProtein> getProteins(IndexedSequence seq) {
-		try {
-			return indexStore.getProteins(seq);
-		} catch (final DBIndexStoreException ex) {
-			logger.error("Error getting protein for the sequence", ex);
-			return null;
-		}
+	public List<IndexedProtein> getProteins(IndexedSequence seq) throws DBIndexStoreException {
+
+		return indexStore.getProteins(seq);
+
 	}
 
 	/**
@@ -922,31 +913,29 @@ public class DBIndexer {
 	 * @param seq
 	 *            peptide sequence
 	 * @return list of indexed protein objects associated with the sequence
+	 * @throws DBIndexStoreException
 	 */
-	public Set<IndexedProtein> getProteins(String seq) {
+	public Set<IndexedProtein> getProteins(String seq) throws DBIndexStoreException {
 		final Set<IndexedProtein> ret = new THashSet<IndexedProtein>();
-		try {
-			if (!sparam.isUsingSeqDB()) {
-				// get the mass of the sequence
-				final boolean h2oPlusProtonAdded = sparam.isH2OPlusProtonAdded();
-				final double mass = IndexUtil.calculateMass(seq, h2oPlusProtonAdded);
-				// get the indexed sequences in the database
-				final List<IndexedSequence> indexedSequences = getSequencesUsingDaltonTolerance(mass, 0.0f);
-				for (final IndexedSequence indexedSequence : indexedSequences) {
-					final String sequence = indexedSequence.getSequence();
-					if (sequence.equals(seq)) {
-						ret.addAll(indexStore.getProteins(indexedSequence));
-					}
+
+		if (!sparam.isUsingSeqDB()) {
+			// get the mass of the sequence
+			final boolean h2oPlusProtonAdded = sparam.isH2OPlusProtonAdded();
+			final double mass = IndexUtil.calculateMass(seq, h2oPlusProtonAdded);
+			// get the indexed sequences in the database
+			final List<IndexedSequence> indexedSequences = getSequencesUsingDaltonTolerance(mass, 0.0f);
+			for (final IndexedSequence indexedSequence : indexedSequences) {
+				final String sequence = indexedSequence.getSequence();
+				if (sequence.equals(seq)) {
+					ret.addAll(indexStore.getProteins(indexedSequence));
 				}
-			} else {
-				final IndexedSequence indexPeptide = new IndexedSequence();
-				indexPeptide.setSequence(seq);
-				ret.addAll(indexStore.getProteins(indexPeptide));
 			}
-		} catch (final DBIndexStoreException ex) {
-			logger.error("Error getting protein for the sequence", ex);
-			return null;
+		} else {
+			final IndexedSequence indexPeptide = new IndexedSequence();
+			indexPeptide.setSequence(seq);
+			ret.addAll(indexStore.getProteins(indexPeptide));
 		}
+
 		return ret;
 	}
 
