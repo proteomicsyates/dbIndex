@@ -3,5 +3,5 @@
 .project
 .settings
 /logs
-/src/test
 test.fasta.idx/
+/bin/
