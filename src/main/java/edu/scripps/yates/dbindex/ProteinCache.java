@@ -56,7 +56,10 @@ public class ProteinCache {
 	 * @return protein sequence string
 	 */
 	public String getProteinSequence(long proteinId) {
-		return sequences.get((int) proteinId);
+		if (sequences.size() > proteinId) {
+			return sequences.get((int) proteinId);
+		}
+		return null;
 	}
 
 	/**

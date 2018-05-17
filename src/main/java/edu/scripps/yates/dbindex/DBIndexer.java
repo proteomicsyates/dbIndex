@@ -500,6 +500,7 @@ public class DBIndexer {
 	 * @throws IOException
 	 */
 	public void run() throws DBIndexerException {
+
 		if (!inited) {
 			throw new IllegalStateException("Not initialized.");
 		}
@@ -565,12 +566,14 @@ public class DBIndexer {
 			} catch (final IOException ex) {
 				totalProteins = accs.size();
 			}
-			getUniprotProteinLocalRetriever().getAnnotatedProteins(null, accs, true);
-			final long t2 = System.currentTimeMillis() - t1;
-			logger.info("Uniprot annotations were saved to local file system at '"
-					+ sparam.getUniprotReleasesFolder().getAbsolutePath() + "' in "
-					+ DatesUtil.getDescriptiveTimeFromMillisecs(t2));
-
+			UniprotProteinLocalRetriever uplr = getUniprotProteinLocalRetriever();
+			if (uplr != null) {
+				uplr.getAnnotatedProteins(null, accs, true);
+				final long t2 = System.currentTimeMillis() - t1;
+				logger.info("Uniprot annotations were saved to local file system at '"
+						+ sparam.getUniprotReleasesFolder().getAbsolutePath() + "' in "
+						+ DatesUtil.getDescriptiveTimeFromMillisecs(t2));
+			}
 			// index, set protein cache on the fly
 			indexStore.startAddSeq();
 
@@ -589,8 +592,7 @@ public class DBIndexer {
 				final Fasta fasta = itr.next();
 				// change by SALVA in order to keep all the information of the
 				// header in the index
-				// protCache.addProtein(fasta.getSequestLikeAccession(),
-				// fasta.getSequence());
+				protCache.addProtein(fasta.getOriginalDefline(), fasta.getSequence());
 				final String uniprotACC = FastaParser.getACC(fasta.getOriginalDefline()).getFirstelement();
 				if (decoy != null) {
 					final Matcher matcher = decoy.matcher(uniprotACC);
@@ -666,9 +668,12 @@ public class DBIndexer {
 	}
 
 	protected UniprotProteinLocalRetriever getUniprotProteinLocalRetriever() {
-		final UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(sparam.getUniprotReleasesFolder(),
-				true);
-		return uplr;
+		if (sparam.getUniprotReleasesFolder() != null) {
+			final UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(
+					sparam.getUniprotReleasesFolder(), true);
+			return uplr;
+		}
+		return null;
 	}
 
 	protected ProteinCache getProteinCache() {
