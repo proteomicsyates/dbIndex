@@ -27,7 +27,6 @@ import edu.scripps.yates.dbindex.model.Util;
 import edu.scripps.yates.dbindex.util.IndexUtil;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.fasta.Fasta;
-import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.fasta.FastaReader;
 import edu.scripps.yates.utilities.masses.AssignMass;
 import edu.scripps.yates.utilities.masses.FormulaCalculator;
@@ -566,7 +565,7 @@ public class DBIndexer {
 			} catch (final IOException ex) {
 				totalProteins = accs.size();
 			}
-			UniprotProteinLocalRetriever uplr = getUniprotProteinLocalRetriever();
+			final UniprotProteinLocalRetriever uplr = getUniprotProteinLocalRetriever();
 			if (uplr != null) {
 				uplr.getAnnotatedProteins(null, accs, true);
 				final long t2 = System.currentTimeMillis() - t1;
@@ -593,7 +592,9 @@ public class DBIndexer {
 				// change by SALVA in order to keep all the information of the
 				// header in the index
 				protCache.addProtein(fasta.getOriginalDefline(), fasta.getSequence());
-				final String uniprotACC = FastaParser.getACC(fasta.getOriginalDefline()).getFirstelement();
+				// final String uniprotACC =
+				// FastaParser.getACC(fasta.getOriginalDefline()).getFirstelement();
+				final String uniprotACC = fasta.getAccession();
 				if (decoy != null) {
 					final Matcher matcher = decoy.matcher(uniprotACC);
 					if (matcher.find()) {
