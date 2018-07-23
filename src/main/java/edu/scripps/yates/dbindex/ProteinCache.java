@@ -18,8 +18,8 @@ import org.apache.log4j.Logger;
  */
 public class ProteinCache {
 	private static final Logger log = Logger.getLogger(ProteinCache.class);
-	protected final ArrayList<String> sequences;
-	protected final ArrayList<String> defs;
+	private final ArrayList<String> sequences;
+	private final ArrayList<String> defs;
 	public static final int EST_SIZE = 200000;
 	private static ProteinCache instance = null;
 
@@ -83,18 +83,23 @@ public class ProteinCache {
 	 *            sequence of protein to add to the cache
 	 */
 	public int addProtein(String def, String protein) {
+		// make sure that there is no TAB in def, otherwise it will throw an
+		// error trying to get the 3rd element separated by TABs
+		if (def.contains("\t")) {
+			def = def.replace("\t", " ");
+		}
 		defs.add(def);
-		final int proteinIndex = defs.size() - 1;
-		sequences.add(protein);
-		return proteinIndex;
+		if (protein != null) {
+			sequences.add(protein);
+		}
+		return defs.size() - 1;
 	}
 
 	/*
 	 * @harshil Shah
 	 */
 	public int addProtein(String def) {
-		defs.add(def);
-		return defs.size() - 1;
+		return addProtein(def, null);
 	}
 
 	/**
@@ -147,5 +152,29 @@ public class ProteinCache {
 			ret.add(ip);
 		}
 		return ret;
+	}
+
+	public void clearSequences() {
+		sequences.clear();
+	}
+
+	public void clearDefs() {
+		defs.clear();
+	}
+
+	public void addSequence(String seq) {
+		sequences.add(seq);
+	}
+
+	public int getIndexOfDef(String def) {
+		return defs.indexOf(def);
+	}
+
+	public String getDef(Integer index) {
+		return defs.get(index);
+	}
+
+	public String getSequence(Integer index) {
+		return sequences.get(index);
 	}
 }
