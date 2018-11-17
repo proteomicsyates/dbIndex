@@ -3,6 +3,11 @@ package edu.scripps.yates.dbindex.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import com.compomics.util.protein.AASequenceImpl;
+import com.compomics.util.protein.Enzyme;
+import com.compomics.util.protein.Protein;
 
 import edu.scripps.yates.dbindex.model.PeptideFilter;
 
@@ -55,33 +60,36 @@ public class DigestionConfiguration {
 
 	public PeptideFilter getPeptideFilter() {
 		if (peptideFilterString != null && !"".equals(peptideFilterString)) {
-			String aa = String.valueOf(peptideFilterString.charAt(0));
-			int numMax = Integer.valueOf(String.valueOf(peptideFilterString.charAt(1)));
+			final String aa = String.valueOf(peptideFilterString.charAt(0));
+			final int numMax = Integer.valueOf(String.valueOf(peptideFilterString.charAt(1)));
 			return new PeptideFilterByMaxOccurrencies(aa, numMax);
 		}
 		return null;
 	}
 
 	public List<String> digestProtein(String proteinSequence) {
-		com.compomics.util.experiment.biology.Enzyme enzyme = new com.compomics.util.experiment.biology.Enzyme(1,
-				"enzyme name", getEnzymeArrayString(), "", "", "");
-		ArrayList<String> digest = enzyme.digest(proteinSequence, numMisscleavages, 6, Integer.MAX_VALUE);
-		PeptideFilter peptideFilter = getPeptideFilter();
+		final Enzyme enzyme = new Enzyme("enzyme name", getEnzymeArrayString(), "", "", numMisscleavages);
+
+		final Protein protein = new Protein(new AASequenceImpl(proteinSequence));
+		final Protein[] digest = enzyme.cleave(protein, 6, Integer.MAX_VALUE);
+		final List<String> ret = Arrays.asList(digest).stream().map(p -> p.getSequence().getSequence())
+				.collect(Collectors.toList());
+		final PeptideFilter peptideFilter = getPeptideFilter();
 		if (peptideFilter == null) {
-			return digest;
+			return ret;
 		}
-		List<String> ret = new ArrayList<String>();
-		for (String peptideSequence : digest) {
+		final List<String> ret2 = new ArrayList<String>();
+		for (final String peptideSequence : ret) {
 			if (peptideFilter.isValid(peptideSequence)) {
-				ret.add(peptideSequence);
+				ret2.add(peptideSequence);
 			}
 		}
-		return ret;
+		return ret2;
 	}
 
 	private String getEnzymeArrayString() {
-		StringBuilder sb = new StringBuilder();
-		for (char c : enzymeArray) {
+		final StringBuilder sb = new StringBuilder();
+		for (final char c : enzymeArray) {
 			sb.append(c);
 		}
 		return sb.toString();
