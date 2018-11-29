@@ -2,10 +2,10 @@ package edu.scripps.yates.dbindex.util;
 
 import java.io.File;
 
-import edu.scripps.yates.dbindex.DBIndexInterface;
+import edu.scripps.yates.dbindex.DBIndexImpl;
 import edu.scripps.yates.dbindex.io.DBIndexSearchParamsImpl;
-import edu.scripps.yates.dbindex.model.DBIndexSearchParams;
-import edu.scripps.yates.dbindex.model.PeptideFilter;
+import edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams;
+import edu.scripps.yates.utilities.fasta.dbindex.PeptideFilter;
 
 public class FastaDigestionConfiguration extends DigestionConfiguration {
 	private final File fasta;
@@ -37,17 +37,17 @@ public class FastaDigestionConfiguration extends DigestionConfiguration {
 				+ ignorePeptidesNotFoundInDB;
 	}
 
-	public static DBIndexInterface getFastaDBIndex(FastaDigestionConfiguration fastadigestionConfiguration) {
+	public static DBIndexImpl getFastaDBIndex(FastaDigestionConfiguration fastadigestionConfiguration) {
 		return getFastaDBIndex(fastadigestionConfiguration.getFasta(), fastadigestionConfiguration.getEnzymeArray(),
 				fastadigestionConfiguration.getNumMisscleavages(), fastadigestionConfiguration.isSemiCleavage(),
 				fastadigestionConfiguration.getPeptideFilter());
 	}
 
-	public static DBIndexInterface getFastaDBIndex(File fastaFile, char[] enzymeArray, int missedCleavages,
+	public static DBIndexImpl getFastaDBIndex(File fastaFile, char[] enzymeArray, int missedCleavages,
 			boolean semicleavage, PeptideFilter peptideFilter) {
 		if (fastaFile != null) {
 
-			DBIndexSearchParams defaultDBIndexParams = DBIndexInterface.getDefaultDBIndexParams(fastaFile);
+			DBIndexSearchParams defaultDBIndexParams = DBIndexImpl.getDefaultDBIndexParams(fastaFile);
 			String fastaIndexKey = IndexUtil.createFullIndexFileName(defaultDBIndexParams);
 
 			((DBIndexSearchParamsImpl) defaultDBIndexParams).setEnzymeArr(enzymeArray, missedCleavages, semicleavage);
@@ -58,7 +58,7 @@ public class FastaDigestionConfiguration extends DigestionConfiguration {
 			if (peptideFilter != null) {
 				((DBIndexSearchParamsImpl) defaultDBIndexParams).setPeptideFilter(peptideFilter);
 			}
-			DBIndexInterface dbIndex = new DBIndexInterface(defaultDBIndexParams);
+			DBIndexImpl dbIndex = new DBIndexImpl(defaultDBIndexParams);
 
 			return dbIndex;
 		}

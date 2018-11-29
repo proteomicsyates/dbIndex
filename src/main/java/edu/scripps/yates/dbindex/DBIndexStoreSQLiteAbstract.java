@@ -11,7 +11,8 @@ import java.sql.Statement;
 import org.sqlite.SQLiteConfig;
 import org.sqlite.SQLiteJDBCLoader;
 
-import edu.scripps.yates.dbindex.model.DBIndexSearchParams;
+import edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams;
+import edu.scripps.yates.utilities.fasta.dbindex.DBIndexStoreException;
 
 /**
  *

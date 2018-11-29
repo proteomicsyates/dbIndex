@@ -9,10 +9,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import edu.scripps.yates.dbindex.model.DBIndexSearchParams;
-import edu.scripps.yates.dbindex.model.ResidueInfo;
 import edu.scripps.yates.dbindex.util.IndexUtil;
 import edu.scripps.yates.utilities.bytes.DynByteBuffer;
+import edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams;
+import edu.scripps.yates.utilities.fasta.dbindex.DBIndexStoreException;
+import edu.scripps.yates.utilities.fasta.dbindex.IndexedSequence;
+import edu.scripps.yates.utilities.fasta.dbindex.MassRange;
+import edu.scripps.yates.utilities.fasta.dbindex.ResidueInfo;
 import gnu.trove.map.hash.THashMap;
 
 /**

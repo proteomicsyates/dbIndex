@@ -11,37 +11,42 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.dbindex.DBIndexer.IndexerMode;
 import edu.scripps.yates.dbindex.io.DBIndexSearchParamsImpl;
 import edu.scripps.yates.dbindex.io.SearchParamReader;
-import edu.scripps.yates.dbindex.model.DBIndexSearchParams;
-import edu.scripps.yates.dbindex.model.IndexType;
 import edu.scripps.yates.dbindex.util.PropertiesReader;
+import edu.scripps.yates.utilities.fasta.dbindex.DBIndexInterface;
+import edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams;
+import edu.scripps.yates.utilities.fasta.dbindex.DBIndexStoreException;
+import edu.scripps.yates.utilities.fasta.dbindex.IndexType;
+import edu.scripps.yates.utilities.fasta.dbindex.IndexedProtein;
+import edu.scripps.yates.utilities.fasta.dbindex.IndexedSequence;
+import edu.scripps.yates.utilities.fasta.dbindex.MassRange;
 import edu.scripps.yates.utilities.masses.AssignMass;
 import gnu.trove.map.hash.THashMap;
 
-public class DBIndexInterface {
-	private final static Logger log = Logger.getLogger(DBIndexInterface.class);
+public class DBIndexImpl implements DBIndexInterface {
+	private final static Logger log = Logger.getLogger(DBIndexImpl.class);
 	private static String dbIndexPath;
 	protected DBIndexer indexer;
 	private static final String PINT_DEVELOPER_ENV_VAR = "PINT_DEVELOPER";
 
 	private final Map<String, Set<IndexedProtein>> proteinsByPeptideSeqs = new THashMap<>();
-	protected final static Map<File, DBIndexInterface> dbIndexByFile = new THashMap<>();
-	protected final static Map<String, DBIndexInterface> dbIndexByParamKey = new THashMap<>();
+	protected final static Map<File, DBIndexImpl> dbIndexByFile = new THashMap<>();
+	protected final static Map<String, DBIndexImpl> dbIndexByParamKey = new THashMap<>();
 
-	public static DBIndexInterface getByParamFile(File paramFile) {
+	public static DBIndexImpl getByParamFile(File paramFile) {
 		if (dbIndexByFile.containsKey(paramFile)) {
 			return dbIndexByFile.get(paramFile);
 		}
-		return new DBIndexInterface(paramFile);
+		return new DBIndexImpl(paramFile);
 	}
 
-	public static DBIndexInterface getByParam(DBIndexSearchParams sParam) {
+	public static DBIndexImpl getByParam(DBIndexSearchParams sParam) {
 		if (dbIndexByParamKey.containsKey(sParam.getFullIndexFileName())) {
 			return dbIndexByParamKey.get(sParam.getFullIndexFileName());
 		}
-		return new DBIndexInterface(sParam);
+		return new DBIndexImpl(sParam);
 	}
 
-	public DBIndexInterface() {
+	public DBIndexImpl() {
 
 	}
 
@@ -51,7 +56,7 @@ public class DBIndexInterface {
 	 *
 	 * @param paramFile
 	 */
-	public DBIndexInterface(File paramFile) {
+	public DBIndexImpl(File paramFile) {
 		final String paramFileName = SearchParamReader.DEFAULT_PARAM_FILE_NAME;
 
 		try {
@@ -94,7 +99,7 @@ public class DBIndexInterface {
 
 	}
 
-	public DBIndexInterface(DBIndexSearchParams sParam) {
+	public DBIndexImpl(DBIndexSearchParams sParam) {
 
 		this(sParam, sParam.isUseIndex() ? IndexerMode.SEARCH_INDEXED : IndexerMode.SEARCH_UNINDEXED);
 
@@ -106,7 +111,7 @@ public class DBIndexInterface {
 	 *
 	 * @param paramFile
 	 */
-	public DBIndexInterface(DBIndexSearchParams sParam, edu.scripps.yates.dbindex.DBIndexer.IndexerMode indexerMode) {
+	public DBIndexImpl(DBIndexSearchParams sParam, edu.scripps.yates.dbindex.DBIndexer.IndexerMode indexerMode) {
 		try {
 
 			// init the masses
@@ -169,6 +174,7 @@ public class DBIndexInterface {
 	 * @return list of matching sequences
 	 * @throws DBIndexStoreException
 	 */
+	@Override
 	public List<IndexedSequence> getSequences(double precursorMass, double massTolerance) throws DBIndexStoreException {
 		return indexer.getSequencesUsingDaltonTolerance(precursorMass, massTolerance);
 	}
@@ -183,6 +189,7 @@ public class DBIndexInterface {
 	 * @return list of matching sequences
 	 * @throws DBIndexStoreException
 	 */
+	@Override
 	public List<IndexedSequence> getSequences(List<MassRange> massRanges) throws DBIndexStoreException {
 		return indexer.getSequences(massRanges);
 	}
@@ -197,6 +204,7 @@ public class DBIndexInterface {
 	 * @return list of indexed protein objects associated with the sequence
 	 * @throws DBIndexStoreException
 	 */
+	@Override
 	public List<IndexedProtein> getProteins(IndexedSequence seq) throws DBIndexStoreException {
 		return indexer.getProteins(seq);
 	}
@@ -211,6 +219,7 @@ public class DBIndexInterface {
 	 * @return list of indexed protein objects associated with the sequence
 	 * @throws DBIndexStoreException
 	 */
+	@Override
 	public Set<IndexedProtein> getProteins(String seq) throws DBIndexStoreException {
 		// look into the cached proteins
 		if (proteinsByPeptideSeqs.containsKey(seq) && !proteinsByPeptideSeqs.get(seq).isEmpty())

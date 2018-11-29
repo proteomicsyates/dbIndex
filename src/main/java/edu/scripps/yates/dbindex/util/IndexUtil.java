@@ -17,12 +17,12 @@ import edu.scripps.yates.annotations.uniprot.proteoform.UniprotProteoformRetriev
 import edu.scripps.yates.annotations.uniprot.proteoform.fasta.ProteoFormFastaReader;
 import edu.scripps.yates.annotations.uniprot.proteoform.xml.UniprotProteoformRetrieverFromXML;
 import edu.scripps.yates.dbindex.Constants;
-import edu.scripps.yates.dbindex.IndexedSequence;
 import edu.scripps.yates.dbindex.SearchParams;
 import edu.scripps.yates.dbindex.Util;
-import edu.scripps.yates.dbindex.model.DBIndexSearchParams;
-import edu.scripps.yates.dbindex.model.ResidueInfo;
 import edu.scripps.yates.utilities.fasta.FastaReader;
+import edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams;
+import edu.scripps.yates.utilities.fasta.dbindex.IndexedSequence;
+import edu.scripps.yates.utilities.fasta.dbindex.ResidueInfo;
 import edu.scripps.yates.utilities.masses.AssignMass;
 
 /**

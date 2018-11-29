@@ -1,5 +1,7 @@
 package edu.scripps.yates.dbindex;
 
+import edu.scripps.yates.utilities.fasta.dbindex.MassRange;
+
 public class Interval {
 	private final double start;
 	private final double end;

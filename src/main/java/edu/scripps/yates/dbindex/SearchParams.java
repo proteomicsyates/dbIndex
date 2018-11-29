@@ -15,11 +15,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import edu.scripps.yates.dbindex.model.DBIndexSearchParams;
-import edu.scripps.yates.dbindex.model.Enzyme;
-import edu.scripps.yates.dbindex.model.IndexType;
 import edu.scripps.yates.dbindex.model.ModResidue;
-import edu.scripps.yates.dbindex.model.PeptideFilter;
+import edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams;
+import edu.scripps.yates.utilities.fasta.dbindex.Enzyme;
+import edu.scripps.yates.utilities.fasta.dbindex.IndexType;
+import edu.scripps.yates.utilities.fasta.dbindex.PeptideFilter;
 
 public class SearchParams implements DBIndexSearchParams {
 

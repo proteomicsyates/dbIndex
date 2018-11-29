@@ -28,8 +28,8 @@ import org.paukov.combinatorics.ICombinatoricsVector;
 import edu.scripps.yates.dbindex.SearchParams;
 import edu.scripps.yates.dbindex.model.AssignMassToStaticParam;
 import edu.scripps.yates.dbindex.model.DiffModification;
-import edu.scripps.yates.dbindex.model.IndexType;
 import edu.scripps.yates.dbindex.model.ModResidue;
+import edu.scripps.yates.utilities.fasta.dbindex.IndexType;
 import edu.scripps.yates.utilities.masses.AssignMass;
 import gnu.trove.set.hash.THashSet;
 

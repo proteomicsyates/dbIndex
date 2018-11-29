@@ -7,7 +7,11 @@ import java.util.Map;
 
 import javax.ws.rs.NotSupportedException;
 
-import edu.scripps.yates.dbindex.model.ResidueInfo;
+import edu.scripps.yates.utilities.fasta.dbindex.DBIndexStoreException;
+import edu.scripps.yates.utilities.fasta.dbindex.IndexedProtein;
+import edu.scripps.yates.utilities.fasta.dbindex.IndexedSequence;
+import edu.scripps.yates.utilities.fasta.dbindex.MassRange;
+import edu.scripps.yates.utilities.fasta.dbindex.ResidueInfo;
 import gnu.trove.map.hash.THashMap;
 
 /**

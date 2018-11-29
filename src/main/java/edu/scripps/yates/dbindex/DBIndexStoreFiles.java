@@ -22,10 +22,14 @@ import java.util.logging.Logger;
 
 import javax.ws.rs.NotSupportedException;
 
-import edu.scripps.yates.dbindex.model.DBIndexSearchParams;
-import edu.scripps.yates.dbindex.model.ResidueInfo;
 import edu.scripps.yates.dbindex.util.IndexUtil;
 import edu.scripps.yates.utilities.fasta.Fasta;
+import edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams;
+import edu.scripps.yates.utilities.fasta.dbindex.DBIndexStoreException;
+import edu.scripps.yates.utilities.fasta.dbindex.IndexedProtein;
+import edu.scripps.yates.utilities.fasta.dbindex.IndexedSequence;
+import edu.scripps.yates.utilities.fasta.dbindex.MassRange;
+import edu.scripps.yates.utilities.fasta.dbindex.ResidueInfo;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 

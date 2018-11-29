@@ -20,14 +20,18 @@ import com.compomics.util.general.UnknownElementMassException;
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
 import edu.scripps.yates.dbindex.DBIndexStore.FilterResult;
 import edu.scripps.yates.dbindex.io.SearchParamReader;
-import edu.scripps.yates.dbindex.model.DBIndexSearchParams;
-import edu.scripps.yates.dbindex.model.IndexType;
-import edu.scripps.yates.dbindex.model.PeptideFilter;
 import edu.scripps.yates.dbindex.model.Util;
 import edu.scripps.yates.dbindex.util.IndexUtil;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 import edu.scripps.yates.utilities.fasta.Fasta;
 import edu.scripps.yates.utilities.fasta.FastaReader;
+import edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams;
+import edu.scripps.yates.utilities.fasta.dbindex.DBIndexStoreException;
+import edu.scripps.yates.utilities.fasta.dbindex.IndexType;
+import edu.scripps.yates.utilities.fasta.dbindex.IndexedProtein;
+import edu.scripps.yates.utilities.fasta.dbindex.IndexedSequence;
+import edu.scripps.yates.utilities.fasta.dbindex.MassRange;
+import edu.scripps.yates.utilities.fasta.dbindex.PeptideFilter;
 import edu.scripps.yates.utilities.masses.AssignMass;
 import edu.scripps.yates.utilities.masses.FormulaCalculator;
 import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
@@ -135,7 +139,7 @@ public class DBIndexer {
 
 	}
 
-	public DBIndexer(edu.scripps.yates.dbindex.model.DBIndexSearchParams sparam, IndexerMode mode,
+	public DBIndexer(edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams sparam, IndexerMode mode,
 			DBIndexStore dbIndexStore) {
 		IndexUtil.setNumRowsToLookup(0);
 		this.sparam = sparam;
@@ -160,7 +164,7 @@ public class DBIndexer {
 	 *            multiplied to get the key in the index. Using any other
 	 *            constructor, the massGroupFactor is 10000
 	 */
-	public DBIndexer(edu.scripps.yates.dbindex.model.DBIndexSearchParams sparam, IndexerMode mode) {
+	public DBIndexer(edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams sparam, IndexerMode mode) {
 		IndexUtil.setNumRowsToLookup(0);
 		this.sparam = sparam;
 		this.mode = mode;
@@ -957,7 +961,7 @@ public class DBIndexer {
 	 */
 	public static File moveFastaToIndexLocation(File fastaFile) {
 		try {
-			final String dbindexPath = DBIndexInterface.getDBIndexPath();
+			final String dbindexPath = DBIndexImpl.getDBIndexPath();
 			final File dbIndexFolder = new File(dbindexPath);
 			if (!fastaFile.getParentFile().equals(dbIndexFolder)) {
 				final File newFile = new File(dbIndexFolder.getAbsolutePath() + File.separator

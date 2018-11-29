@@ -1,6 +1,6 @@
 package edu.scripps.yates.dbindex.util;
 
-import edu.scripps.yates.dbindex.model.PeptideFilter;
+import edu.scripps.yates.utilities.fasta.dbindex.PeptideFilter;
 
 /**
  * A {@link PeptideFilter} implementation that discard peptides that contains a

@@ -26,9 +26,9 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
-import edu.scripps.yates.dbindex.IndexedSequence;
-import edu.scripps.yates.dbindex.MassRange;
-import edu.scripps.yates.dbindex.model.DBIndexSearchParams;
+import edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams;
+import edu.scripps.yates.utilities.fasta.dbindex.IndexedSequence;
+import edu.scripps.yates.utilities.fasta.dbindex.MassRange;
 
 /**
  *

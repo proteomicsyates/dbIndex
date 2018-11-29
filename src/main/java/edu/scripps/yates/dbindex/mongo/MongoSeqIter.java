@@ -11,7 +11,7 @@ import org.bson.Document;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
 
-import edu.scripps.yates.dbindex.IndexedSequence;
+import edu.scripps.yates.utilities.fasta.dbindex.IndexedSequence;
 
 /**
  * Custom iterator class that returns single peptides at a time as an

@@ -11,7 +11,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import edu.scripps.yates.dbindex.model.ResidueInfo;
+import edu.scripps.yates.utilities.fasta.dbindex.IndexedSequence;
+import edu.scripps.yates.utilities.fasta.dbindex.ResidueInfo;
 
 /**
  * Indexing util

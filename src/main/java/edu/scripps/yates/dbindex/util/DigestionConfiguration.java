@@ -9,7 +9,7 @@ import com.compomics.util.protein.AASequenceImpl;
 import com.compomics.util.protein.Enzyme;
 import com.compomics.util.protein.Protein;
 
-import edu.scripps.yates.dbindex.model.PeptideFilter;
+import edu.scripps.yates.utilities.fasta.dbindex.PeptideFilter;
 
 public class DigestionConfiguration {
 	private final char[] enzymeArray;

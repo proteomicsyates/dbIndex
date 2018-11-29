@@ -3,7 +3,11 @@ package edu.scripps.yates.dbindex;
 import java.util.Iterator;
 import java.util.List;
 
-import edu.scripps.yates.dbindex.model.ResidueInfo;
+import edu.scripps.yates.utilities.fasta.dbindex.DBIndexStoreException;
+import edu.scripps.yates.utilities.fasta.dbindex.IndexedProtein;
+import edu.scripps.yates.utilities.fasta.dbindex.IndexedSequence;
+import edu.scripps.yates.utilities.fasta.dbindex.MassRange;
+import edu.scripps.yates.utilities.fasta.dbindex.ResidueInfo;
 
 /*
  * Interface that abstracts peptide database store Database store supports
