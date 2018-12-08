@@ -102,7 +102,7 @@
 	    <dependency>
 	    	<groupId>edu.scripps.yates</groupId>
 	    	<artifactId>utilities</artifactId>
-	    	<version>1.5-SNAPSHOT</version>
+	    	<version>1.6-SNAPSHOT</version>
 	    </dependency>
 
 	    <dependency>
@@ -113,13 +113,13 @@
 	    <dependency>
 	    	<groupId>edu.scripps.yates</groupId>
 	    	<artifactId>pint.annotations</artifactId>
-	    	<version>1.0.1-SNAPSHOT</version>
+	    	<version>1.0.2-SNAPSHOT</version>
 	    </dependency>
   </dependencies>
   <organization>
   	<name>TSRI</name>
   </organization>
   <name>DBIndex module</name>
-  <version>1.2.0-SNAPSHOT</version>
+  <version>1.2.1-SNAPSHOT</version>
   <groupId>edu.scripps.yates</groupId>
 </project>
