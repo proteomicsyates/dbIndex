@@ -378,10 +378,8 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 	 *
 	 * @param data
 	 * @param toInsert
-	 * @param minMass
-	 *            used to eliminate not matching masses in the 1ppm row
-	 * @param maxMass
-	 *            used to eliminate not matching masses in the 1ppm row
+	 * @param minMass  used to eliminate not matching masses in the 1ppm row
+	 * @param maxMass  used to eliminate not matching masses in the 1ppm row
 	 * @throws DBIndexStoreException
 	 */
 	@Override
@@ -439,6 +437,9 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 
 			slice = Arrays.copyOfRange(data, first, second);
 			final int offset = DynByteBuffer.toInt(slice);
+			if (offset < 0) {
+				logger.error("something extrange here");
+			}
 			slice = Arrays.copyOfRange(data, second, third);
 			final int length = DynByteBuffer.toInt(slice);
 
@@ -480,19 +481,15 @@ public class DBIndexStoreSQLiteByteIndexMerge extends DBIndexStoreSQLiteByte {
 	}
 
 	/**
-	 * Parse the encoded sequences and return them in toInsert This is version
-	 * with multiple mass ranges (slightly slower as we need to check every
-	 * range if sequence qualifies)
+	 * Parse the encoded sequences and return them in toInsert This is version with
+	 * multiple mass ranges (slightly slower as we need to check every range if
+	 * sequence qualifies)
 	 *
-	 * @param data
-	 *            the data row for all peptides grouped by a single key, i.e. 1
-	 *            ppm value
-	 * @param toInsert
-	 *            parsed sequences that qualify
-	 * @param minMasses
-	 *            used to eliminate not matching masses in the 1ppm row
-	 * @param maxMasses
-	 *            used to eliminate not matching masses in the 1ppm row
+	 * @param data      the data row for all peptides grouped by a single key, i.e.
+	 *                  1 ppm value
+	 * @param toInsert  parsed sequences that qualify
+	 * @param minMasses used to eliminate not matching masses in the 1ppm row
+	 * @param maxMasses used to eliminate not matching masses in the 1ppm row
 	 * @throws DBIndexStoreException
 	 */
 	protected void parseAddPeptideInfo(byte[] data, List<IndexedSequence> toInsert, double[] minMasses,

@@ -18,6 +18,7 @@ import org.apache.commons.io.FilenameUtils;
 import com.compomics.util.general.UnknownElementMassException;
 
 import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
+import edu.scripps.yates.annotations.uniprot.proteoform.fasta.ProteoFormFastaReader;
 import edu.scripps.yates.dbindex.DBIndexStore.FilterResult;
 import edu.scripps.yates.dbindex.io.SearchParamReader;
 import edu.scripps.yates.dbindex.model.Util;
@@ -157,12 +158,11 @@ public class DBIndexer {
 	 * Create new db indexer, passing params and indexing mode, and the
 	 *
 	 * @param sparam
-	 * @param indexMode
-	 *            indexing mode (search indexed, search unindexed, index only)
-	 * @param massGroupFactor
-	 *            this is the factor by which each double mass will be
-	 *            multiplied to get the key in the index. Using any other
-	 *            constructor, the massGroupFactor is 10000
+	 * @param indexMode       indexing mode (search indexed, search unindexed, index
+	 *                        only)
+	 * @param massGroupFactor this is the factor by which each double mass will be
+	 *                        multiplied to get the key in the index. Using any
+	 *                        other constructor, the massGroupFactor is 10000
 	 */
 	public DBIndexer(edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams sparam, IndexerMode mode) {
 		IndexUtil.setNumRowsToLookup(0);
@@ -207,13 +207,12 @@ public class DBIndexer {
 	}
 
 	/**
-	 * Cut a Fasta protein sequence according to params spec and index the
-	 * protein and generated sequences
+	 * Cut a Fasta protein sequence according to params spec and index the protein
+	 * and generated sequences
 	 *
 	 * Should be called once per unique Fasta sequence
 	 *
-	 * @param fasta
-	 *            fasta to index
+	 * @param fasta fasta to index
 	 * @throws IOException
 	 */
 	private void cutSeq(final Fasta fasta) throws IOException {
@@ -227,13 +226,12 @@ public class DBIndexer {
 	}
 
 	/**
-	 * Cut a Fasta protein sequence according to params spec and index the
-	 * protein and generated sequences
+	 * Cut a Fasta protein sequence according to params spec and index the protein
+	 * and generated sequences
 	 *
 	 * Should be called once per unique Fasta sequence
 	 *
-	 * @param fasta
-	 *            fasta to index
+	 * @param fasta fasta to index
 	 * @throws IOException
 	 */
 	protected void cutSeq(final String protAccession, String protSeq) throws IOException {
@@ -357,7 +355,8 @@ public class DBIndexer {
 							} else if (filterResult.equals(FilterResult.INCLUDE)) {
 
 								final int resLeftI = start >= Constants.MAX_INDEX_RESIDUE_LEN
-										? start - Constants.MAX_INDEX_RESIDUE_LEN : 0;
+										? start - Constants.MAX_INDEX_RESIDUE_LEN
+										: 0;
 								final int resLeftLen = Math.min(Constants.MAX_INDEX_RESIDUE_LEN, start);
 								final StringBuilder sbLeft = new StringBuilder(Constants.MAX_INDEX_RESIDUE_LEN);
 								for (int ii = 0; ii < resLeftLen; ++ii) {
@@ -452,8 +451,8 @@ public class DBIndexer {
 	}
 
 	/**
-	 * Set protein cache if storage supports it Useful if database has already
-	 * been indexed Otherwise, the cache can be populated while indexing is done
+	 * Set protein cache if storage supports it Useful if database has already been
+	 * indexed Otherwise, the cache can be populated while indexing is done
 	 */
 	private void setProteinCache() {
 		if (!indexStore.supportsProteinCache()) {
@@ -609,7 +608,11 @@ public class DBIndexer {
 				cutSeq(fasta);
 
 				uniprotAccs.add(uniprotACC);
-				counter.setProgress(uniprotAccs.size());
+				if (fastaReader instanceof ProteoFormFastaReader) {
+					counter.setProgress(uniprotAccs.size());
+				} else {
+					counter.increment();
+				}
 
 				++indexedProteins;
 				if (statusWriter != null) {
@@ -737,11 +740,9 @@ public class DBIndexer {
 	 * Requires call to init() and run() first, which might perform indexing, if
 	 * index for current set of sequest params does not exist
 	 *
-	 * @param precursorMass
-	 *            mass to select by, in Da
-	 * @param massToleranceInDa
-	 *            mass tolerance, already calculated for that mass as it is
-	 *            mass-dependant. In Da.
+	 * @param precursorMass     mass to select by, in Da
+	 * @param massToleranceInDa mass tolerance, already calculated for that mass as
+	 *                          it is mass-dependant. In Da.
 	 * @return list of matching sequences
 	 * @throws DBIndexStoreException
 	 */
@@ -759,16 +760,14 @@ public class DBIndexer {
 
 	/**
 	 * Get list of sequences in index for the mass, and using tolerance in
-	 * SearchParams. Mass dependant tolerance is NOT already
-	 * scaled/precalculated, since it is in PPM
+	 * SearchParams. Mass dependant tolerance is NOT already scaled/precalculated,
+	 * since it is in PPM
 	 *
 	 * Requires call to init() and run() first, which might perform indexing, if
 	 * index for current set of sequest params does not exist
 	 *
-	 * @param precursorMass
-	 *            mass to select by, in Da
-	 * @param massToleranceInPPM
-	 *            mass tolerance in PPM.
+	 * @param precursorMass      mass to select by, in Da
+	 * @param massToleranceInPPM mass tolerance in PPM.
 	 * @return list of matching sequences
 	 * @throws DBIndexStoreException
 	 */
@@ -832,12 +831,11 @@ public class DBIndexer {
 	}
 
 	/**
-	 * Get list of sequences in index for the ranges specified wit mass .
-	 * Requires call to init() and run() first, which might perform indexing, if
-	 * index for current set of sequest params does not exist
+	 * Get list of sequences in index for the ranges specified wit mass . Requires
+	 * call to init() and run() first, which might perform indexing, if index for
+	 * current set of sequest params does not exist
 	 *
-	 * @param massRanges
-	 *            mass ranges to query
+	 * @param massRanges mass ranges to query
 	 * @return list of matching sequences
 	 * @throws DBIndexStoreException
 	 */
@@ -860,12 +858,11 @@ public class DBIndexer {
 	}
 
 	/**
-	 * Get proteins associated with the sequence from the index. Requires call
-	 * to init() and run() first, which might perform indexing, if index for
-	 * current set of sequest params does not exist
+	 * Get proteins associated with the sequence from the index. Requires call to
+	 * init() and run() first, which might perform indexing, if index for current
+	 * set of sequest params does not exist
 	 *
-	 * @param seq
-	 *            peptide sequence
+	 * @param seq peptide sequence
 	 * @return list of indexed protein objects associated with the sequence
 	 * @throws DBIndexStoreException
 	 */
@@ -887,10 +884,9 @@ public class DBIndexer {
 	}
 
 	/*
-	 * private String getFullIndexFileName(String baseName) { String
-	 * uniqueIndexName = baseName + "_"; //generate a unique string based on
-	 * current params that affect the index final StringBuilder uniqueParams =
-	 * new StringBuilder();
+	 * private String getFullIndexFileName(String baseName) { String uniqueIndexName
+	 * = baseName + "_"; //generate a unique string based on current params that
+	 * affect the index final StringBuilder uniqueParams = new StringBuilder();
 	 * //uniqueParams.append(sparam.getEnzyme().toString());
 	 * //uniqueParams.append(sparam.getEnzymeNumber());
 	 * uniqueParams.append(sparam.getEnzymeOffset());
@@ -902,11 +898,11 @@ public class DBIndexer {
 	 * uniqueParams.append(sparam.getMaxNumDiffMod());
 	 * uniqueParams.append("\nMods:"); for (final ModResidue mod :
 	 * sparam.getModList()) { uniqueParams.append(mod.toString()).append(" "); }
-	 * uniqueParams.append("\nMods groups:"); for (final List<double>
-	 * modGroupList : sparam.getModGroupList()) { for (final double f :
-	 * modGroupList) { uniqueParams.append(f).append(" "); } } final String
-	 * uniqueParamsStr = uniqueParams.toString(); //logger.info(
-	 * "Unique params: " + uniqueParamsStr); }
+	 * uniqueParams.append("\nMods groups:"); for (final List<double> modGroupList :
+	 * sparam.getModGroupList()) { for (final double f : modGroupList) {
+	 * uniqueParams.append(f).append(" "); } } final String uniqueParamsStr =
+	 * uniqueParams.toString(); //logger.info( "Unique params: " + uniqueParamsStr);
+	 * }
 	 */
 	public void close() {
 	}
@@ -916,12 +912,11 @@ public class DBIndexer {
 	}
 
 	/**
-	 * Get proteins associated with the sequence. Requires call to init() and
-	 * run() first, which might perform indexing, if index for current set of
-	 * sequest params does not exist
+	 * Get proteins associated with the sequence. Requires call to init() and run()
+	 * first, which might perform indexing, if index for current set of sequest
+	 * params does not exist
 	 *
-	 * @param seq
-	 *            peptide sequence
+	 * @param seq peptide sequence
 	 * @return list of indexed protein objects associated with the sequence
 	 * @throws DBIndexStoreException
 	 */
@@ -950,11 +945,11 @@ public class DBIndexer {
 	}
 
 	/**
-	 * The DBIndexer builds an index from a Fasta file in the same directory
-	 * were the fasta file was located. This function will check if the entered
-	 * parameter file is located in the default dbindex location (defined by a
-	 * property in the dbindex.properties). Copy the file if it was not located
-	 * there, and return the new File.
+	 * The DBIndexer builds an index from a Fasta file in the same directory were
+	 * the fasta file was located. This function will check if the entered parameter
+	 * file is located in the default dbindex location (defined by a property in the
+	 * dbindex.properties). Copy the file if it was not located there, and return
+	 * the new File.
 	 *
 	 * @param fastaFile
 	 * @return

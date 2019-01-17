@@ -33,6 +33,7 @@ import gnu.trove.set.hash.TIntHashSet;
  *
  */
 public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
+	private final static int CHUNK_SIZE = Constants.COMMIT_SEQUENCES * Constants.BYTE_PER_SEQUENCE;
 
 	private PreparedStatement addSeqStatement;
 	protected PreparedStatement updateSeqStatement;
@@ -63,7 +64,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 	// NOTE: optimized for 7GB heap space, adjsut this setting accordingly
 	// private static final int FULL_CACHE_COMMIT_INTERVAL = (100 * 1000 * 1000)
 	// / Constants.NUM_BUCKETS;
-	protected static final int FULL_CACHE_COMMIT_INTERVAL = (1000000) / Constants.NUM_BUCKETS;
+	protected static final int FULL_CACHE_COMMIT_INTERVAL = (10000000) / Constants.NUM_BUCKETS;
 
 	protected DBIndexStoreSQLiteByte(int bucketId, ProteinCache proteinCache) {
 		super(proteinCache);
@@ -132,8 +133,8 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 	}
 
 	/**
-	 * Get sequence data for long representation of precursor mass or null if
-	 * not present
+	 * Get sequence data for long representation of precursor mass or null if not
+	 * present
 	 *
 	 * @param massKey
 	 * @return encoded sequence data string for multiple peptide, or null
@@ -166,8 +167,8 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 		return massKeys.contains(massKey);
 		/*
 		 * boolean ret = false; getSeqExistsStatement.setInt(1, massKey); final
-		 * ResultSet rs = getSeqExistsStatement.executeQuery(); if (rs.next()) {
-		 * ret = true; } rs.close();
+		 * ResultSet rs = getSeqExistsStatement.executeQuery(); if (rs.next()) { ret =
+		 * true; } rs.close();
 		 * 
 		 * return ret;
 		 */
@@ -184,7 +185,9 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 	protected void updateCachedData(double precMass, int seqOffset, int seqLength, int proteinId) {
 		// changed by Salva 11Nov2014, using the value on IndexUtil
 		final int rowId = (int) (precMass * sparam.getMassGroupFactor());
-
+		if (seqOffset < 0) {
+			logger.info("REMOVE SHORT CAST!");
+		}
 		// change by Salva 21Nov2014
 		// DynByteBuffer byteBuffer = data[rowId];
 		DynByteBuffer byteBuffer = dataMap.get(rowId);
@@ -210,7 +213,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 
 		// commit this mass after COMMIT_SEQUENCES sequences
 		if (true) {
-			if (byteBuffer.getSize() > Constants.COMMIT_SEQUENCES * Constants.BYTE_PER_SEQUENCE) {
+			if (byteBuffer.getSize() > CHUNK_SIZE) {
 				try {
 					insertSequence(rowId, byteBuffer);
 					// clear since we wrote it to db
@@ -327,7 +330,7 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 		}
 		totalSeqCount++;
 
-		updateCachedData(precMass, (short) seqOffset, (short) seqLength, (int) proteinId);
+		updateCachedData(precMass, seqOffset, seqLength, (int) proteinId);
 
 		if (true) {
 			// despite commiting each sequence, commit and clear all after
