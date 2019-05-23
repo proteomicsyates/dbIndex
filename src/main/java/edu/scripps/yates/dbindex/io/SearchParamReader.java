@@ -70,14 +70,14 @@ public class SearchParamReader {
 		// param.getIndexFileNameOnly());
 
 		/*
-		 * ParamReader p = new ParamReader(args[0], args[1],
-		 * Integer.parseInt(args[2])); Hashtable<String, String> h =
-		 * p.getHashtable(); System.out.println(h.get("diff_search_options"));
-		 * System.out.println( p.isModification() ); List l =
-		 * p.getResidueList(); for(int i=0;i<l.size();i++) { ModResidue residue
-		 * = (ModResidue)l.get(i); System.out.println(residue.getMassShift() +
-		 * "\t" + residue.getResidue()); } double[] d = p.getMassShiftArr();
-		 * for(int i=0;i<d.length;i++) { System.out.println(d[i]); }
+		 * ParamReader p = new ParamReader(args[0], args[1], Integer.parseInt(args[2]));
+		 * Hashtable<String, String> h = p.getHashtable();
+		 * System.out.println(h.get("diff_search_options")); System.out.println(
+		 * p.isModification() ); List l = p.getResidueList(); for(int
+		 * i=0;i<l.size();i++) { ModResidue residue = (ModResidue)l.get(i);
+		 * System.out.println(residue.getMassShift() + "\t" + residue.getResidue()); }
+		 * double[] d = p.getMassShiftArr(); for(int i=0;i<d.length;i++) {
+		 * System.out.println(d[i]); }
 		 */
 	}
 
@@ -123,19 +123,16 @@ public class SearchParamReader {
 				// System.out.println("-----------" + eachLine);
 				/*
 				 * if (eachLine.startsWith("[BLAZMASS_ENZYME_INFO]") ||
-				 * eachLine.startsWith("[SEQUEST_ENZYME_INFO]")) { int
-				 * enzymeNumber = trimValueAsInt(getParam("enzyme_number")); int
-				 * currentEnz; while ((eachLine = br.readLine()) != null) {
-				 * String[] arr = eachLine.split("\\."); if (arr.length < 2) {
-				 * continue; } currentEnz = Integer.parseInt(arr[0]);
-				 * //dTempMass: where is it used? if (currentEnz ==
-				 * enzymeNumber) { String[] tarr = eachLine.split("\\s+");
-				 * //szEnzymeName = tarr[1].trim();
+				 * eachLine.startsWith("[SEQUEST_ENZYME_INFO]")) { int enzymeNumber =
+				 * trimValueAsInt(getParam("enzyme_number")); int currentEnz; while ((eachLine =
+				 * br.readLine()) != null) { String[] arr = eachLine.split("\\."); if
+				 * (arr.length < 2) { continue; } currentEnz = Integer.parseInt(arr[0]);
+				 * //dTempMass: where is it used? if (currentEnz == enzymeNumber) { String[]
+				 * tarr = eachLine.split("\\s+"); //szEnzymeName = tarr[1].trim();
 				 * param.setEnzymeOffset(trimValueAsInt(tarr[2]));
 				 * param.setEnzymeBreakAA(tarr[3].trim());
-				 * param.setEnzymeNoBreakAA(tarr[4].trim()); } } if
-				 * (enzymeNumber == 0) { param.setUseEnzyme(false); } else {
-				 * param.setUseEnzyme(true); } }
+				 * param.setEnzymeNoBreakAA(tarr[4].trim()); } } if (enzymeNumber == 0) {
+				 * param.setUseEnzyme(false); } else { param.setUseEnzyme(true); } }
 				 */
 
 				if (null == eachLine) {
@@ -197,8 +194,8 @@ public class SearchParamReader {
 			final String protDBParam = getParam("use_ProtDB");
 			if (mongoParam == null || Integer.parseInt(mongoParam) == 0) {
 				param.setUsingMongoDB(false);
-				System.out.println("Must use mongodb");
-				System.exit(1);
+//				System.out.println("Must use mongodb");
+//				System.exit(1);
 			} else {
 				// force dbSize
 				param.setUsingMongoDB(true);
@@ -452,9 +449,8 @@ public class SearchParamReader {
 			AssignMassToStaticParam.addMassAndStaticParam('C', f);
 
 			/*
-			 * if (f > 56.9f) { System.out.println("===" +
-			 * param.getN15Enrichment() + " " + f); f = f +
-			 * param.getN15Enrichment() * (f - 57.02146f);
+			 * if (f > 56.9f) { System.out.println("===" + param.getN15Enrichment() + " " +
+			 * f); f = f + param.getN15Enrichment() * (f - 57.02146f);
 			 * System.out.println("===" + param.getN15Enrichment() + " " + f); }
 			 */
 
@@ -601,24 +597,21 @@ public class SearchParamReader {
 				param.setEnzymeOffset(0);
 
 			/*
-			 * dN15Enrichment // Load ion series to consider, useA, useB, useY
-			 * are for neutral losses iNumIonSeriesUsed = 0; for (int i = 0; i <
-			 * 9; i++) { iIonVal10[i] = 10 * iIonVal[i]; iIonVal25[i] = 25 *
-			 * iIonVal[i]; iIonVal50[i] = 50 * iIonVal[i]; if (iIonVal[i] > 0) {
-			 * piSelectedIonSeries[iNumIonSeriesUsed++] = i; } } // differential
-			 * mod. search for AAs listed in szDiffChar if
-			 * (sParam.getDiffMass1() != 0.0 && sParam.getDiffChar1().length() >
-			 * 0) { sParam.isDiffSearch() = true; } if (sParam.getDiffMass2() !=
-			 * 0.0 && sParam.getDiffChar2().length() > 0) {
-			 * sParam.isDiffSearch() = true; } if (sParam.getDiffMass3() != 0.0
-			 * && sParam.getDiffChar3().length() > 0) { sParam.isDiffSearch() =
-			 * true; } // if (sParam.isDiffSearch()) // iSizepiDiffSearchSites =
-			 * MAX_PEPTIDE_SIZE*4; sParam.getPdAAMassParent()[AssignMass.S] +=
-			 * dN15Enrichment * addSmass; pdAAMassFragment[AssignMass.S] +=
-			 * dN15Enrichment * addSmass; } if (addPmass != 0.0) {
-			 * sParam.getPdAAMassParent()[AssignMass.P] += dN15Enrichment *
-			 * addPmass; pdAAMassFragment[AssignMass.P] += dN15Enrichment *
-			 * addPmass; }
+			 * dN15Enrichment // Load ion series to consider, useA, useB, useY are for
+			 * neutral losses iNumIonSeriesUsed = 0; for (int i = 0; i < 9; i++) {
+			 * iIonVal10[i] = 10 * iIonVal[i]; iIonVal25[i] = 25 * iIonVal[i]; iIonVal50[i]
+			 * = 50 * iIonVal[i]; if (iIonVal[i] > 0) {
+			 * piSelectedIonSeries[iNumIonSeriesUsed++] = i; } } // differential mod. search
+			 * for AAs listed in szDiffChar if (sParam.getDiffMass1() != 0.0 &&
+			 * sParam.getDiffChar1().length() > 0) { sParam.isDiffSearch() = true; } if
+			 * (sParam.getDiffMass2() != 0.0 && sParam.getDiffChar2().length() > 0) {
+			 * sParam.isDiffSearch() = true; } if (sParam.getDiffMass3() != 0.0 &&
+			 * sParam.getDiffChar3().length() > 0) { sParam.isDiffSearch() = true; } // if
+			 * (sParam.isDiffSearch()) // iSizepiDiffSearchSites = MAX_PEPTIDE_SIZE*4;
+			 * sParam.getPdAAMassParent()[AssignMass.S] += dN15Enrichment * addSmass;
+			 * pdAAMassFragment[AssignMass.S] += dN15Enrichment * addSmass; } if (addPmass
+			 * != 0.0) { sParam.getPdAAMassParent()[AssignMass.P] += dN15Enrichment *
+			 * addPmass; pdAAMassFragment[AssignMass.P] += dN15Enrichment * addPmass; }
 			 */
 
 			if (null != getParam("diff_search_options")) {
@@ -681,17 +674,14 @@ public class SearchParamReader {
 
 				/*
 				 * Set<Double> modShiftSet = sParam.getModShiftSet();
-				 * //modShiftSet.toArray(pArr); ICombinatoricsVector<String>
-				 * initialVector2 = Factory.createVector( new Integer[] { 79,
-				 * 16} ); // Create a multi-combination generator to generate
-				 * 3-combinations of // the initial vector gen =
-				 * Factory.createMultiCombinationGenerator(initialVector, 2); //
-				 * Print all possible combinations for
-				 * (ICombinatoricsVector<String> combination : gen) {
-				 * System.out.println(combination); } gen =
-				 * Factory.createMultiCombinationGenerator(initialVector, 1); //
-				 * Print all possible combinations for
-				 * (ICombinatoricsVector<String> combination : gen) {
+				 * //modShiftSet.toArray(pArr); ICombinatoricsVector<String> initialVector2 =
+				 * Factory.createVector( new Integer[] { 79, 16} ); // Create a
+				 * multi-combination generator to generate 3-combinations of // the initial
+				 * vector gen = Factory.createMultiCombinationGenerator(initialVector, 2); //
+				 * Print all possible combinations for (ICombinatoricsVector<String> combination
+				 * : gen) { System.out.println(combination); } gen =
+				 * Factory.createMultiCombinationGenerator(initialVector, 1); // Print all
+				 * possible combinations for (ICombinatoricsVector<String> combination : gen) {
 				 * System.out.println(combination); }
 				 */
 
@@ -816,8 +806,7 @@ public class SearchParamReader {
 	/**
 	 * Get a param value from the internal map, log warning if not present
 	 *
-	 * @param paramName
-	 *            name of the param to get
+	 * @param paramName name of the param to get
 	 * @return the param value or empty string if not present
 	 */
 	private String getParam(String paramName) {
@@ -837,8 +826,7 @@ public class SearchParamReader {
 	/**
 	 * Get a param value from the internal map, log warning if not present
 	 *
-	 * @param paramName
-	 *            name of the param to get
+	 * @param paramName name of the param to get
 	 * @return the param value or empty string if not present
 	 */
 	private String getParam(String paramName, boolean assureNotNullNumber) {

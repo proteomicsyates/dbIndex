@@ -173,10 +173,23 @@ public class IndexUtil {
 	}
 
 	/**
-	 * Calculates the mass of a sequence, by summing all the masses of all the
-	 * AAs and then summing the mass of a water molecule H2O and the proton mass
-	 * (is the parameter is true), as well as the mass of the cTerm and nTerm if
-	 * configured in {@link AssignMass}
+	 * Calculates the mass of a sequence, by summing all the masses of all the AAs
+	 * and then summing the mass of a water molecule H2O and the proton mass, as
+	 * well as the mass of the cTerm and nTerm if configured in {@link AssignMass}
+	 *
+	 * @param sequence
+	 * @param isH2OPlusProtonAdded
+	 * @return
+	 */
+	public static double calculateMass(String sequence) {
+		return calculateMass(sequence, true);
+	}
+
+	/**
+	 * Calculates the mass of a sequence, by summing all the masses of all the AAs
+	 * and then summing the mass of a water molecule H2O and the proton mass (is the
+	 * parameter is true), as well as the mass of the cTerm and nTerm if configured
+	 * in {@link AssignMass}
 	 *
 	 * @param sequence
 	 * @param isH2OPlusProtonAdded
@@ -200,9 +213,9 @@ public class IndexUtil {
 	 * calculated from the mass to search.<br>
 	 * So, if someone looks to a mass of 1340.386, it will be multiplied by the
 	 * massGroupFactor, and then, then integer part will be taken as the key (if
-	 * massGroupFactor is 1, then 1340 is the key). Then, the index will look
-	 * into 1340-1, 1340 and 1340+1 entries in the SQLLite database, being the
-	 * 1, in this case, the value of numRowsToLookup.<br>
+	 * massGroupFactor is 1, then 1340 is the key). Then, the index will look into
+	 * 1340-1, 1340 and 1340+1 entries in the SQLLite database, being the 1, in this
+	 * case, the value of numRowsToLookup.<br>
 	 * Remain this on 0, since from the last change by Salva 24Nov2014, setting
 	 * massGroupFactor to 10000 this is not needed.
 	 */
@@ -254,12 +267,12 @@ public class IndexUtil {
 			uniqueParams.append(", pepFilter: ").append(params.getPeptideFilter().toString());
 		}
 		/*
-		 * uniqueParams.append(getMaxNumDiffMod());
-		 * uniqueParams.append("\nMods:"); for (final ModResidue mod :
-		 * getModList()) { uniqueParams.append(mod.toString()).append(" "); }
-		 * uniqueParams.append("\nMods groups:"); for (final List<double>
-		 * modGroupList : getModGroupList()) { for (final double f :
-		 * modGroupList) { uniqueParams.append(f).append(" "); } }
+		 * uniqueParams.append(getMaxNumDiffMod()); uniqueParams.append("\nMods:"); for
+		 * (final ModResidue mod : getModList()) {
+		 * uniqueParams.append(mod.toString()).append(" "); }
+		 * uniqueParams.append("\nMods groups:"); for (final List<double> modGroupList :
+		 * getModGroupList()) { for (final double f : modGroupList) {
+		 * uniqueParams.append(f).append(" "); } }
 		 */
 
 		// System.out.println("===" + uniqueParams.toString());
