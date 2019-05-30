@@ -218,10 +218,10 @@ public class DBIndexer {
 	private void cutSeq(final Fasta fasta) throws IOException {
 		// change by SALVA in order to keep all fasta information in the index
 		// final String protAccession = fasta.getSequestLikeAccession();
-		final String protAccession = fasta.getOriginalDefline();
+		final String protFastaHeader = fasta.getOriginalDefline();
 		final String protSeq = fasta.getSequence();
 
-		cutSeq(protAccession, protSeq);
+		cutSeq(protFastaHeader, protSeq);
 
 	}
 
