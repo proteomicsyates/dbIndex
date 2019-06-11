@@ -71,7 +71,8 @@ public class DBIndexImpl implements DBIndexInterface {
 
 			final SearchParams sParam = pr.getSearchParams();
 			final edu.scripps.yates.dbindex.DBIndexer.IndexerMode indexerMode = sParam.isUseIndex()
-					? IndexerMode.SEARCH_INDEXED : IndexerMode.SEARCH_UNINDEXED;
+					? IndexerMode.SEARCH_INDEXED
+					: IndexerMode.SEARCH_UNINDEXED;
 
 			indexer = new DBIndexer(sParam, indexerMode);
 			try {
@@ -166,11 +167,9 @@ public class DBIndexImpl implements DBIndexInterface {
 	 * Requires call to init() and run() first, which might perform indexing, if
 	 * index for current set of sequest params does not exist
 	 *
-	 * @param precursorMass
-	 *            mass to select by, in ppm
-	 * @param massTolerance
-	 *            mass tolerance, already calculated for that mass as it is
-	 *            mass-dependant
+	 * @param precursorMass mass to select by, in ppm
+	 * @param massTolerance mass tolerance, already calculated for that mass as it
+	 *                      is mass-dependant
 	 * @return list of matching sequences
 	 * @throws DBIndexStoreException
 	 */
@@ -180,12 +179,11 @@ public class DBIndexImpl implements DBIndexInterface {
 	}
 
 	/**
-	 * Get list of sequences in index for the ranges specified wit mass .
-	 * Requires call to init() and run() first, which might perform indexing, if
-	 * index for current set of sequest params does not exist
+	 * Get list of sequences in index for the ranges specified wit mass . Requires
+	 * call to init() and run() first, which might perform indexing, if index for
+	 * current set of sequest params does not exist
 	 *
-	 * @param massRanges
-	 *            mass ranges to query
+	 * @param massRanges mass ranges to query
 	 * @return list of matching sequences
 	 * @throws DBIndexStoreException
 	 */
@@ -195,12 +193,11 @@ public class DBIndexImpl implements DBIndexInterface {
 	}
 
 	/**
-	 * Get proteins associated with the sequence from the index. Requires call
-	 * to init() and run() first, which might perform indexing, if index for
-	 * current set of sequest params does not exist
+	 * Get proteins associated with the sequence from the index. Requires call to
+	 * init() and run() first, which might perform indexing, if index for current
+	 * set of sequest params does not exist
 	 *
-	 * @param seq
-	 *            peptide sequence
+	 * @param seq peptide sequence
 	 * @return list of indexed protein objects associated with the sequence
 	 * @throws DBIndexStoreException
 	 */
@@ -210,12 +207,11 @@ public class DBIndexImpl implements DBIndexInterface {
 	}
 
 	/**
-	 * Get proteins associated with the sequence. Requires call to init() and
-	 * run() first, which might perform indexing, if index for current set of
-	 * sequest params does not exist
+	 * Get proteins associated with the sequence. Requires call to init() and run()
+	 * first, which might perform indexing, if index for current set of sequest
+	 * params does not exist
 	 *
-	 * @param seq
-	 *            peptide sequence
+	 * @param seq peptide sequence
 	 * @return list of indexed protein objects associated with the sequence
 	 * @throws DBIndexStoreException
 	 */
@@ -251,8 +247,7 @@ public class DBIndexImpl implements DBIndexInterface {
 	 * since H2O+PROTON mass is added to any peptide mass in the index.
 	 *
 	 * @param fastaFile
-	 * @param inMemoryIndex
-	 *            overrides the default property of "in memory index"
+	 * @param inMemoryIndex overrides the default property of "in memory index"
 	 * @return
 	 */
 	public static DBIndexSearchParams getDefaultDBIndexParams(String fastaFilePath, boolean inMemoryIndex) {
@@ -379,8 +374,7 @@ public class DBIndexImpl implements DBIndexInterface {
 	 * since H2O+PROTON mass is added to any peptide mass in the index.
 	 *
 	 * @param fastaFile
-	 * @param inMemoryIndex
-	 *            overrides the property inMemoryIndex
+	 * @param inMemoryIndex overrides the property inMemoryIndex
 	 * @return
 	 */
 	public static DBIndexSearchParams getDefaultDBIndexParamsForCrosslinkerAnalysis(String fastaFilePath,
@@ -439,4 +433,20 @@ public class DBIndexImpl implements DBIndexInterface {
 	public DBIndexer getIndexer() {
 		return indexer;
 	}
+
+	@Override
+	public IndexedProtein getIndexedProteinById(int proteinId) {
+		final String proteinDef = indexer.getProteinCache().getProteinDef(proteinId);
+		if (proteinDef != null) {
+			final IndexedProtein ip = new IndexedProtein(proteinDef, proteinId);
+			return ip;
+		}
+		return null;
+	}
+
+	@Override
+	public String getProteinSequenceById(int proteinId) {
+		return indexer.getProteinCache().getProteinSequence(proteinId);
+	}
+
 }

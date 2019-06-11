@@ -117,7 +117,7 @@ public class MassRangeFilteringIndex implements DBIndexStore {
 
 		if (indexedSequence == null) {
 			indexedSequence = new IndexedSequence(precMass, sequenceOffset, sequenceLen, sequence, resLeft, resRight,
-					proteinId);
+					(int) proteinId);
 			matchingSequences.put(sequence, indexedSequence);
 		} else {
 			// add protein to existing
@@ -164,7 +164,7 @@ public class MassRangeFilteringIndex implements DBIndexStore {
 
 		final List<IndexedProtein> ret = new ArrayList<IndexedProtein>();
 
-		for (final int protId : proteinIds) {
+		for (final Integer protId : proteinIds) {
 			final IndexedProtein indexedProtein = new IndexedProtein(protId);
 
 			final String accession = proteinCache.getProteinDef(protId);

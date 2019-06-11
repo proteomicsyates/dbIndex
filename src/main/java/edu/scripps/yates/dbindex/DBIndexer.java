@@ -570,7 +570,9 @@ public class DBIndexer {
 			}
 			final UniprotProteinLocalRetriever uplr = getUniprotProteinLocalRetriever();
 			if (uplr != null) {
-				uplr.getAnnotatedProteins(null, accs, true);
+				final boolean retrieveFastaIsoforms = true;
+
+				uplr.getAnnotatedProteins(null, accs, retrieveFastaIsoforms, isRetrieveFastaIsoformsFromMainForms());
 				final long t2 = System.currentTimeMillis() - t1;
 				logger.info("Uniprot annotations were saved to local file system at '"
 						+ sparam.getUniprotReleasesFolder().getAbsolutePath() + "' in "
@@ -675,10 +677,15 @@ public class DBIndexer {
 
 	}
 
+	protected boolean isRetrieveFastaIsoformsFromMainForms() {
+		return false;
+	}
+
 	protected UniprotProteinLocalRetriever getUniprotProteinLocalRetriever() {
 		if (sparam.getUniprotReleasesFolder() != null) {
+			final boolean useIndex = true;
 			final UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(
-					sparam.getUniprotReleasesFolder(), true);
+					sparam.getUniprotReleasesFolder(), useIndex);
 			return uplr;
 		}
 		return null;

@@ -501,11 +501,10 @@ public class DBIndexStoreFiles implements DBIndexStore {
 	}
 
 	/**
-	 * TODO this method should be private and invoked only internally in this
-	 * class after initial indexing is done
+	 * TODO this method should be private and invoked only internally in this class
+	 * after initial indexing is done
 	 *
-	 * @param sparam
-	 *            saerch params
+	 * @param sparam saerch params
 	 * @throws DBIndexerException
 	 * @throws IOException
 	 */
@@ -548,7 +547,11 @@ public class DBIndexStoreFiles implements DBIndexStore {
 
 				// System.out.println("=== " + eachLine);
 				final String[] arr = eachLine.split(" ");
-				final long pid = Long.parseLong(arr[3]);
+				final int pid = Integer.parseInt(arr[3]);
+				if (pid < 0) {
+					br.close();
+					throw new IllegalArgumentException("Probably integer overflow!");
+				}
 				final double mass = Double.parseDouble(arr[0]);
 				final int startIndex = Integer.parseInt(arr[1]);
 				final int offsetIndex = Integer.parseInt(arr[2]);
@@ -594,7 +597,7 @@ public class DBIndexStoreFiles implements DBIndexStore {
 				fileWriter.write(pm.getProteinIds());
 				fileWriter.write("\n");
 			}
-
+			br.close();
 			fileWriter.close();
 
 			// System.out.println("======" + pht.size() + " " + list.size());

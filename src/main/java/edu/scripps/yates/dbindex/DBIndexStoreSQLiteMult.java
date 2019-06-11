@@ -44,8 +44,8 @@ public class DBIndexStoreSQLiteMult implements DBIndexStore {
 	protected final DBIndexSearchParams sparam;
 	protected boolean inMemoryIndex = false;
 
-	public DBIndexStoreSQLiteMult(edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams sparam, boolean inMemoryIndex,
-			DBIndexStoreSQLiteByteIndexMerge[] buckets) {
+	public DBIndexStoreSQLiteMult(edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams sparam,
+			boolean inMemoryIndex, DBIndexStoreSQLiteByteIndexMerge[] buckets) {
 		inited = false;
 		this.sparam = sparam;
 		totalSeqCount = 0;
@@ -63,7 +63,8 @@ public class DBIndexStoreSQLiteMult implements DBIndexStore {
 		}
 	}
 
-	public DBIndexStoreSQLiteMult(edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams sparam, boolean inMemoryIndex) {
+	public DBIndexStoreSQLiteMult(edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams sparam,
+			boolean inMemoryIndex) {
 		this(sparam, inMemoryIndex, new DBIndexStoreSQLiteByteIndexMerge[sparam.getIndexFactor()]);
 	}
 

@@ -13,8 +13,7 @@ import java.util.List;
  */
 class IndexedSeqMerged implements Comparable<IndexedSeqMerged> {
 
-	public IndexedSeqMerged(double mass, int offset, int length,
-			List<Integer> proteinIds) {
+	public IndexedSeqMerged(double mass, int offset, int length, List<Integer> proteinIds) {
 		this.mass = mass;
 		this.offset = offset;
 		this.length = length;
@@ -40,7 +39,7 @@ class IndexedSeqMerged implements Comparable<IndexedSeqMerged> {
 
 	@Override
 	public String toString() {
-		return "IndexedSeqMerged{" + "mass=" + mass + ", offset=" + offset
-				+ ", length=" + length + ", proteinIds=" + proteinIds + '}';
+		return "IndexedSeqMerged{" + "mass=" + mass + ", offset=" + offset + ", length=" + length + ", proteinIds="
+				+ proteinIds + '}';
 	}
 }

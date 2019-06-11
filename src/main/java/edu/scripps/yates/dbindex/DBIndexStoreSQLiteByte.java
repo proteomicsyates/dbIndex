@@ -523,8 +523,8 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 			final IndexedSeqInternal firstSeq = sequences.get(0);
 			final IndexedSequence mergedSequence = new IndexedSequence(0, firstSeq.mass, pepSeqKey, "", "");
 			final ArrayList<Integer> proteinIds2 = new ArrayList<Integer>();
-			for (final int integer : proteinIds._set) {
-				proteinIds2.add(integer);
+			for (final int num : proteinIds._set) {
+				proteinIds2.add(num);
 			}
 			mergedSequence.setProteinIds(proteinIds2);
 			// set residues

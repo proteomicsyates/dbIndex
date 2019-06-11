@@ -54,13 +54,12 @@ public class ProteinCache {
 	/**
 	 * get protein by id, protein id start at 1
 	 * 
-	 * @param proteinId
-	 *            protein id, 1 based
+	 * @param proteinId protein id, 1 based
 	 * @return protein sequence string
 	 */
 	public String getProteinSequence(long proteinId) {
 		if (sequences.size() > proteinId) {
-			return sequences.get((int) proteinId);
+			return sequences.get(Long.valueOf(proteinId).intValue());
 		}
 		return null;
 	}
@@ -68,22 +67,19 @@ public class ProteinCache {
 	/**
 	 * get protein by id, protein id start at 1
 	 * 
-	 * @param proteinId
-	 *            protein id, 1 based
+	 * @param proteinId protein id, 1 based
 	 * @return protein sequence string
 	 */
 	String getProteinDef(long proteinId) {
-		return defs.get((int) proteinId);
+		return defs.get(Long.valueOf(proteinId).intValue());
 	}
 
 	/**
 	 * add protein to the cache Assumes the protein is added in the protein
 	 * id-ordering
 	 * 
-	 * @param def
-	 *            prot. def to add
-	 * @param protein
-	 *            sequence of protein to add to the cache
+	 * @param def     prot. def to add
+	 * @param protein sequence of protein to add to the cache
 	 */
 	public int addProtein(String def, String protein) {
 		// make sure that there is no TAB in def, otherwise it will throw an
@@ -113,7 +109,7 @@ public class ProteinCache {
 	 * @param seqLen
 	 * @return
 	 */
-	public String getPeptideSequence(long protId, int seqOffset, int seqLen) {
+	public String getPeptideSequence(int protId, int seqOffset, int seqLen) {
 		final String protSeq = getProteinSequence(protId);
 		String peptideSeq = null;
 
@@ -150,7 +146,7 @@ public class ProteinCache {
 	public List<IndexedProtein> getProteins(IndexedSequence sequence) {
 		final List<IndexedProtein> ret = new ArrayList<IndexedProtein>();
 
-		for (final int proteinId : sequence.getProteinIds()) {
+		for (final Integer proteinId : sequence.getProteinIds()) {
 			final IndexedProtein ip = new IndexedProtein(getProteinDef(proteinId), proteinId);
 			ret.add(ip);
 		}
