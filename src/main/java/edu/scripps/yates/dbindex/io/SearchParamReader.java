@@ -176,7 +176,7 @@ public class SearchParamReader {
 			param.setPeptideMassTolerance(trimValueAsDouble(pepTolerance));
 
 			param.setFragmentIonTolerance(trimValueAsDouble(getParam("ppm_fragment_ion_tolerance")));
-			param.setFragmentIonToleranceInt((int) Double.parseDouble(getParam("ppm_fragment_ion_tolerance")));
+			param.setFragmentIonToleranceInt((int) trimValueAsDouble((getParam("ppm_fragment_ion_tolerance"))));
 
 			final String highRes = getParam("ppm_fragment_ion_tolerance_high");
 			if (null != highRes && "1".equals(highRes))
@@ -275,43 +275,46 @@ public class SearchParamReader {
 			param.setNumPeptideOutputLnes(trimValueAsInt(getParam("num_output_lines")));
 			param.setRemovePrecursorPeak(trimValueAsInt(getParam("remove_precursor_peak")));
 			final String ionSeries = getParam("ion_series");
-			final String arr[] = ionSeries.split(" ");
+			if (ionSeries != null) {
+				final String arr[] = ionSeries.split(" ");
 
-			// System.out.println("===========" + arr[0] + arr[1] + " " +
-			// arr[2]);
-			param.setNeutralLossAions(Integer.parseInt(arr[0]));
-			param.setNeutralLossBions(Integer.parseInt(arr[1]));
-			param.setNeutralLossYions(Integer.parseInt(arr[2]));
+				// System.out.println("===========" + arr[0] + arr[1] + " " +
+				// arr[2]);
+				param.setNeutralLossAions(Integer.parseInt(arr[0]));
+				param.setNeutralLossBions(Integer.parseInt(arr[1]));
+				param.setNeutralLossYions(Integer.parseInt(arr[2]));
 
-			final int[] ions = new int[9];
-			final double[] weightArr = new double[12];
+				final int[] ions = new int[9];
+				final double[] weightArr = new double[12];
 
-			for (int i = 0; i < 9; i++)
-				weightArr[i] = Double.parseDouble(arr[i + 3]);
+				for (int i = 0; i < 9; i++)
+					weightArr[i] = Double.parseDouble(arr[i + 3]);
 
-			for (int i = 0; i < 3; i++)
-				weightArr[i + 9] = Double.parseDouble(arr[i]);
+				for (int i = 0; i < 3; i++)
+					weightArr[i + 9] = Double.parseDouble(arr[i]);
 
-			param.setWeightArr(weightArr);
+				param.setWeightArr(weightArr);
 
-			ions[0] = (int) (10 * Double.parseDouble(arr[3])); // a
-			ions[1] = (int) (10 * Double.parseDouble(arr[4])); // b
-			ions[2] = (int) (10 * Double.parseDouble(arr[5])); // c
-			ions[3] = (int) (10 * Double.parseDouble(arr[6]));
-			ions[4] = (int) (10 * Double.parseDouble(arr[7]));
-			ions[5] = (int) (10 * Double.parseDouble(arr[8]));
-			ions[6] = (int) (10 * Double.parseDouble(arr[9])); // x
-			ions[7] = (int) (10 * Double.parseDouble(arr[10])); // y
-			ions[8] = (int) (10 * Double.parseDouble(arr[11])); // z
+				ions[0] = (int) (10 * Double.parseDouble(arr[3])); // a
+				ions[1] = (int) (10 * Double.parseDouble(arr[4])); // b
+				ions[2] = (int) (10 * Double.parseDouble(arr[5])); // c
+				ions[3] = (int) (10 * Double.parseDouble(arr[6]));
+				ions[4] = (int) (10 * Double.parseDouble(arr[7]));
+				ions[5] = (int) (10 * Double.parseDouble(arr[8]));
+				ions[6] = (int) (10 * Double.parseDouble(arr[9])); // x
+				ions[7] = (int) (10 * Double.parseDouble(arr[10])); // y
+				ions[8] = (int) (10 * Double.parseDouble(arr[11])); // z
 
-			int numIonUsed = 0;
-			for (final int eachIon : ions) {
-				if (eachIon > 0)
-					numIonUsed++;
+				int numIonUsed = 0;
+				for (final int eachIon : ions) {
+					if (eachIon > 0)
+						numIonUsed++;
+				}
+
+				param.setNumIonSeriesUsed(numIonUsed);
+				param.setIonSeries(ions);
 			}
 
-			param.setNumIonSeriesUsed(numIonUsed);
-			param.setIonSeries(ions);
 			param.setMaxNumDiffMod(trimValueAsInt(getParam("max_num_differential_AA_per_mod")));
 
 			final Object obj = getParam("peptide_mass_tolerance");
@@ -750,6 +753,8 @@ public class SearchParamReader {
 			ret = Double.valueOf(trimValue(str));
 		} catch (final NumberFormatException e) {
 			logger.log(Level.SEVERE, "Blazmass parameter invalid, expecting double, got: " + str);
+		} catch (final NullPointerException e2) {
+			logger.log(Level.SEVERE, "Blazmass parameter invalid, expecting double, got NULL (empty)");
 		}
 		return ret;
 	}
