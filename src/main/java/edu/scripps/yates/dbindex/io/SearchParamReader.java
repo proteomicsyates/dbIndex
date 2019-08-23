@@ -246,10 +246,12 @@ public class SearchParamReader {
 			}
 			final String massTypeParent = getParam("mass_type_parent");
 
-			if ("1".equals(massTypeParent)) {
+			if ("0".equals(massTypeParent)) {
+				param.setUseMonoParent(false);
+			} else if ("1".equals(massTypeParent)) {
 				param.setUseMonoParent(true);
 			} else {
-				param.setUseMonoParent(false);
+				param.setUseMonoParent(true);
 			}
 			param.setMassTypeParent(trimValueAsInt(massTypeParent)); // ;
 																		// 0=average
@@ -583,9 +585,16 @@ public class SearchParamReader {
 
 			// param.setMaxInternalCleavageSites(Integer
 			// .parseInt(getParam("max_num_internal_cleavage_sites")));
-			param.setNumPeptideOutputLnes(Integer.parseInt(getParam("num_output_lines")));
-			param.setMaxMissedCleavages(Integer.parseInt(getParam("max_num_internal_cleavage_sites")));
-			param.setSemiCleavage(Boolean.parseBoolean(getParam("miscleavage")));
+			final String numOutputLinesString = getParam("num_output_lines");
+			if (numOutputLinesString != null && !"".equals(numOutputLinesString)) {
+				param.setNumPeptideOutputLnes(Integer.parseInt(numOutputLinesString));
+			}
+			final String maxNumInternalCleavageSites = getParam("max_num_internal_cleavage_sites");
+			if (maxNumInternalCleavageSites != null && !"".equals(maxNumInternalCleavageSites)) {
+				param.setMaxMissedCleavages(Integer.parseInt(maxNumInternalCleavageSites));
+			}
+			final boolean parseBoolean = Boolean.parseBoolean(getParam("miscleavage"));
+			param.setSemiCleavage(parseBoolean);
 			param.setEnzymeName(getParam("enzyme_name"));
 			param.setEnzymeResidues(getParam("enzyme_residues"));
 			param.setEnzymeBreakAA(getParam("enzyme_residues"), param.getMaxMissedCleavages(), param.isSemiCleavage());
