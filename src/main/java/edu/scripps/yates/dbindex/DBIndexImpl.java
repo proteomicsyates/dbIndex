@@ -19,6 +19,7 @@ import edu.scripps.yates.utilities.fasta.dbindex.IndexType;
 import edu.scripps.yates.utilities.fasta.dbindex.IndexedProtein;
 import edu.scripps.yates.utilities.fasta.dbindex.IndexedSequence;
 import edu.scripps.yates.utilities.fasta.dbindex.MassRange;
+import edu.scripps.yates.utilities.fasta.dbindex.PeptideFilter;
 import edu.scripps.yates.utilities.masses.AssignMass;
 import gnu.trove.map.hash.THashMap;
 
@@ -362,6 +363,65 @@ public class DBIndexImpl implements DBIndexInterface {
 			}
 			log.info("InMemoryIndex=" + inMemoryIndex);
 			return getDefaultDBIndexParamsForCrosslinkerAnalysis(fastaFilePath, inMemoryIndex);
+		} catch (final Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * Gets the {@link DBIndexSearchParams} needed for a proteoform analysis,
+	 * getting annotations of sequence variances, mutations, splice variants and
+	 * PTMs from uniprot and including them in the index.
+	 * 
+	 * @param fastaFilePath
+	 * @param maxMissedCleavages
+	 * @param minPrecursorMass
+	 * @param maxPrecursorMass
+	 * @param enzymeResidues
+	 * @param enzymeNocutResidues
+	 * @param enzymeOffset
+	 * @param semiCleavage
+	 * @param uniprotVersion
+	 * @param discardDecoyRegexp
+	 * @param uniprotReleasesFolderPath
+	 * @return
+	 */
+	public static DBIndexSearchParams getDefaultDBIndexParamsForProteoformAnalysis(String fastaFilePath,
+			int maxMissedCleavages, double minPrecursorMass, double maxPrecursorMass, String enzymeResidues,
+			String enzymeNocutResidues, int enzymeOffset, boolean semiCleavage, String uniprotVersion,
+			String discardDecoyRegexp, String uniprotReleasesFolderPath) {
+		try {
+			final IndexType indexType = IndexType.valueOf(
+					String.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.DEFAULT_INDEX_TYPE)));
+
+			final int indexFactor = Integer
+					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.DEFAULT_INDEX_FACTOR));
+			final String dataBaseName = fastaFilePath;
+
+			final boolean useIndex = Boolean
+					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.USE_INDEX));
+
+			final boolean useMono = Boolean
+					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.MASS_TYPE_PARENT));
+			final boolean isH2OPlusProtonAdded = true;
+			final int massGroupFactor = Integer
+					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.MASS_GROUP_FACTOR));
+
+			final char[] mandatoryInternalAAs = null;
+
+			final boolean inMemoryIndex = false;
+			final PeptideFilter peptideFilter = null;
+
+			final DBIndexSearchParamsImpl ret = new DBIndexSearchParamsImpl(indexType, inMemoryIndex, indexFactor,
+					dataBaseName, maxMissedCleavages, maxPrecursorMass, minPrecursorMass, useIndex, enzymeNocutResidues,
+					enzymeResidues, enzymeOffset, useMono, isH2OPlusProtonAdded, massGroupFactor, mandatoryInternalAAs,
+					semiCleavage, peptideFilter, uniprotVersion, discardDecoyRegexp);
+			ret.setUniprotReleasesFolder(new File(uniprotReleasesFolderPath));
+			ret.setLookProteoforms(true);
+			return ret;
+		} catch (final NumberFormatException e) {
+			e.printStackTrace();
 		} catch (final Exception e) {
 			e.printStackTrace();
 		}
