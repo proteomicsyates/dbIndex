@@ -12,6 +12,8 @@ import java.security.NoSuchAlgorithmException;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.annotations.uniprot.UniprotProteinLocalRetriever;
+import edu.scripps.yates.annotations.uniprot.fasta.FastaReaderFromUniprot;
 import edu.scripps.yates.dbindex.Constants;
 import edu.scripps.yates.dbindex.SearchParams;
 import edu.scripps.yates.dbindex.Util;
@@ -297,14 +299,21 @@ public class IndexUtil {
 	}
 
 	public static FastaReader getFastaReader(DBIndexSearchParams params) {
-//		if (params.isLookProteoforms() != null && params.isLookProteoforms()) {
+		if (params.isLookProteoforms() != null && params.isLookProteoforms()) {
+
 //			final UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(
 //					params.getUniprotReleasesFolder(), true);
 //			final UniprotProteoformRetriever proteoFormRetriever = new UniprotProteoformRetrieverFromXML(uplr,
 //					params.getUniprotVersion());
 //			return new ProteoFormFastaReader(params.getDatabaseName(), proteoFormRetriever);
-//		} else {
-		return new FastaReader(params.getDatabaseName());
-//		}
+
+			final File uniprotReleasesFolder = params.getUniprotReleasesFolder();
+			final boolean useIndex = params.isUseIndex();
+			final UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(uniprotReleasesFolder, useIndex);
+			final String fastaFileName = params.getDatabaseName();
+			return new FastaReaderFromUniprot(fastaFileName, params.getUniprotVersion(), uplr);
+		} else {
+			return new FastaReader(params.getDatabaseName());
+		}
 	}
 }
