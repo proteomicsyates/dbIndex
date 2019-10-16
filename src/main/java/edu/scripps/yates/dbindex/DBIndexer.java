@@ -426,7 +426,7 @@ public class DBIndexer {
 			}
 		}
 		// get param specific name for the inde0x
-		indexName = IndexUtil.createFullIndexFileName(sparam);
+		indexName = createFullIndexFileName();
 
 		try {
 			// initialize index storage
@@ -448,6 +448,10 @@ public class DBIndexer {
 			logger.error("Could not initialize index storage.", ex);
 			throw new DBIndexerException("Could not initialize index storage.");
 		}
+	}
+
+	protected String createFullIndexFileName() {
+		return IndexUtil.createFullIndexFileName(sparam);
 	}
 
 	/**

@@ -284,39 +284,38 @@ public class IndexUtil {
 
 		// uniqueParams.append(" ").append(getIndexFactor() ) ;
 
-		uniqueParams.append(", maxCleavages: ").append(maxMissedCleavages);
-		uniqueParams.append(", minPrecursorMass=" + minPrecursorMass);
-		uniqueParams.append(", maxPrecursorMass=" + maxPrecursorMass);
-		uniqueParams.append(", static: ").append(staticParams);
-		uniqueParams.append(", semiCleave" + semiCleavage);
+		uniqueParams.append(", maxCleavages:").append(maxMissedCleavages);
+		uniqueParams.append(", minPrecursorMass:" + minPrecursorMass);
+		uniqueParams.append(", maxPrecursorMass:" + maxPrecursorMass);
+		uniqueParams.append(", static:").append(staticParams);
+		uniqueParams.append(", semiCleave:" + semiCleavage);
 
 		if (peptideFilter != null) {
-			uniqueParams.append(", pepFilter: ").append(peptideFilter.toString());
+			uniqueParams.append(", pepFilter:").append(peptideFilter.toString());
 		}
 
-		uniqueParams.append(", isH2OPlusProtonAdded: " + H2OPlusProtonAdded);
+		uniqueParams.append(", isH2OPlusProtonAdded:" + H2OPlusProtonAdded);
 
-		uniqueParams.append(", massGroupFactor: " + massGroupFactor);
+		uniqueParams.append(", massGroupFactor:" + massGroupFactor);
 		if (mandatoryInternalAAs != null) {
-			uniqueParams.append(", mandatoryInternalAAs: " + mandatoryInternalAAs.toString());
+			uniqueParams.append(", mandatoryInternalAAs:" + mandatoryInternalAAs.toString());
 		}
 		// added by Salva 29March 2018
-		if (isLookProteoforms != null && isLookProteoforms) {
-			uniqueParams.append(", proteoForms=true");
-			if (maxVariationsPerPeptide != null) {
-				uniqueParams.append(", maxVariationsPerPeptide: " + maxVariationsPerPeptide);
-			}
-		}
-		uniqueParams.append(", useUniprot: " + useUniprot);
-		uniqueParams.append(", uniprotVersion: " + uniprotVersion);
-		uniqueParams.append(", usePhosphoSite: " + usePhophoSite);
-		uniqueParams.append(", phosphoSiteSpecies: " + phosphoSiteSpecies);
-		uniqueParams.append(", sufix: " + sufix);
+
+		uniqueParams.append(", proteoForms:" + isLookProteoforms != null && isLookProteoforms);
+
+		uniqueParams.append(", maxVariationsPerPeptide:" + maxVariationsPerPeptide);
+
+		uniqueParams.append(", useUniprot:" + useUniprot);
+		uniqueParams.append(", uniprotVersion:" + uniprotVersion);
+		uniqueParams.append(", usePhosphoSite:" + usePhophoSite);
+		uniqueParams.append(", phosphoSiteSpecies:" + phosphoSiteSpecies);
+		uniqueParams.append(", sufix:" + sufix);
 
 		final String uniqueParamsStr = uniqueParams.toString();
 		final String uniqueParamsStrHash = Util.getMd5(uniqueParamsStr);
-		log.info("Index Unique String: " + uniqueParamsStr);
-		log.info("Index Unique hashkey: " + uniqueParamsStrHash);
+		log.info("Index Unique String:" + uniqueParamsStr);
+		log.info("Index Unique hashkey:" + uniqueParamsStrHash);
 		return uniqueIndexName + uniqueParamsStrHash;
 	}
 
