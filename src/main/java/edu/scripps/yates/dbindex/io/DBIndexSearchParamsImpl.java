@@ -13,7 +13,6 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 	private boolean inMemoryIndex;
 	private int indexFactor;
 	private String dataBaseName;
-	private String fullIndexFileName;
 	private int maxMissedCleavages;
 	private double maxPrecursorMass;
 	private double minPrecursorMass;
@@ -115,13 +114,6 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 	}
 
 	@Override
-	public String getFullIndexFileName() {
-		if (fullIndexFileName == null)
-			fullIndexFileName = IndexUtil.createFullIndexFileName(this);
-		return fullIndexFileName;
-	}
-
-	@Override
 	public int getMaxMissedCleavages() {
 		return maxMissedCleavages;
 	}
@@ -188,48 +180,35 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 	}
 
 	/**
-	 * @param indexType
-	 *            the indexType to set
+	 * @param indexType the indexType to set
 	 */
 	public void setIndexType(IndexType indexType) {
 		this.indexType = indexType;
 	}
 
 	/**
-	 * @param inMemoryIndex
-	 *            the inMemoryIndex to set
+	 * @param inMemoryIndex the inMemoryIndex to set
 	 */
 	public void setInMemoryIndex(boolean inMemoryIndex) {
 		this.inMemoryIndex = inMemoryIndex;
 	}
 
 	/**
-	 * @param indexFactor
-	 *            the indexFactor to set
+	 * @param indexFactor the indexFactor to set
 	 */
 	public void setIndexFactor(int indexFactor) {
 		this.indexFactor = indexFactor;
 	}
 
 	/**
-	 * @param dataBaseName
-	 *            the dataBaseName to set
+	 * @param dataBaseName the dataBaseName to set
 	 */
 	public void setDataBaseName(String dataBaseName) {
 		this.dataBaseName = dataBaseName;
 	}
 
 	/**
-	 * @param fullIndexFileName
-	 *            the fullIndexFileName to set
-	 */
-	public void setFullIndexFileName(String fullIndexFileName) {
-		this.fullIndexFileName = fullIndexFileName;
-	}
-
-	/**
-	 * @param maxMissedCleavages
-	 *            the maxMissedCleavages to set
+	 * @param maxMissedCleavages the maxMissedCleavages to set
 	 */
 	public void setMaxMissedCleavages(int maxMissedCleavages) {
 		this.maxMissedCleavages = maxMissedCleavages;
@@ -237,40 +216,35 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 	}
 
 	/**
-	 * @param maxPrecursorMass
-	 *            the maxPrecursorMass to set
+	 * @param maxPrecursorMass the maxPrecursorMass to set
 	 */
 	public void setMaxPrecursorMass(double maxPrecursorMass) {
 		this.maxPrecursorMass = maxPrecursorMass;
 	}
 
 	/**
-	 * @param minPrecursorMass
-	 *            the minPrecursorMass to set
+	 * @param minPrecursorMass the minPrecursorMass to set
 	 */
 	public void setMinPrecursorMass(double minPrecursorMass) {
 		this.minPrecursorMass = minPrecursorMass;
 	}
 
 	/**
-	 * @param useIndex
-	 *            the useIndex to set
+	 * @param useIndex the useIndex to set
 	 */
 	public void setUseIndex(boolean useIndex) {
 		this.useIndex = useIndex;
 	}
 
 	/**
-	 * @param enzymeNocutResidues
-	 *            the enzymeNocutResidues to set
+	 * @param enzymeNocutResidues the enzymeNocutResidues to set
 	 */
 	public void setEnzymeNocutResidues(String enzymeNocutResidues) {
 		this.enzymeNocutResidues = enzymeNocutResidues;
 	}
 
 	/**
-	 * @param enzymeResidues
-	 *            the enzymeResidues to set
+	 * @param enzymeResidues the enzymeResidues to set
 	 */
 	public void setEnzymeResidues(String enzymeResidues, int maxMissedCleavages, boolean missCleave) {
 		this.enzymeResidues = enzymeResidues;
@@ -278,24 +252,21 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 	}
 
 	/**
-	 * @param enzymeOffset
-	 *            the enzymeOffset to set
+	 * @param enzymeOffset the enzymeOffset to set
 	 */
 	public void setEnzymeOffset(int enzymeOffset) {
 		this.enzymeOffset = enzymeOffset;
 	}
 
 	/**
-	 * @param isUseMonoParent
-	 *            the isUseMonoParent to set
+	 * @param isUseMonoParent the isUseMonoParent to set
 	 */
 	public void setUseMonoParent(boolean isUseMonoParent) {
 		this.isUseMonoParent = isUseMonoParent;
 	}
 
 	/**
-	 * @param enzymeArr
-	 *            the enzymeArr to set
+	 * @param enzymeArr the enzymeArr to set
 	 */
 	public void setEnzymeArr(char[] enzymeArr, int maxMissedCleavages, boolean semiCleave) {
 		if (enzymeArr.length > 0) {
@@ -312,32 +283,28 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 	}
 
 	/**
-	 * @param enzyme
-	 *            the enzyme to set
+	 * @param enzyme the enzyme to set
 	 */
 	public void setEnzyme(Enzyme enzyme) {
 		this.enzyme = enzyme;
 	}
 
 	/**
-	 * @param isH2OPlusProtonAdded
-	 *            the isH2OPlusProtonAdded to set
+	 * @param isH2OPlusProtonAdded the isH2OPlusProtonAdded to set
 	 */
 	public void setH2OPlusProtonAdded(boolean isH2OPlusProtonAdded) {
 		this.isH2OPlusProtonAdded = isH2OPlusProtonAdded;
 	}
 
 	/**
-	 * @param massGroupFactor
-	 *            the massGroupFactor to set
+	 * @param massGroupFactor the massGroupFactor to set
 	 */
 	public void setMassGroupFactor(int massGroupFactor) {
 		this.massGroupFactor = massGroupFactor;
 	}
 
 	/**
-	 * @param mandatoryInternalAAs
-	 *            the mandatoryInternalAAs to set
+	 * @param mandatoryInternalAAs the mandatoryInternalAAs to set
 	 */
 	public void setMandatoryInternalAAs(char[] mandatoryInternalAAs) {
 		this.mandatoryInternalAAs = mandatoryInternalAAs;
@@ -389,72 +356,63 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 	}
 
 	/**
-	 * @param usingProtDB
-	 *            the usingProtDB to set
+	 * @param usingProtDB the usingProtDB to set
 	 */
 	public void setUsingProtDB(boolean usingProtDB) {
 		this.usingProtDB = usingProtDB;
 	}
 
 	/**
-	 * @param usingSeqDB
-	 *            the usingSeqDB to set
+	 * @param usingSeqDB the usingSeqDB to set
 	 */
 	public void setUsingSeqDB(boolean usingSeqDB) {
 		this.usingSeqDB = usingSeqDB;
 	}
 
 	/**
-	 * @param mongoDBURI
-	 *            the mongoDBURI to set
+	 * @param mongoDBURI the mongoDBURI to set
 	 */
 	public void setMongoDBURI(String mongoDBURI) {
 		this.mongoDBURI = mongoDBURI;
 	}
 
 	/**
-	 * @param massDBName
-	 *            the massDBName to set
+	 * @param massDBName the massDBName to set
 	 */
 	public void setMassDBName(String massDBName) {
 		this.massDBName = massDBName;
 	}
 
 	/**
-	 * @param massDBCollection
-	 *            the massDBCollection to set
+	 * @param massDBCollection the massDBCollection to set
 	 */
 	public void setMassDBCollection(String massDBCollection) {
 		this.massDBCollection = massDBCollection;
 	}
 
 	/**
-	 * @param seqDBName
-	 *            the seqDBName to set
+	 * @param seqDBName the seqDBName to set
 	 */
 	public void setSeqDBName(String seqDBName) {
 		this.seqDBName = seqDBName;
 	}
 
 	/**
-	 * @param seqDBCollection
-	 *            the seqDBCollection to set
+	 * @param seqDBCollection the seqDBCollection to set
 	 */
 	public void setSeqDBCollection(String seqDBCollection) {
 		this.seqDBCollection = seqDBCollection;
 	}
 
 	/**
-	 * @param protDBName
-	 *            the protDBName to set
+	 * @param protDBName the protDBName to set
 	 */
 	public void setProtDBName(String protDBName) {
 		this.protDBName = protDBName;
 	}
 
 	/**
-	 * @param protDBCollection
-	 *            the protDBCollection to set
+	 * @param protDBCollection the protDBCollection to set
 	 */
 	public void setProtDBCollection(String protDBCollection) {
 		this.protDBCollection = protDBCollection;
@@ -466,8 +424,7 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 	}
 
 	/**
-	 * @param usingMongoDB
-	 *            the usingMongoDB to set
+	 * @param usingMongoDB the usingMongoDB to set
 	 */
 	public void setUsingMongoDB(boolean usingMongoDB) {
 		this.usingMongoDB = usingMongoDB;
@@ -489,8 +446,7 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 	}
 
 	/**
-	 * @param peptideFilter
-	 *            the peptideFilter to set
+	 * @param peptideFilter the peptideFilter to set
 	 */
 	public void setPeptideFilter(PeptideFilter peptideFilter) {
 		this.peptideFilter = peptideFilter;
@@ -530,6 +486,13 @@ public class DBIndexSearchParamsImpl implements DBIndexSearchParams {
 
 	public void setDiscardDecoyRegexp(String discardDecoyRegexp) {
 		this.discardDecoyRegexp = discardDecoyRegexp;
+	}
+
+	@Override
+	public String getFullIndexFileName(String sufix, Integer maxVariationsPerPeptide, boolean useUniprot,
+			String uniprotVersion, boolean usePhosphosite, String phosphoSiteSpecies) {
+		return IndexUtil.createFullIndexFileName(this, sufix, maxVariationsPerPeptide, useUniprot, uniprotVersion,
+				usePhosphosite, phosphoSiteSpecies);
 	}
 
 }

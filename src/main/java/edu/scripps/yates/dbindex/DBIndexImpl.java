@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.dbindex.DBIndexer.IndexerMode;
 import edu.scripps.yates.dbindex.io.DBIndexSearchParamsImpl;
 import edu.scripps.yates.dbindex.io.SearchParamReader;
+import edu.scripps.yates.dbindex.util.IndexUtil;
 import edu.scripps.yates.dbindex.util.PropertiesReader;
 import edu.scripps.yates.utilities.fasta.dbindex.DBIndexInterface;
 import edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams;
@@ -41,8 +42,8 @@ public class DBIndexImpl implements DBIndexInterface {
 	}
 
 	public static DBIndexImpl getByParam(DBIndexSearchParams sParam) {
-		if (dbIndexByParamKey.containsKey(sParam.getFullIndexFileName())) {
-			return dbIndexByParamKey.get(sParam.getFullIndexFileName());
+		if (dbIndexByParamKey.containsKey(sParam.getFullIndexFileName(null, null, false, null, false, null))) {
+			return dbIndexByParamKey.get(sParam.getFullIndexFileName(null, null, false, null, false, null));
 		}
 		return new DBIndexImpl(sParam);
 	}
@@ -133,7 +134,8 @@ public class DBIndexImpl implements DBIndexInterface {
 					log.error("Could not initialize the indexer in search mode and init the worker thread");
 				}
 			}
-			dbIndexByParamKey.put(sParam.getFullIndexFileName(), this);
+
+			dbIndexByParamKey.put(IndexUtil.createFullIndexFileName(sParam), this);
 		} catch (final Exception e) {
 			e.printStackTrace();
 			log.error(e.getMessage());

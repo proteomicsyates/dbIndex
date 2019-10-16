@@ -20,6 +20,7 @@ import edu.scripps.yates.dbindex.Util;
 import edu.scripps.yates.utilities.fasta.FastaReader;
 import edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams;
 import edu.scripps.yates.utilities.fasta.dbindex.IndexedSequence;
+import edu.scripps.yates.utilities.fasta.dbindex.PeptideFilter;
 import edu.scripps.yates.utilities.fasta.dbindex.ResidueInfo;
 import edu.scripps.yates.utilities.masses.AssignMass;
 
@@ -239,58 +240,79 @@ public class IndexUtil {
 	}
 
 	public static String createFullIndexFileName(DBIndexSearchParams params) {
-		return createFullIndexFileName(params, null);
+		return createFullIndexFileName(params, null, null, false, null, false, null);
 	}
 
-	public static String createFullIndexFileName(DBIndexSearchParams params, String sufix) {
-		final String uniqueIndexName = params.getDatabaseName() + "_";
+	public static String createFullIndexFileName(DBIndexSearchParams params, String sufix,
+			Integer maxVariationsPerPeptide, boolean useUniprot, String uniprotVersion, boolean usePhophoSite,
+			String phosphoSiteSpecies) {
+		return createFullIndexFileName(params.getDatabaseName(), sufix, params.getEnzymeOffset(),
+				params.getEnzymeResidues(), params.getEnzymeNocutResidues(), params.getMaxMissedCleavages(),
+				params.getMinPrecursorMass(), params.getMaxPrecursorMass(), SearchParams.getStaticParams(),
+				params.isSemiCleavage(), params.getPeptideFilter(), params.isH2OPlusProtonAdded(),
+				params.getMassGroupFactor(), params.getMandatoryInternalAAs(), params.isLookProteoforms(),
+				maxVariationsPerPeptide, useUniprot, uniprotVersion, usePhophoSite, phosphoSiteSpecies);
+	}
+
+	public static String createFullIndexFileName(SearchParams params, String sufix, Integer maxVariationsPerPeptide,
+			boolean useUniprot, String uniprotVersion, boolean usePhophoSite, String phosphoSiteSpecies) {
+		return createFullIndexFileName(params.getDatabaseName(), sufix, params.getEnzymeOffset(),
+				params.getEnzymeResidues(), params.getEnzymeNocutResidues(), params.getMaxMissedCleavages(),
+				params.getMinPrecursorMass(), params.getMaxPrecursorMass(), SearchParams.getStaticParams(),
+				params.isSemiCleavage(), params.getPeptideFilter(), params.isH2OPlusProtonAdded(),
+				params.getMassGroupFactor(), params.getMandatoryInternalAAs(), params.isLookProteoforms(),
+				maxVariationsPerPeptide, useUniprot, uniprotVersion, usePhophoSite, phosphoSiteSpecies);
+
+	}
+
+	public static String createFullIndexFileName(String databaseName, String sufix, int enzymeOffset,
+			String enzymeResidues, String enzymeNocutResidues, int maxMissedCleavages, double minPrecursorMass,
+			double maxPrecursorMass, StringBuffer staticParams, boolean semiCleavage, PeptideFilter peptideFilter,
+			boolean H2OPlusProtonAdded, int massGroupFactor, char[] mandatoryInternalAAs, Boolean isLookProteoforms,
+			Integer maxVariationsPerPeptide, boolean useUniprot, String uniprotVersion, boolean usePhophoSite,
+			String phosphoSiteSpecies) {
+		final String uniqueIndexName = databaseName + "_";
 
 		// generate a unique string based on current params that affect the
 		// index
 		final StringBuilder uniqueParams = new StringBuilder();
 		// uniqueParams.append(sparam.getEnzyme().toString());
 		// uniqueParams.append(sparam.getEnzymeNumber());
-		uniqueParams.append(params.getEnzymeOffset());
-		uniqueParams.append(" ").append(params.getEnzymeResidues());
-		uniqueParams.append(" ").append(params.getEnzymeNocutResidues());
+		uniqueParams.append("enzymeOffset:" + enzymeOffset);
+		uniqueParams.append(", enzymeResidues:").append(enzymeResidues);
+		uniqueParams.append(", enzymeNoCutResidues:").append(enzymeNocutResidues);
 
 		// uniqueParams.append(" ").append(getIndexFactor() ) ;
 
-		uniqueParams.append(", Cleav: ");
-		// uniqueParams.append(params.getMaxInternalCleavageSites());
-		uniqueParams.append(params.getMaxMissedCleavages());
+		uniqueParams.append(", maxCleavages: ").append(maxMissedCleavages);
+		uniqueParams.append(", minPrecursorMass=" + minPrecursorMass);
+		uniqueParams.append(", maxPrecursorMass=" + maxPrecursorMass);
+		uniqueParams.append(", static: ").append(staticParams);
+		uniqueParams.append(", semiCleave" + semiCleavage);
 
-		uniqueParams.append(", Static: ").append(SearchParams.getStaticParams());
-		if (params.getPeptideFilter() != null) {
-			uniqueParams.append(", pepFilter: ").append(params.getPeptideFilter().toString());
+		if (peptideFilter != null) {
+			uniqueParams.append(", pepFilter: ").append(peptideFilter.toString());
 		}
-		/*
-		 * uniqueParams.append(getMaxNumDiffMod()); uniqueParams.append("\nMods:"); for
-		 * (final ModResidue mod : getModList()) {
-		 * uniqueParams.append(mod.toString()).append(" "); }
-		 * uniqueParams.append("\nMods groups:"); for (final List<double> modGroupList :
-		 * getModGroupList()) { for (final double f : modGroupList) {
-		 * uniqueParams.append(f).append(" "); } }
-		 */
 
-		// System.out.println("===" + uniqueParams.toString());
+		uniqueParams.append(", isH2OPlusProtonAdded: " + H2OPlusProtonAdded);
 
-		// logger.log(Level.INFO, "Unique params: " + uniqueParamsStr);
-
-		// added by Salva 24Nov2014
-		uniqueParams.append(", isH2OPlusProtonAdded: " + params.isH2OPlusProtonAdded());
-		uniqueParams.append(", massGroupFactor: " + params.getMassGroupFactor());
-		if (params.getMandatoryInternalAAs() != null) {
-			uniqueParams.append(", MandatoryInternalAAs: " + params.getMandatoryInternalAAs().toString());
+		uniqueParams.append(", massGroupFactor: " + massGroupFactor);
+		if (mandatoryInternalAAs != null) {
+			uniqueParams.append(", mandatoryInternalAAs: " + mandatoryInternalAAs.toString());
 		}
-		uniqueParams.append(", semiCleave" + params.isSemiCleavage());
 		// added by Salva 29March 2018
-		if (params.isLookProteoforms() != null && params.isLookProteoforms()) {
+		if (isLookProteoforms != null && isLookProteoforms) {
 			uniqueParams.append(", proteoForms=true");
+			if (maxVariationsPerPeptide != null) {
+				uniqueParams.append(", maxVariationsPerPeptide: " + maxVariationsPerPeptide);
+			}
 		}
-		if (sufix != null) {
-			uniqueParams.append(sufix);
-		}
+		uniqueParams.append(", useUniprot: " + useUniprot);
+		uniqueParams.append(", uniprotVersion: " + uniprotVersion);
+		uniqueParams.append(", usePhosphoSite: " + usePhophoSite);
+		uniqueParams.append(", phosphoSiteSpecies: " + phosphoSiteSpecies);
+		uniqueParams.append(", sufix: " + sufix);
+
 		final String uniqueParamsStr = uniqueParams.toString();
 		final String uniqueParamsStrHash = Util.getMd5(uniqueParamsStr);
 		log.info("Index Unique String: " + uniqueParamsStr);

@@ -165,7 +165,7 @@ public class DBIndexer {
 	 *                        other constructor, the massGroupFactor is 10000
 	 */
 	public DBIndexer(edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams sparam, IndexerMode mode) {
-		IndexUtil.setNumRowsToLookup(0);
+
 		this.sparam = sparam;
 		this.mode = mode;
 		peptideFilter = sparam.getPeptideFilter();
@@ -426,7 +426,7 @@ public class DBIndexer {
 			}
 		}
 		// get param specific name for the inde0x
-		indexName = getFullIndexFileName();
+		indexName = IndexUtil.createFullIndexFileName(sparam);
 
 		try {
 			// initialize index storage
@@ -877,17 +877,6 @@ public class DBIndexer {
 
 		return indexStore.getProteins(seq);
 
-	}
-
-	/**
-	 * Get filename for index file base name The filename is specific to set of
-	 * params that affect the index
-	 *
-	 * @return file name that includes base name and unique token for the set of
-	 *         params that affect index
-	 */
-	private String getFullIndexFileName() {
-		return sparam.getFullIndexFileName();
 	}
 
 	/*

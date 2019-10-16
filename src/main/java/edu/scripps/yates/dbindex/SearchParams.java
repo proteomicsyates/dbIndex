@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import edu.scripps.yates.dbindex.model.ModResidue;
+import edu.scripps.yates.dbindex.util.IndexUtil;
 import edu.scripps.yates.utilities.fasta.dbindex.DBIndexSearchParams;
 import edu.scripps.yates.utilities.fasta.dbindex.Enzyme;
 import edu.scripps.yates.utilities.fasta.dbindex.IndexType;
@@ -355,10 +356,9 @@ public class SearchParams implements DBIndexSearchParams {
 				l.add(i);
 
 				/*
-				 * switch (i) { /*a* case 0: l.add(0); break; /*b* case 1:
-				 * l.add(1); break; /*c* case 2: l.add(2); break; /*x* case 6:
-				 * l.add(6); break; /*y* case 7: l.add(7); break; /*z* case 8:
-				 * l.add(8); break; }
+				 * switch (i) { /*a* case 0: l.add(0); break; /*b* case 1: l.add(1); break; /*c*
+				 * case 2: l.add(2); break; /*x* case 6: l.add(6); break; /*y* case 7: l.add(7);
+				 * break; /*z* case 8: l.add(8); break; }
 				 */
 			}
 
@@ -659,48 +659,6 @@ public class SearchParams implements DBIndexSearchParams {
 		this.enzymeNocutResidues = enzymeNocutResidues;
 	}
 
-	@Override
-	public String getFullIndexFileName() {
-
-		final String uniqueIndexName = databaseName + "_";
-
-		// generate a unique string based on current params that affect the
-		// index
-		final StringBuilder uniqueParams = new StringBuilder();
-		// uniqueParams.append(sparam.getEnzyme().toString());
-		// uniqueParams.append(sparam.getEnzymeNumber());
-		uniqueParams.append(getEnzymeOffset());
-		uniqueParams.append(" ").append(getEnzymeResidues());
-		uniqueParams.append(" ").append(getEnzymeNocutResidues());
-
-		// uniqueParams.append(" ").append(getIndexFactor() ) ;
-
-		uniqueParams.append(", Cleav: ");
-		uniqueParams.append(getMaxMissedCleavages());
-
-		uniqueParams.append(", Static: ").append(SearchParams.getStaticParams());
-
-		/*
-		 * uniqueParams.append(getMaxNumDiffMod());
-		 * uniqueParams.append("\nMods:"); for (final ModResidue mod :
-		 * getModList()) { uniqueParams.append(mod.toString()).append(" "); }
-		 * uniqueParams.append("\nMods groups:"); for (final List<double>
-		 * modGroupList : getModGroupList()) { for (final double f :
-		 * modGroupList) { uniqueParams.append(f).append(" "); } }
-		 */
-
-		// System.out.println("===" + uniqueParams.toString());
-
-		final String uniqueParamsStr = uniqueParams.toString();
-
-		// logger.log(Level.INFO, "Unique params: " + uniqueParamsStr);
-
-		final String uniqueParamsStrHash = Util.getMd5(uniqueParamsStr);
-		System.out.println("param===========" + uniqueParamsStr + "\t" + uniqueParamsStrHash);
-
-		return uniqueIndexName + uniqueParamsStrHash;
-	}
-
 	public static void addStaticParam(char ch, double f) {
 		// public static void addMass(int i, double mass) {
 		SearchParams.staticParams.append(ch).append(f).append(" ");
@@ -835,16 +793,14 @@ public class SearchParams implements DBIndexSearchParams {
 	}
 
 	/**
-	 * @param isH2OPlusProtonAdded
-	 *            the isH2OPlusProtonAdded to set
+	 * @param isH2OPlusProtonAdded the isH2OPlusProtonAdded to set
 	 */
 	public void setH2OPlusProtonAdded(boolean isH2OPlusProtonAdded) {
 		this.isH2OPlusProtonAdded = isH2OPlusProtonAdded;
 	}
 
 	/**
-	 * @param massGroupFactor
-	 *            the massGroupFactor to set
+	 * @param massGroupFactor the massGroupFactor to set
 	 */
 	public void setMassGroupFactor(int massGroupFactor) {
 		this.massGroupFactor = massGroupFactor;
@@ -856,8 +812,8 @@ public class SearchParams implements DBIndexSearchParams {
 	}
 
 	/**
-	 * @param allowedInternalMissedCleavages
-	 *            the allowedInternalMissedCleavages to set
+	 * @param allowedInternalMissedCleavages the allowedInternalMissedCleavages to
+	 *                                       set
 	 */
 	public void setAllowedInternalMissedCleavages(char[] allowedInternalMissedCleavages) {
 		this.allowedInternalMissedCleavages = allowedInternalMissedCleavages;
@@ -972,8 +928,7 @@ public class SearchParams implements DBIndexSearchParams {
 	}
 
 	/**
-	 * @param peptideFilter
-	 *            the peptideFilter to set
+	 * @param peptideFilter the peptideFilter to set
 	 */
 	public void setPeptideFilter(PeptideFilter peptideFilter) {
 		this.peptideFilter = peptideFilter;
@@ -1010,5 +965,12 @@ public class SearchParams implements DBIndexSearchParams {
 	public String getDiscardDecoyRegexp() {
 		// we dont discard decoys when searching
 		return null;
+	}
+
+	@Override
+	public String getFullIndexFileName(String sufix, Integer maxVariationsPerPeptide, boolean useUniprot,
+			String uniprotVersion, boolean usePhosphosite, String phosphoSiteSpecies) {
+		return IndexUtil.createFullIndexFileName(this, sufix, maxVariationsPerPeptide, useUniprot, uniprotVersion,
+				usePhosphosite, phosphoSiteSpecies);
 	}
 }
