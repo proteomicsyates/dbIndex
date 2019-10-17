@@ -404,8 +404,9 @@ public class DBIndexImpl implements DBIndexInterface {
 			final boolean useIndex = Boolean
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.USE_INDEX));
 
-			final boolean useMono = Boolean
-					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.MASS_TYPE_PARENT));
+			final String useMonoString = PropertiesReader.getProperties()
+					.getProperty(PropertiesReader.MASS_TYPE_PARENT);
+			final boolean useMono = useMonoString.trim().equals("1");
 			final boolean isH2OPlusProtonAdded = true;
 			final int massGroupFactor = Integer
 					.valueOf(PropertiesReader.getProperties().getProperty(PropertiesReader.MASS_GROUP_FACTOR));
