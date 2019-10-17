@@ -557,7 +557,7 @@ public class DBIndexer {
 			logger.info("Reading FASTA file to retrieve Uniprot annotations from Internet...");
 			final long t1 = System.currentTimeMillis();
 
-			final Set<String> accs = fastaReader.getUniprotACCsFromFasta();
+			final Set<String> accs = fastaReader.getACCsFromFasta();
 
 			if (accs == null || accs.isEmpty()) {
 				throw new DBIndexerException("Reading FASTA file '" + sparam.getDatabaseName()
@@ -576,7 +576,8 @@ public class DBIndexer {
 			if (uplr != null) {
 				final boolean retrieveFastaIsoforms = true;
 
-				uplr.getAnnotatedProteins(null, accs, retrieveFastaIsoforms, isRetrieveFastaIsoformsFromMainForms());
+				uplr.getAnnotatedProteins(sparam.getUniprotVersion(), accs, retrieveFastaIsoforms,
+						isRetrieveFastaIsoformsFromMainForms());
 				final long t2 = System.currentTimeMillis() - t1;
 				logger.info("Uniprot annotations were saved to local file system at '"
 						+ sparam.getUniprotReleasesFolder().getAbsolutePath() + "' in "
