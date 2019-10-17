@@ -251,7 +251,8 @@ public class IndexUtil {
 				params.getMinPrecursorMass(), params.getMaxPrecursorMass(), SearchParams.getStaticParams(),
 				params.isSemiCleavage(), params.getPeptideFilter(), params.isH2OPlusProtonAdded(),
 				params.getMassGroupFactor(), params.getMandatoryInternalAAs(), params.isLookProteoforms(),
-				maxVariationsPerPeptide, useUniprot, uniprotVersion, usePhophoSite, phosphoSiteSpecies);
+				maxVariationsPerPeptide, useUniprot, uniprotVersion, usePhophoSite, phosphoSiteSpecies,
+				params.getDiscardDecoyRegexp());
 	}
 
 	public static String createFullIndexFileName(SearchParams params, String sufix, Integer maxVariationsPerPeptide,
@@ -261,7 +262,8 @@ public class IndexUtil {
 				params.getMinPrecursorMass(), params.getMaxPrecursorMass(), SearchParams.getStaticParams(),
 				params.isSemiCleavage(), params.getPeptideFilter(), params.isH2OPlusProtonAdded(),
 				params.getMassGroupFactor(), params.getMandatoryInternalAAs(), params.isLookProteoforms(),
-				maxVariationsPerPeptide, useUniprot, uniprotVersion, usePhophoSite, phosphoSiteSpecies);
+				maxVariationsPerPeptide, useUniprot, uniprotVersion, usePhophoSite, phosphoSiteSpecies,
+				params.getDiscardDecoyRegexp());
 
 	}
 
@@ -270,7 +272,7 @@ public class IndexUtil {
 			double maxPrecursorMass, StringBuffer staticParams, boolean semiCleavage, PeptideFilter peptideFilter,
 			boolean H2OPlusProtonAdded, int massGroupFactor, char[] mandatoryInternalAAs, Boolean isLookProteoforms,
 			Integer maxVariationsPerPeptide, boolean useUniprot, String uniprotVersion, boolean usePhophoSite,
-			String phosphoSiteSpecies) {
+			String phosphoSiteSpecies, String discardDecoys) {
 		final String uniqueIndexName = databaseName + "_";
 
 		// generate a unique string based on current params that affect the
@@ -307,10 +309,11 @@ public class IndexUtil {
 		uniqueParams.append(", maxVariationsPerPeptide:" + maxVariationsPerPeptide);
 
 		uniqueParams.append(", useUniprot:" + useUniprot);
-		uniqueParams.append(", uniprotVersion:" + uniprotVersion);
+		uniqueParams.append(", uniprotVersion:" + (useUniprot ? uniprotVersion : null));
 		uniqueParams.append(", usePhosphoSite:" + usePhophoSite);
-		uniqueParams.append(", phosphoSiteSpecies:" + phosphoSiteSpecies);
+		uniqueParams.append(", phosphoSiteSpecies:" + (usePhophoSite ? phosphoSiteSpecies : null));
 		uniqueParams.append(", sufix:" + sufix);
+		uniqueParams.append(", discardDecoys:" + discardDecoys);
 
 		final String uniqueParamsStr = uniqueParams.toString();
 		final String uniqueParamsStrHash = Util.getMd5(uniqueParamsStr);
