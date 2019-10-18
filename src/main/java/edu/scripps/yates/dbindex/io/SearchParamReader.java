@@ -244,8 +244,10 @@ public class SearchParamReader {
 					System.out.println("Not using SeqDB MongoDB database -- SQT output will be incomplete");
 				}
 			}
-			final String massTypeParent = getParam("mass_type_parent");
-
+			String massTypeParent = getParam("mass_type_parent");
+			if (massTypeParent == null) {
+				massTypeParent = "1"; // mono by default
+			}
 			if ("0".equals(massTypeParent)) {
 				param.setUseMonoParent(false);
 			} else if ("1".equals(massTypeParent)) {

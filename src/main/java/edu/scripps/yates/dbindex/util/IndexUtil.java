@@ -252,7 +252,7 @@ public class IndexUtil {
 				params.isSemiCleavage(), params.getPeptideFilter(), params.isH2OPlusProtonAdded(),
 				params.getMassGroupFactor(), params.getMandatoryInternalAAs(), params.isLookProteoforms(),
 				maxVariationsPerPeptide, useUniprot, uniprotVersion, usePhophoSite, phosphoSiteSpecies,
-				params.getDiscardDecoyRegexp());
+				params.getDiscardDecoyRegexp(), params.isUseMonoParent());
 	}
 
 	public static String createFullIndexFileName(SearchParams params, String sufix, Integer maxVariationsPerPeptide,
@@ -263,7 +263,7 @@ public class IndexUtil {
 				params.isSemiCleavage(), params.getPeptideFilter(), params.isH2OPlusProtonAdded(),
 				params.getMassGroupFactor(), params.getMandatoryInternalAAs(), params.isLookProteoforms(),
 				maxVariationsPerPeptide, useUniprot, uniprotVersion, usePhophoSite, phosphoSiteSpecies,
-				params.getDiscardDecoyRegexp());
+				params.getDiscardDecoyRegexp(), params.isUseMonoParent());
 
 	}
 
@@ -272,7 +272,7 @@ public class IndexUtil {
 			double maxPrecursorMass, StringBuffer staticParams, boolean semiCleavage, PeptideFilter peptideFilter,
 			boolean H2OPlusProtonAdded, int massGroupFactor, char[] mandatoryInternalAAs, Boolean isLookProteoforms,
 			Integer maxVariationsPerPeptide, boolean useUniprot, String uniprotVersion, boolean usePhophoSite,
-			String phosphoSiteSpecies, String discardDecoys) {
+			String phosphoSiteSpecies, String discardDecoys, boolean mono) {
 		final String uniqueIndexName = databaseName + "_";
 
 		// generate a unique string based on current params that affect the
@@ -299,12 +299,13 @@ public class IndexUtil {
 		uniqueParams.append(", isH2OPlusProtonAdded:" + H2OPlusProtonAdded);
 
 		uniqueParams.append(", massGroupFactor:" + massGroupFactor);
+		uniqueParams.append(", massType:" + mono);
 		if (mandatoryInternalAAs != null) {
 			uniqueParams.append(", mandatoryInternalAAs:" + mandatoryInternalAAs.toString());
 		}
 		// added by Salva 29March 2018
 
-		uniqueParams.append(", proteoForms:" + isLookProteoforms != null && isLookProteoforms);
+		uniqueParams.append(", proteoForms:" + (isLookProteoforms != null && isLookProteoforms));
 
 		uniqueParams.append(", maxVariationsPerPeptide:" + maxVariationsPerPeptide);
 
