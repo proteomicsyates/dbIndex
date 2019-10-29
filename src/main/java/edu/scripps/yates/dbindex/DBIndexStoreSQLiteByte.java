@@ -292,7 +292,12 @@ public class DBIndexStoreSQLiteByte extends DBIndexStoreSQLiteAbstract {
 				// insert
 				addSeqStatement.setInt(1, massKey);
 				addSeqStatement.setBytes(2, cached.getData());
-				addSeqStatement.executeUpdate();
+				try {
+					addSeqStatement.executeUpdate();
+				} catch (final Exception e) {
+					e.printStackTrace();
+					throw e;
+				}
 				// keep mass key
 				massKeys.add(massKey);
 			}
