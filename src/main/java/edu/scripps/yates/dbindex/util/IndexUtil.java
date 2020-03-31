@@ -335,8 +335,10 @@ public class IndexUtil {
 			final File uniprotReleasesFolder = params.getUniprotReleasesFolder();
 			final boolean useIndex = params.isUseIndex();
 			final UniprotProteinLocalRetriever uplr = new UniprotProteinLocalRetriever(uniprotReleasesFolder, useIndex);
+			uplr.setRetrieveFastaIsoformsFromMainForms(true);
+			uplr.setRetrieveFastaIsoforms(true);
 			final String fastaFileName = params.getDatabaseName();
-			return new FastaReaderFromUniprot(fastaFileName, params.getUniprotVersion(), uplr);
+			return new FastaReaderFromUniprot(fastaFileName, params.getUniprotVersion(), uplr, true);
 		} else {
 			return new FastaReader(params.getDatabaseName());
 		}
