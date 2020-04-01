@@ -566,6 +566,7 @@ public class DBIndexer {
 			logger.info(accs.size()
 					+ " proteins extracted from fasta file with Uniprot accession. Now looking in the local index.");
 
+			final Iterator<Fasta> itr = fastaReader.getFastas();
 			try {
 				totalProteins = fastaReader.getNumberFastas();
 				totalProteinsString = String.valueOf(totalProteins);
@@ -596,7 +597,7 @@ public class DBIndexer {
 			final ProgressCounter counter = new ProgressCounter(totalProteins, ProgressPrintingType.PERCENTAGE_STEPS, 0,
 					true);
 			int decoyDiscarded = 0;
-			for (final Iterator<Fasta> itr = fastaReader.getFastas(); itr.hasNext();) {
+			while (itr.hasNext()) {
 
 				final Fasta fasta = itr.next();
 				// change by SALVA in order to keep all the information of the
